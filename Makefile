@@ -7,13 +7,12 @@ help:
 
 .PHONY: prepare
 prepare: ## Install prerequisites
-	
-
-.PHONY: build
-build: ## Build the project
 ifeq (,$(wildcard $(PWD)/build))
 	@mkdir $(PWD)/build
 endif
+
+.PHONY: build
+build: prepare ## Build the project
 	@cd $(PWD)/build && cmake .. && make
 
 .PHONY: install
