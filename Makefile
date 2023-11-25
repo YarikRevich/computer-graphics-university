@@ -10,9 +10,14 @@ prepare: ## Install prerequisites
 ifeq (,$(wildcard $(PWD)/build))
 	@mkdir $(PWD)/build
 endif
+ifneq ($(OS),Windows_NT)
+ifeq ($(shell uname),Darwin)
+	@sudo cp -r $(PWD)/lib/sdl2/arm64/SDL2.framework /Library/Frameworks
+endif
+endif
 
 .PHONY: build
-build: prepare ## Build the project
+build: ## Build the project
 	@cd $(PWD)/build && cmake .. && make
 
 .PHONY: install

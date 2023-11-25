@@ -3,9 +3,7 @@
 */
 class IO {
 public:
-    IO() {
-
-    }
+    IO();
 
     /**
      * 

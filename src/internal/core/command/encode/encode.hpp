@@ -9,4 +9,6 @@ public:
     Encode(args::ArgumentParser*);
 
     bool isCalled();
+
+    int handle();
 };

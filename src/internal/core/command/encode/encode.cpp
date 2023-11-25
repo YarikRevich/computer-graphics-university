@@ -8,3 +8,7 @@ Encode::Encode(args::ArgumentParser* argumentParser) {
 bool Encode::isCalled() {
     return command->Matched();
 }
+
+int Encode::handle() {
+    return -1;
+}

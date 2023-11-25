@@ -1,6 +1,7 @@
 #include <args/args.hxx>
 #include "../decode/decode.hpp"
 #include "../encode/encode.hpp"
+#include "../view/view.hpp"
 #include "../help/help.hpp"
 #include "../validator/validator.hpp"
 
@@ -15,6 +16,7 @@ private:
 
     Encode* encode = NULL;
     Decode* decode = NULL;
+    View* view = NULL;
     Help* help = NULL;
     Validator* validator = NULL;
 

@@ -1,5 +1,5 @@
 #include <math.h>
-#include <sdl2/SDL.h>
+#include <SDL2/SDL.h>
 
 /**
  * Сontains tool-set used by both encoder and decoder.

@@ -8,4 +8,6 @@ public:
     Decode(args::ArgumentParser*);
 
     bool isCalled();
+
+    int handle();
 };

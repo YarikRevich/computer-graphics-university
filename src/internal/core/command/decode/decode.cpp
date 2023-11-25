@@ -7,3 +7,7 @@ Decode::Decode(args::ArgumentParser* argumentParser) {
 bool Decode::isCalled() {
     return command->Matched();
 }
+
+int Decode::handle() {
+    return -1;
+};

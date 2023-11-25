@@ -6,6 +6,7 @@ Handler::Handler(int argc, char **argv) : argc(argc), argv(argv) {
 
     this->decode = new Decode(argumentParser);
     this->encode = new Encode(argumentParser);
+    this->view = new View(argumentParser);
     this->help = new Help(argumentParser);
     this->validator = new Validator(argumentParser);
 }
@@ -21,7 +22,15 @@ int Handler::run() {
     }
 
     if (decode->isCalled()) {
-        std::cout << "it works " << endl;
+        return decode->handle();
+    }
+
+    if (encode->isCalled()) {
+        return encode->handle();
+    }
+
+    if (view->isCalled()) {
+        return view->handle();
     }
 
     return -1;
