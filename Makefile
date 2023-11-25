@@ -12,13 +12,13 @@ ifeq (,$(wildcard $(PWD)/build))
 endif
 ifneq ($(OS),Windows_NT)
 ifeq ($(shell uname),Darwin)
-	@sudo cp -r $(PWD)/lib/sdl2/arm64/SDL2.framework /Library/Frameworks
+	@cp -r $(PWD)/lib/sdl2/arm64/SDL2.framework /Library/Frameworks
 endif
 endif
 
 .PHONY: build
 build: ## Build the project
-	@cd $(PWD)/build && cmake .. && make
+	@cd $(PWD)/build && echo $(PWD) && cmake .. && make
 
 .PHONY: install
 install: ## Install built executables to the system directory
