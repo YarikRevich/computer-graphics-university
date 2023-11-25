@@ -5,30 +5,46 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
+  # build-linux:
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - uses: actions/checkout@v3
+
+  #   - name: "Install prerequisites"
+  #     run: |
+  #       sudo make prepare path=.
+
+  #   - name: "Build"
+  #     run: |
+  #       sudo make build path=.
+  # build-macos:
+  #   runs-on: macos-latest
+      
+  #   steps:
+  #   - uses: actions/checkout@v3
+      
+  #   - name: "Install prerequisites"
+  #     run: |
+  #       sudo make prepare path=.
+      
+  #   - name: "Build"
+  #     run: |
+  #       sudo make build path=.
+  build-windows:
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v3
 
-    - name: "Install prerequisites"
-      run: |
-        sudo make prepare path=.
+    - name: "Set up MinGW"
+      uses: egor-tensin/setup-mingw@v2
+      with:
+        platform: x64
 
-    - name: "Build"
-      run: |
-        sudo make build path=.
-  build-macos:
-    runs-on: macos-latest
-      
-    steps:
-    - uses: actions/checkout@v3
-      
-    - name: "Install prerequisites"
-      run: |
-        sudo make prepare path=.
-      
-    - name: "Build"
-      run: |
-        sudo make build path=.
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.13
+      with:
+        cmake-version: '3.16.x'
+        
         
