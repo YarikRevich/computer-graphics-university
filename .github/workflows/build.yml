@@ -13,8 +13,8 @@ jobs:
 
     - name: Prepare
       run: |
-        make prepare
+        sudo make prepare
 
     - name: Build
       run: |
-        make build
+        sudo make build
