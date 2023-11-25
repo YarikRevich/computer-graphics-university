@@ -18,7 +18,7 @@ endif
 
 .PHONY: build
 build: ## Build the project
-	@cd $(PWD)/build && echo $(PWD) && cmake .. && make
+	@cd $(PWD)/build && echo $(PWD)
 
 .PHONY: install
 install: ## Install built executables to the system directory
