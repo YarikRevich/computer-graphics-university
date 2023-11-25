@@ -11,10 +11,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Prepare
+    - name: "Install prerequisites"
       run: |
-        sudo make prepare
+        sudo make prepare path=.
 
-    - name: Build
+    - name: "Build"
       run: |
         sudo make build path=.
