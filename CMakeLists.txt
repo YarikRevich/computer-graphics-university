@@ -7,6 +7,8 @@ if (NOT WIN32)
 	set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 	message("Make build output path is /bin")
 
+	add_compile_definitions(VIEW_WINDOW_TITLE="View window title")
+
 	include_directories(
 		"include/"
 	)
@@ -18,17 +20,34 @@ if (NOT WIN32)
 		cgu 
 
 		src/cmd/main.cpp
+
+		src/internal/core/command/decode/decode.cpp
+		src/internal/core/command/encode/encode.cpp
+		src/internal/core/command/view/view.cpp
+		src/internal/core/command/help/help.cpp
+
+		src/internal/core/command/validator/validator.cpp
+
+		src/internal/core/command/handler/handler.cpp
+
+		src/internal/core/io/io.cpp
+		src/internal/core/window/window.cpp
+
+		src/internal/tool/tool.cpp
 	)
 
 	if(NOT APPLE)
 		target_link_libraries(cgu stdc++fs)
 	else()
 		IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm64")
-			target_link_libraries(
-				cgu 
+			find_package(SDL2 REQUIRED COMPONENTS SDL2)
+			target_link_libraries(cgu PRIVATE SDL2::SDL2)
+
+			# target_link_libraries(
+			# 	cgu 
 	
-				${CMAKE_SOURCE_DIR}/lib/sdl2/arm64/libSDL2.a
-			)
+			# 	${CMAKE_SOURCE_DIR}/lib/sdl2/arm64/libSDL2.a
+			# )
 		ELSE()
 			target_link_libraries(
 				cgu 
