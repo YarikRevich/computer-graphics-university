@@ -8,7 +8,7 @@ help:
 .PHONY: prepare
 prepare: ## Install prerequisites
 ifeq (,$(wildcard $(PWD)/build))
-	@mkdir $(path)/build
+	@mkdir $(PWD)/build
 endif
 ifneq ($(OS),Windows_NT)
 ifeq ($(shell uname),Darwin)
