@@ -17,4 +17,4 @@ jobs:
 
     - name: Build
       run: |
-        sudo make build
+        sudo make build path=.
