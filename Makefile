@@ -20,7 +20,7 @@ endif
 
 .PHONY: build
 build: ## Build the project
-	@cd $(path)/build && ls ../
+	@cd $(path)/build && cmake .. && make
 
 .PHONY: install
 install: ## Install built executables to the system directory
