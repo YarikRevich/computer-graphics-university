@@ -5,12 +5,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  build-macos:
+    runs-on: macos-latest
+      
     steps:
     - uses: actions/checkout@v3
-
-    - name: Build
+      
+    - name: "Install prerequisites"
       run: |
-        make build
+        sudo make prepare path=.
+      
+    - name: "Build"
+      run: |
+        sudo make build path=.

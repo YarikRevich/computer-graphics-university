@@ -36,25 +36,18 @@ if (NOT WIN32)
 		src/internal/tool/tool.cpp
 	)
 
-	if(NOT APPLE)
-		target_link_libraries(cgu stdc++fs)
-	else()
-		IF(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm64")
-			find_package(SDL2 REQUIRED COMPONENTS SDL2)
-			target_link_libraries(cgu PRIVATE SDL2::SDL2)
+	if(APPLE)
+		find_package(SDL2 REQUIRED COMPONENTS SDL2)
+		target_link_libraries(cgu PRIVATE SDL2::SDL2)
+	elseif(WIN32)
+		target_link_libraries(
+			cgu 
 
-			# target_link_libraries(
-			# 	cgu 
-	
-			# 	${CMAKE_SOURCE_DIR}/lib/sdl2/arm64/libSDL2.a
-			# )
-		ELSE()
-			target_link_libraries(
-				cgu 
-	
-				${CMAKE_SOURCE_DIR}/lib/sdl2/x86/libSDL2.a
-			)
-		ENDIF()
+			${CMAKE_SOURCE_DIR}/lib/sdl2/windows/libSDL2.a
+			${CMAKE_SOURCE_DIR}/lib/sdl2/windows/libSDL2main.a
+		)
+	elseif(UNIX)
+
 	endif()
 
 	if (NOT WIN32)
