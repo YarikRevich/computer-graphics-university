@@ -47,6 +47,8 @@ int Window::handle() {
             }   
         }
     }
+
+    return EXIT_SUCCESS;
 }
 
 int Window::close() {
