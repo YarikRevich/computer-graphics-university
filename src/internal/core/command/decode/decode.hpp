@@ -1,4 +1,5 @@
 #include <args/args.hxx>
+#include "../../io/io.hpp"
 
 class Decode {
 private:

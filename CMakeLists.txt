@@ -39,6 +39,9 @@ if (NOT WIN32)
 	if(APPLE)
 		find_package(SDL2 REQUIRED COMPONENTS SDL2)
 		target_link_libraries(cgu PRIVATE SDL2::SDL2)
+
+		find_package(SDL2_image REQUIRED COMPONENTS SDL2_image)
+		target_link_libraries(cgu PRIVATE SDL2_image::SDL2_image)
 	elseif(WIN32)
 		target_link_libraries(
 			cgu 

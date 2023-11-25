@@ -1,17 +1,43 @@
+#include <string>
+#include <SDL2/SDL.h>
+#include <SDL2_image/SDL_image.h>
+
 /**
- * 
+ * Contains operations used for IO management.
 */
 class IO {
 public:
-    IO();
+    /**
+     * Reads a media JPEG file with the given path
+     * into managable surface canvas.
+     * @param path - a location of the file to be read.
+     * @return managable surface canvas.
+    */
+    static SDL_Surface* readFileJPEG(std::string path);
 
     /**
-     * 
+     * Reads a media PNG file with the given path
+     * into managable surface canvas.
+     * @param path - a location of the file to be read.
+     * @return managable surface canvas.
     */
-    void readFile();
+    static SDL_Surface* readFilePNG(std::string path);
 
     /**
-     * 
+     * Writes a media JPEG file to the given path
+     * from the managable surface canvas.
+     * @param path - a location of the fle to be written to.
+     * @param surface - a modified managable surface canvas.
+     * @return operation result code.
     */
-    void writeFile();
+    static int writeFileJPEG(std::string path, SDL_Surface* surface);
+
+    /**
+     * Writes a media PNG file to the given path
+     * from the managable surface canvas.
+     * @param path - a location of the fle to be written to.
+     * @param surface - a modified managable surface canvas.
+     * @return operation result code.
+    */
+    static int writeFilePNG(std::string path, SDL_Surface* surface);
 };

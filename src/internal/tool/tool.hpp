@@ -2,33 +2,35 @@
 #include <SDL2/SDL.h>
 
 /**
- * Сontains tool-set used by both encoder and decoder.
+ * Сontains toolset to perform codec operations.
 */
 class Tools {
 public:
     /**
      * Converts given 24 bit RGB color to 7 bit RGB single.
      * @param color - given 24 bit RGB color to be converted.
-     * @return 
+     * @return converted 7 bit RGB single.
     */
     static Uint8 convert24BitRGBTo7BitRGB(SDL_Color color);
 
     /**
      * Converts given 7 bit single RGB to 24 bit RGB color.
      * @param color - given 7 bit single color to be converted.
-     * @return
+     * @return converted 24 bit RGB color.
     */
     static SDL_Color convert7BitRGBTo24BitRGB(Uint8 color);
 
     /**
      * Converts given 24 bit RGB color to 7 bit grey single. 
-     * @param color
-     * @return converted 7 bit grey single color.
+     * @param color - given 24 bit RGB color to be converted.
+     * @return converted 7 bit grey single.
     */
     static Uint8 convert24BitRGBTo7BitGrey(SDL_Color color);
 
     /**
      * Converts 7 bit grey single to 24 bit RGB color.
+     * @param color - given 7 bit grey single to be converted.
+     * @return converted 24 bit RGB color.
     */
     static SDL_Color convert7BitGreyTo24BitRGB(Uint8 grey);
 

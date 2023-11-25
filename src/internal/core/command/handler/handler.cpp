@@ -2,7 +2,7 @@
 #include <iostream>
 
 Handler::Handler(int argc, char **argv) : argc(argc), argv(argv) {
-    this->argumentParser = new args::ArgumentParser("This is a test program.", "This goes after the options.");
+    this->argumentParser = new args::ArgumentParser("This is a codec for cgu format.", "Stand with Ukraine!.");
 
     this->decode = new Decode(argumentParser);
     this->encode = new Encode(argumentParser);
