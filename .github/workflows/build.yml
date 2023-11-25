@@ -18,33 +18,42 @@ jobs:
   #   - name: "Build"
   #     run: |
   #       sudo make build path=.
-  # build-macos:
-  #   runs-on: macos-latest
+  build-macos:
+    runs-on: macos-latest
       
-  #   steps:
-  #   - uses: actions/checkout@v3
-      
-  #   - name: "Install prerequisites"
-  #     run: |
-  #       sudo make prepare path=.
-      
-  #   - name: "Build"
-  #     run: |
-  #       sudo make build path=.
-  build-windows:
-    runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v3
+      
+    - name: "Install prerequisites"
+      run: |
+        sudo make prepare path=.
+      
+    - name: "Build"
+      run: |
+        sudo make build path=.
+  # build-windows:
+  #   runs-on: windows-latest
 
-    - name: "Set up MinGW"
-      uses: egor-tensin/setup-mingw@v2
-      with:
-        platform: x64
+  #   strategy:
+  #     matrix:
+  #      sys: [ MINGW64 ]
+  #    steps:
+  #     - uses: actions/checkout@v3
 
-    - name: Setup cmake
-      uses: jwlawson/actions-setup-cmake@v1.13
-      with:
-        cmake-version: '3.16.x'
-        
+  #     - uses: msys2/setup-msys2@v2
+  #       with:
+  #         msystem: ${{matrix.sys}}
+ 
+  #     - name: Install libraries
+  #       run: |
+  #         echo 'Y'| pacman -S base-devel git gcc make
+
+  #     - name: Install Clang and Go for MINGW64
+  #       run: |
+  #         echo 'y'| pacman -S  mingw-w64-x86_64-clang mingw-w64-x86_64-go zip unzip
+
+  #     - name: Setup cmake
+  #       uses: jwlawson/actions-setup-cmake@v1.13
+  #       with:
+  #         cmake-version: '3.16.x'
         

@@ -37,16 +37,8 @@ if (NOT WIN32)
 	)
 
 	if(APPLE)
-		if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm64")
-			find_package(SDL2 REQUIRED COMPONENTS SDL2)
-			target_link_libraries(cgu PRIVATE SDL2::SDL2)
-		else()
-			target_link_libraries(
-				cgu 
-
-				${CMAKE_SOURCE_DIR}/lib/sdl2/macos/x86/libSDL2.a
-			)
-		endif()
+		find_package(SDL2 REQUIRED COMPONENTS SDL2)
+		target_link_libraries(cgu PRIVATE SDL2::SDL2)
 	elseif(WIN32)
 		target_link_libraries(
 			cgu 
