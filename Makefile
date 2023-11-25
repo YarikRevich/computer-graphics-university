@@ -15,7 +15,7 @@ ifeq (,$(wildcard $(path)/build))
 endif
 ifneq ($(OS),Windows_NT)
 ifeq ($(shell uname),Darwin)
-	@cp -r $(path)/lib/sdl2/macos/arm64/SDL2.framework /Library/Frameworks
+	@cp -r $(path)/lib/sdl2/macos/SDL2.framework /Library/Frameworks
 endif
 endif
 
