@@ -2,6 +2,7 @@
 #include "../decode/decode.hpp"
 #include "../encode/encode.hpp"
 #include "../help/help.hpp"
+#include "../validator/validator.hpp"
 
 using namespace std;
 
@@ -15,6 +16,7 @@ private:
     Encode* encode = NULL;
     Decode* decode = NULL;
     Help* help = NULL;
+    Validator* validator = NULL;
 
     int argc;
     char **argv;
@@ -25,5 +27,5 @@ public:
     /**
      * Starts command handler execution. 
     */
-    void run();
+    int run();
 };

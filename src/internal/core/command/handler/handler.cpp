@@ -1,4 +1,5 @@
 #include "handler.hpp"
+#include <iostream>
 
 Handler::Handler(int argc, char **argv) : argc(argc), argv(argv) {
     this->argumentParser = new args::ArgumentParser("This is a test program.", "This goes after the options.");
@@ -6,24 +7,22 @@ Handler::Handler(int argc, char **argv) : argc(argc), argv(argv) {
     this->decode = new Decode(argumentParser);
     this->encode = new Encode(argumentParser);
     this->help = new Help(argumentParser);
+    this->validator = new Validator(argumentParser);
 }
 
-void Handler::run() {
+int Handler::run() {
     try
     {
         argumentParser->ParseCLI(argc, argv);
     }
-    catch (const args::Completion& e)
+    catch (...)
     {
-        std::cout << e.what();
+        validator->handle(std::current_exception());
     }
-    catch (const args::Help&)
-    {
-        std::cout << *argumentParser;
+
+    if (decode->isCalled()) {
+        std::cout << "it works " << endl;
     }
-    catch (const args::ParseError& e)
-    {
-        std::cerr << e.what() << std::endl;
-        std::cerr << *argumentParser;
-    }
+
+    return -1;
 }

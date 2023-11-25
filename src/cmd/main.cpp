@@ -2,9 +2,10 @@
 
 using namespace std;
 
+/**
+ * Entrypoint, to propogate logic to the handler.
+*/
 int main(int argc, char **argv) {
     Handler* handler = new Handler(argc, argv);
-    handler->run();
-
-    return -1;
+    return handler->run();
 }

@@ -2,7 +2,7 @@
 
 class Help {
 private:
-    args::HelpFlag* help = NULL;
+    args::HelpFlag* command = NULL;
 
 public:
     Help(args::ArgumentParser*);

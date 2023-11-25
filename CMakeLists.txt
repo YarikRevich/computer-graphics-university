@@ -22,6 +22,7 @@ if (NOT WIN32)
 		src/internal/core/command/decode/decode.cpp
 		src/internal/core/command/encode/encode.cpp
 		src/internal/core/command/help/help.cpp
+		src/internal/core/command/validator/validator.cpp
 		src/internal/core/command/handler/handler.cpp
 
 		src/internal/tool/tool.cpp
