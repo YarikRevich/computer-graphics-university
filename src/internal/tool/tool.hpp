@@ -11,26 +11,26 @@ public:
      * @param color - given 24 bit RGB color to be converted.
      * @return 
     */
-    Uint8 convert24BitRGBTo7BitRGB(SDL_Color color);
+    static Uint8 convert24BitRGBTo7BitRGB(SDL_Color color);
 
     /**
      * Converts given 7 bit single RGB to 24 bit RGB color.
      * @param color - given 7 bit single color to be converted.
      * @return
     */
-    SDL_Color convert7BitRGBTo24BitRGB(Uint8 color);
+    static SDL_Color convert7BitRGBTo24BitRGB(Uint8 color);
 
     /**
      * Converts given 24 bit RGB color to 7 bit grey single. 
      * @param color
      * @return converted 7 bit grey single color.
     */
-    Uint8 convert24BitRGBTo7BitGrey(SDL_Color color);
+    static Uint8 convert24BitRGBTo7BitGrey(SDL_Color color);
 
     /**
      * Converts 7 bit grey single to 24 bit RGB color.
     */
-    SDL_Color convert7BitGreyTo24BitRGB(Uint8 grey);
+    static SDL_Color convert7BitGreyTo24BitRGB(Uint8 grey);
 
     /**
      * Normilizes given value according to the given min and max limiters.
@@ -39,7 +39,7 @@ public:
      * @param max - max value in the range.
      * @return normilized value.
     */
-    int normalizeValue(int value, int min, int max);
+    static int normalizeValue(int value, int min, int max);
 };
 
 // void Funkcja1() {
