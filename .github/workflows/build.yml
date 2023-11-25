@@ -13,4 +13,4 @@ jobs:
 
     - name: Build
       run: |
-        make build
+        make build path=${{ github.workspace }}
