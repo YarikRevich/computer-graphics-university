@@ -25,7 +25,7 @@ int Window::init() {
     return EXIT_SUCCESS;
 }
 
-int Window::handle() {
+int Window::handle(SDL_Surface* surface) {
     bool finish = false;
 
     SDL_Event event;

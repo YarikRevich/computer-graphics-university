@@ -31,5 +31,5 @@ int Decode::handle() {
 
     
 
-    return -1;
+    return EXIT_SUCCESS;
 };

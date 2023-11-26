@@ -1,6 +1,10 @@
-#include "tool.hpp"
+#include "processor.hpp"
 
-Uint8 Tools::convert24BitRGBTo7BitRGB(SDL_Color color) {
+int Processor::convertSurfaceToCGU(SDL_Surface* surface) {
+    return EXIT_SUCCESS;
+}
+
+Uint8 Processor::convert24BitRGBTo7BitRGB(SDL_Color color) {
     int newR=round(color.r*3.0/255.0);
     int newG=round(color.g*7.0/255.0);
     int newB=round(color.b*3.0/255.0);
@@ -8,7 +12,7 @@ Uint8 Tools::convert24BitRGBTo7BitRGB(SDL_Color color) {
     return (newR<<5)|(newG<<2)|newB;
 }
 
-SDL_Color Tools::convert7BitRGBTo24BitRGB(Uint8 color) {
+SDL_Color Processor::convert7BitRGBTo24BitRGB(Uint8 color) {
     int newR=(color&(0b01100000))>>5;
     int newG=(color&(0b00011100))>>2;
     int newB=(color&(0b00000011));
@@ -21,11 +25,11 @@ SDL_Color Tools::convert7BitRGBTo24BitRGB(Uint8 color) {
     };
 }
 
-Uint8 Tools::convert24BitRGBTo7BitGrey(SDL_Color color) {
+Uint8 Processor::convert24BitRGBTo7BitGrey(SDL_Color color) {
     return round((0.299*color.r+0.587*color.g+0.114*color.b)*127.0/255.0);
 }
 
-SDL_Color Tools::convert7BitGreyTo24BitRGB(Uint8 grey) {
+SDL_Color Processor::convert7BitGreyTo24BitRGB(Uint8 grey) {
     return {
         .r = static_cast<Uint8>(grey*255.0/127.0),
         .g = static_cast<Uint8>(grey*255.0/127.0),
@@ -33,7 +37,7 @@ SDL_Color Tools::convert7BitGreyTo24BitRGB(Uint8 grey) {
     };
 }
 
-int Tools::normalizeValue(int value, int min, int max) {
+int Processor::normalizeValue(int value, int min, int max) {
     if (value < min) {
         return min;
     } 

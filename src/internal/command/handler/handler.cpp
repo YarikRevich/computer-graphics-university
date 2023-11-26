@@ -18,7 +18,9 @@ int Handler::run() {
     }
     catch (...)
     {
-        validator->handleArgumentParser(std::current_exception());
+        if (validator->handleArgumentParser(std::current_exception()) != EXIT_SUCCESS){
+            return EXIT_FAILURE;
+        };
     }
 
     if (decode->isCalled()) {
@@ -33,5 +35,5 @@ int Handler::run() {
         return view->handle();
     }
 
-    return -1;
+    return EXIT_SUCCESS;
 }

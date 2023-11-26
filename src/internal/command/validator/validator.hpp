@@ -16,8 +16,9 @@ public:
     /**
      * Handles argument parser validation.
      * @param exception - given argument parser exception to be handled.
+     * @return result code of the operation.
     */
-    void handleArgumentParser(std::exception_ptr exception);
+    int handleArgumentParser(std::exception_ptr exception);
 
     /**
      * Throws value flag exception validation.

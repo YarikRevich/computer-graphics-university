@@ -13,17 +13,20 @@ private:
 public:
     /**
      * Initializes window with a specified options.
-     * @return error code
+     * @return result operation status code.
     */
     int init();
 
     /**
      * Handles display of the given media
+     * @param surface - surface canvas to be displayed.
+     * @return result operation status code.
     */
-    int handle();
+    int handle(SDL_Surface* surface);
 
     /**
-     * Closes opened window and started operations;
+     * Closes opened window and started operations.
+     * @return result operation status code.
     */
     int close();
 };

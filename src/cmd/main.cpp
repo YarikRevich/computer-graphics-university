@@ -1,4 +1,4 @@
-#include "../internal/core/command/handler/handler.hpp"
+#include "../internal/command/handler/handler.hpp"
 
 using namespace std;
 
