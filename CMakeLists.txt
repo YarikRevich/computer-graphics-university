@@ -52,7 +52,7 @@ if (NOT WIN32)
 		target_link_libraries(
 			cgu 
 
-			${CMAKE_SOURCE_DIR}/lib/sdl2/linux/libSDL2.a
+			${CMAKE_SOURCE_DIR}/lib/sdl2/linux/libSDL2.so
 			${CMAKE_SOURCE_DIR}/lib/sdl2_image/linux/libSDL2_image-2.0.so.0
 		)
 	endif()
