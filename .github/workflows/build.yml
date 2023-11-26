@@ -13,7 +13,15 @@ jobs:
         
     - name: "Install prerequisites"
       run: |
-        sudo apt install glibc-source -y
+        mkdir $HOME/glibc/ && cd $HOME/glibc
+        curl -O http://ftp.gnu.org/gnu/libc/glibc-2.38.tar.gz
+        tar -xvzf glibc-2.38.tar.gz
+        mkdir build 
+        mkdir glibc-2.38-install
+        cd build
+        ~/glibc/glibc-2.38/configure --prefix=$HOME/glibc/glibc-2.38-install
+        make
+        make install
 
         sudo make prepare
         
