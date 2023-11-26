@@ -13,6 +13,8 @@ jobs:
         
     - name: "Install prerequisites"
       run: |
+        sudo apt install glibc-source -y
+
         sudo make prepare
         
     - name: "Build"
