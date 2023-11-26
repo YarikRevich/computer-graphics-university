@@ -1,3 +1,5 @@
+#pragma once
+
 #include <args/args.hxx>
 #include "../decode/decode.hpp"
 #include "../encode/encode.hpp"

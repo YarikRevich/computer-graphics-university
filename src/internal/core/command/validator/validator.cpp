@@ -4,7 +4,7 @@ Validator::Validator(args::ArgumentParser* argumentParser) {
     this->argumentParser = argumentParser;
 }
 
-void Validator::handle(std::exception_ptr exception) {
+void Validator::handleArgumentParser(std::exception_ptr exception) {
     try {
         std::rethrow_exception(exception);
     } catch (const args::Completion& e)
@@ -23,4 +23,8 @@ void Validator::handle(std::exception_ptr exception) {
         std::cerr << e.what() << std::endl;
         std::cerr << *argumentParser;
     }
+}
+
+void Validator::throwValueFlagException(std::string name) {
+    std::printf("Value flag '%s' is required\n", name.c_str());
 }

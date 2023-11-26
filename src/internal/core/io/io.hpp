@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <SDL2/SDL.h>
 #include <SDL2_image/SDL_image.h>
@@ -7,6 +9,23 @@
 */
 class IO {
 public:
+    /**
+     * Represents all image formats available
+     * to be processed.
+    */
+    enum class TYPES {
+        JPG,
+        PNG,
+        CGU
+    };
+
+    /**
+     * Converts given file type to string representation.
+     * @param src - given file type.
+     * @return string representation of a file type.
+    */
+    static std::string getType(TYPES src);
+
     /**
      * Reads a media JPEG file with the given path
      * into managable surface canvas.

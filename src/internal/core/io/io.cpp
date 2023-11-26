@@ -1,5 +1,16 @@
 #include "io.hpp"
 
+std::string IO::getType(IO::TYPES src){
+    switch(src)
+    {
+        case IO::TYPES::JPG:       return "jpg";
+        case IO::TYPES::PNG:       return "png";
+        case IO::TYPES::CGU:       return "cgu";
+    }
+
+    return "none";
+}
+
 SDL_Surface* IO::readFileJPEG(std::string path) {
     if (IMG_Init(IMG_INIT_JPG) != EXIT_SUCCESS){
         return NULL;
@@ -28,6 +39,6 @@ int IO::writeFilePNG(std::string path, SDL_Surface* surface){
     return IMG_SavePNG(surface, path.c_str());  
 };
 
-int IO::writeFilePNG(std::string path, SDL_Surface* surface){
+int IO::writeFileCGU(std::string path, SDL_Surface* surface){
     return -1;
 };

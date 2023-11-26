@@ -1,3 +1,5 @@
+#pragma once
+
 #include <args/args.hxx>
 
 class Help {

@@ -2,7 +2,7 @@
 #include <iostream>
 
 Handler::Handler(int argc, char **argv) : argc(argc), argv(argv) {
-    this->argumentParser = new args::ArgumentParser("This is a codec for cgu format.", "Stand with Ukraine!.");
+    this->argumentParser = new args::ArgumentParser("A codec for CGU media format.\nStand with Ukraine!");
 
     this->decode = new Decode(argumentParser);
     this->encode = new Encode(argumentParser);
@@ -18,7 +18,7 @@ int Handler::run() {
     }
     catch (...)
     {
-        validator->handle(std::current_exception());
+        validator->handleArgumentParser(std::current_exception());
     }
 
     if (decode->isCalled()) {
