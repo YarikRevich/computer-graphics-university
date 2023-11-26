@@ -24,7 +24,7 @@ endif
 
 .PHONY: build
 build: ## Build the project
-	echo $$(PWD)
+	echo $(shell pwd)
 	@cd $$(PWD)/build && cmake .. && make
 
 .PHONY: install
