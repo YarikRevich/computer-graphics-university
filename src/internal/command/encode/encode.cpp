@@ -28,15 +28,28 @@ int Encode::handle() {
         return EXIT_FAILURE;
     }
 
+    SDL_Surface* input;
+
     switch (IO::getType(type->Get())) {
         case IO::TYPES::JPG:
+            input = IO::readFileJPEG(from->Get());
             break;
         case IO::TYPES::PNG:
+            input = IO::readFilePNG(from->Get());
             break;
         default:
             Validator::throwValueFlagInvalidException("type");
             return EXIT_FAILURE;
     }
 
-    return EXIT_SUCCESS;
+    if (input == NULL) {
+        Validator::throwValueFlagInvalidException("from");
+        return EXIT_FAILURE;
+    }
+
+    if (Processor::convertToCGU(input) != EXIT_SUCCESS){
+        return EXIT_FAILURE;
+    };
+
+    return IO::writeFileCGU(to->Get(), input);
 }

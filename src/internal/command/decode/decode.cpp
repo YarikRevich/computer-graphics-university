@@ -29,10 +29,26 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
+    SDL_Surface* input = IO::readFileCGU(from->Get());
+    if (input == NULL){
+        Validator::throwValueFlagInvalidException("from");
+        return EXIT_FAILURE;
+    }
+
+    if (Processor::convertFromCGU(input) != EXIT_SUCCESS){
+        return EXIT_FAILURE;
+    };
+
     switch (IO::getType(type->Get())) {
         case IO::TYPES::JPG:
+            if (IO::writeFileJPEG(to->Get(), input) != EXIT_SUCCESS){
+                return EXIT_SUCCESS;
+            };
             break;
         case IO::TYPES::PNG:
+            if (IO::writeFilePNG(to->Get(), input) != EXIT_SUCCESS){
+                return EXIT_SUCCESS;
+            };
             break;
         default:
             Validator::throwValueFlagInvalidException("type");

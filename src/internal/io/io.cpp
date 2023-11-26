@@ -39,5 +39,5 @@ int IO::writeFilePNG(std::string path, SDL_Surface* surface){
 };
 
 int IO::writeFileCGU(std::string path, SDL_Surface* surface){
-    return -1;
+    return EXIT_SUCCESS;
 };

@@ -4,6 +4,7 @@
 #include <string>
 
 #include "../validator/validator.hpp"
+#include "../../processor/processor.hpp"
 #include "../../io/io.hpp"
 
 class Decode {
