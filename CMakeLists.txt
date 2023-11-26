@@ -49,7 +49,12 @@ if (NOT WIN32)
 			${CMAKE_SOURCE_DIR}/lib/sdl2/windows/libSDL2main.a
 		)
 	elseif(UNIX)
+		target_link_libraries(
+			cgu 
 
+			${CMAKE_SOURCE_DIR}/lib/sdl2/linux/libSDL2.a
+			${CMAKE_SOURCE_DIR}/lib/sdl2_image/linux/libSDL2_image-2.0.so.0
+		)
 	endif()
 
 	if (NOT WIN32)
