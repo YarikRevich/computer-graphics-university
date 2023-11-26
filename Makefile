@@ -1,7 +1,7 @@
 .PHONY: help, prepare, build, install
 
-# USED ONLY FOR DEVELOPMENT PURPOSE
-path := $(or $(path), $(PWD))
+.ONESHELL:
+.DEFAULT_GOAL := help
 
 .PHONY: help
 .DEFAULT_GOAL := help
@@ -10,19 +10,21 @@ help:
 
 .PHONY: prepare
 prepare: ## Install prerequisites
-ifeq (,$(wildcard $(path)/build))
-	@mkdir $(path)/build
+ifeq (,$(wildcard $(PWD)/build))
+	@mkdir $$(PWD)/build
 endif
+
 ifneq ($(OS),Windows_NT)
 ifeq ($(shell uname),Darwin)
-	@cp -r $(path)/lib/sdl2/macos/SDL2.framework /Library/Frameworks
+	@sudo cp -r $$(PWD)/lib/sdl2/macos/SDL2.framework /Library/Frameworks
+	@sudo cp -r $$(PWD)/lib/sdl2_image/macos/SDL2_image.framework /Library/Frameworks
 endif
 endif
 
 .PHONY: build
 build: ## Build the project
-	@cd $(path)/build && cmake .. && make
+	@cd $$(PWD)/build && cmake .. && make
 
 .PHONY: install
 install: ## Install built executables to the system directory
-	@cd $(path)/build && make install
+	@cd $$(PWD)/build && make install

@@ -21,24 +21,26 @@ if (NOT WIN32)
 
 		src/cmd/main.cpp
 
-		src/internal/core/command/decode/decode.cpp
-		src/internal/core/command/encode/encode.cpp
-		src/internal/core/command/view/view.cpp
-		src/internal/core/command/help/help.cpp
+		src/internal/command/decode/decode.cpp
+		src/internal/command/encode/encode.cpp
+		src/internal/command/view/view.cpp
+		src/internal/command/help/help.cpp
 
-		src/internal/core/command/validator/validator.cpp
+		src/internal/command/validator/validator.cpp
 
-		src/internal/core/command/handler/handler.cpp
+		src/internal/command/handler/handler.cpp
 
-		src/internal/core/io/io.cpp
-		src/internal/core/window/window.cpp
-
-		src/internal/tool/tool.cpp
+		src/internal/processor/processor.cpp
+		src/internal/io/io.cpp
+		src/internal/window/window.cpp
 	)
 
 	if(APPLE)
 		find_package(SDL2 REQUIRED COMPONENTS SDL2)
 		target_link_libraries(cgu PRIVATE SDL2::SDL2)
+
+		find_package(SDL2_image REQUIRED COMPONENTS SDL2_image)
+		target_link_libraries(cgu PRIVATE SDL2_image::SDL2_image)
 	elseif(WIN32)
 		target_link_libraries(
 			cgu 
