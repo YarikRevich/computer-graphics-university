@@ -13,8 +13,8 @@ jobs:
       
     - name: "Install prerequisites"
       run: |
-        sudo make prepare path=.
+        sudo make prepare
       
     - name: "Build"
       run: |
-        sudo make build path=.
+        sudo make build

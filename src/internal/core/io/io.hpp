@@ -24,6 +24,14 @@ public:
     static SDL_Surface* readFilePNG(std::string path);
 
     /**
+     * Reads a media CGU file with the given path
+     * into managable surface canvas.
+     * @param path - a location of the file to be read.
+     * @return managable surface canvas.
+    */
+    static SDL_Surface* readFileCGU(std::string path);
+
+    /**
      * Writes a media JPEG file to the given path
      * from the managable surface canvas.
      * @param path - a location of the fle to be written to.
@@ -40,4 +48,13 @@ public:
      * @return operation result code.
     */
     static int writeFilePNG(std::string path, SDL_Surface* surface);
+
+    /**
+     * Writes a media CGU file to the given path
+     * from the managable surface canvas.
+     * @param path - a location of the fle to be written to.
+     * @param surface - a modified managable surface canvas.
+     * @return operation result code.
+    */
+    static int writeFileCGU(std::string path, SDL_Surface* surface);
 };
