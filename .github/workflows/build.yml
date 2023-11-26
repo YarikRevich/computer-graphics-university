@@ -17,17 +17,17 @@ jobs:
         
     - name: "Build"
       run: |
-        sudo make build path=.
-  build-macos:
-    runs-on: macos-latest
-      
-    steps:
-    - uses: actions/checkout@v3
-      
-    - name: "Install prerequisites"
-      run: |
-        sudo make prepare
-      
-    - name: "Build"
-      run: |
         sudo make build
+  # build-macos:
+  #   runs-on: macos-latest
+      
+  #   steps:
+  #   - uses: actions/checkout@v3
+      
+  #   - name: "Install prerequisites"
+  #     run: |
+  #       sudo make prepare
+      
+  #   - name: "Build"
+  #     run: |
+  #       sudo make build
