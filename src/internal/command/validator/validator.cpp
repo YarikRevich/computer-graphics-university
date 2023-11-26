@@ -31,6 +31,10 @@ int Validator::handleArgumentParser(std::exception_ptr exception) {
     return EXIT_SUCCESS;
 }
 
-void Validator::throwValueFlagException(std::string name) {
-    std::printf("Value flag '%s' is required\n", name.c_str());
+void Validator::throwValueFlagRequiredException(std::string name) {
+    std::printf("Flag '%s' is required\n", name.c_str());
+}
+
+void Validator::throwValueFlagInvalidException(std::string name) {
+    std::printf("Value of the flag '%s' is invalid\n", name.c_str());
 }

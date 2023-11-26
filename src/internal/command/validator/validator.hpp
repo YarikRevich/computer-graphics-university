@@ -21,8 +21,14 @@ public:
     int handleArgumentParser(std::exception_ptr exception);
 
     /**
-     * Throws value flag exception validation.
+     * Throws value flag required exception validation.
      * @param name - name of the value to be validated.
     */
-    static void throwValueFlagException(std::string name);
+    static void throwValueFlagRequiredException(std::string name);
+
+    /**
+     * Throws value flag invalid exception validation.
+     * @param name - name of the value to be validated.
+    */
+    static void throwValueFlagInvalidException(std::string name);
 };

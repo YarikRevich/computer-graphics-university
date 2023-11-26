@@ -14,18 +14,28 @@ bool Encode::isCalled() {
 
 int Encode::handle() {
     if (!from->Matched()){
-        Validator::throwValueFlagException("from");
+        Validator::throwValueFlagRequiredException("from");
         return EXIT_FAILURE;
     }
 
     if (!type->Matched()){
-        Validator::throwValueFlagException("type");
+        Validator::throwValueFlagRequiredException("type");
         return EXIT_FAILURE;
     }
 
     if (!to->Matched()){
-        Validator::throwValueFlagException("to");
+        Validator::throwValueFlagRequiredException("to");
         return EXIT_FAILURE;
+    }
+
+    switch (IO::getType(type->Get())) {
+        case IO::TYPES::JPG:
+            break;
+        case IO::TYPES::PNG:
+            break;
+        default:
+            Validator::throwValueFlagInvalidException("type");
+            return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;

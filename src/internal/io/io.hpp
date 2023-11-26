@@ -16,15 +16,15 @@ public:
     enum class TYPES {
         JPG,
         PNG,
-        CGU
+        NONE
     };
 
     /**
-     * Converts given file type to string representation.
+     * Converts given file type to enum representation.
      * @param src - given file type.
-     * @return string representation of a file type.
+     * @return enum representation of a file type.
     */
-    static std::string getType(TYPES src);
+    static IO::TYPES getType(std::string src);
 
     /**
      * Reads a media JPEG file with the given path

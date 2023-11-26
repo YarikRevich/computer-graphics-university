@@ -11,7 +11,15 @@ public:
      * @param surface - given surface to be converted.
      * @return result operation status code.
     */
-    static int convertSurfaceToCGU(SDL_Surface* surface);
+    static int convertToCGU(SDL_Surface* surface);
+
+    /**
+     * Converts given surface canvas from CGU media type
+     * back to the original, but with the some loss of quality.
+     * @param surface - given surface to be converted.
+     * @return result operation status code.
+    */
+    static int convertFromCGU(SDL_Surface* surface);
 
     /**
      * Converts given 24 bit RGB color to 7 bit RGB single.

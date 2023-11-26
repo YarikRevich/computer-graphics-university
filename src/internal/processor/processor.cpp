@@ -1,6 +1,10 @@
 #include "processor.hpp"
 
-int Processor::convertSurfaceToCGU(SDL_Surface* surface) {
+int Processor::convertToCGU(SDL_Surface* surface) {
+    return EXIT_SUCCESS;
+}
+
+int Processor::convertFromCGU(SDL_Surface* surface) {
     return EXIT_SUCCESS;
 }
 

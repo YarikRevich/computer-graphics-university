@@ -12,7 +12,7 @@ bool View::isCalled() {
 
 int View::handle() {
     if (!from->Matched()){
-        Validator::throwValueFlagException("from");
+        Validator::throwValueFlagRequiredException("from");
         return EXIT_FAILURE;
     }
 
