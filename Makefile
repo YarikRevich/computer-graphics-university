@@ -1,6 +1,7 @@
 .PHONY: help, prepare, build, install
 
 .ONESHELL:
+SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
 .PHONY: help
@@ -23,8 +24,7 @@ endif
 
 .PHONY: build
 build: ## Build the project
-	# echo $$(PWD)
-	echo $(pwd)
+	echo $$(PWD)
 	@cd $$(PWD)/build && cmake .. && make
 
 .PHONY: install
