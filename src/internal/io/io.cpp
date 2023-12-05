@@ -11,7 +11,7 @@ IO::TYPES IO::getType(std::string src){
 }
 
 SDL_Surface* IO::readFileJPEG(std::string path) {
-    if (IMG_Init(IMG_INIT_JPG) != EXIT_SUCCESS){
+    if ((IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG) != IMG_INIT_JPG){
         return NULL;
     }
 
@@ -19,7 +19,7 @@ SDL_Surface* IO::readFileJPEG(std::string path) {
 }
 
 SDL_Surface* IO::readFilePNG(std::string path) {
-    if (IMG_Init(IMG_INIT_PNG) != EXIT_SUCCESS){
+    if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG){
         return NULL;
     }
 

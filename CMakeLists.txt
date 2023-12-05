@@ -8,6 +8,7 @@ if (NOT WIN32)
 	message("Make build output path is /bin")
 
 	add_compile_definitions(VIEW_WINDOW_TITLE="View window title")
+	add_compile_definitions(BIT_NUM_MAX=128)
 
 	include_directories(
 		"include/"

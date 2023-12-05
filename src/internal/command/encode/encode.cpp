@@ -1,4 +1,5 @@
 #include "encode.hpp"
+#include <iostream>
 
 Encode::Encode(args::ArgumentParser* argumentParser) {
     this->command = new args::Command(*argumentParser, "encode", "Encodes given media");

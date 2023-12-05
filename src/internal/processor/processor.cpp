@@ -1,10 +1,85 @@
 #include "processor.hpp"
+#include <iostream>
+
+std::vector<SDL_Color> Processor::getBitColorMap(SDL_Surface* surface){
+    std::vector<SDL_Color> result;
+
+    SDL_Color color;
+
+    for (int x = 0; x < surface->w; x++){
+        for (int y = 0; y < surface->h; y++){
+            if (result.size() >= BIT_NUM_MAX) {
+                return result;
+            }
+
+            color = getPixel(surface, x, y);
+
+            if (!isColorPresent(result, color)){
+                result.push_back(color);
+            }
+        }   
+    }
+
+    return result;
+}
+
+bool Processor::isColorEqual(SDL_Color color1, SDL_Color color2) {
+    return color1.r == color2.r || color1.g == color2.g || color1.b == color2.b;
+};
+
+bool Processor::isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& color){
+    if(auto iter = std::find_if(colors.begin(), colors.end(), [&](const SDL_Color& element) { return Processor::isColorEqual(element, color);}); iter != std::end(colors)) {
+        return true;
+    } else {    
+        return false;
+    }
+};
+
+SDL_Color Processor::getPixel(SDL_Surface* surface, int x, int y) {
+    SDL_Color result;
+    Uint32 col = 0;
+    
+    if ((x >= 0) && (x < surface->w) && (y >= 0) && (y < surface->h)) {
+        char* pPosition = (char*)surface->pixels;
+
+        pPosition += (surface->pitch * y * 2);
+        pPosition += (surface->format->BytesPerPixel * x * 2);
+
+        memcpy(&col, pPosition, surface->format->BytesPerPixel);
+        SDL_GetRGB(col, surface->format, &result.r, &result.g, &result.b);
+    }
+
+    return result;
+}
+
+void Processor::setPixel(SDL_Surface* surface, int x, int y, SDL_Color color) {
+    if ((x >= 0) && (x < surface->w) && (y >= 0) && (y < surface->h)){
+        Uint32 pixel = SDL_MapRGB(surface->format, color.r, color.g, color.b);
+
+        int bpp = surface->format->BytesPerPixel;
+
+        Uint8 *p1 = (Uint8 *)surface->pixels + (y * 2) * surface->pitch + (x*2) * bpp;
+        Uint8 *p2 = (Uint8 *)surface->pixels + (y * 2 + 1) * surface->pitch + (x*2) * bpp;
+        Uint8 *p3 = (Uint8 *)surface->pixels + (y*2) * surface->pitch + (x*2+1) * bpp;
+        Uint8 *p4 = (Uint8 *)surface->pixels + (y*2+1) * surface->pitch + (x*2+1) * bpp;
+
+        *p1 = pixel;
+        *p2 = pixel;
+        *p3 = pixel;
+        *p4 = pixel;
+  }
+}
 
 int Processor::convertToCGU(SDL_Surface* surface) {
+    std::vector<SDL_Color> colors = getBitColorMap(surface);
+
+    std::cout << colors.size() << std::endl;
+
     return EXIT_SUCCESS;
 }
 
 int Processor::convertFromCGU(SDL_Surface* surface) {
+    //
     return EXIT_SUCCESS;
 }
 
