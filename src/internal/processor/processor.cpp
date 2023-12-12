@@ -28,11 +28,33 @@ bool Processor::isColorEqual(SDL_Color color1, SDL_Color color2) {
 };
 
 bool Processor::isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& color){
-    if(auto iter = std::find_if(colors.begin(), colors.end(), [&](const SDL_Color& element) { return Processor::isColorEqual(element, color);}); iter != std::end(colors)) {
+    if(auto iter = std::find_if(
+        colors.begin(), 
+        colors.end(), 
+        [&](const SDL_Color& element) { return Processor::isColorEqual(element, color);}); iter != std::end(colors)) {
         return true;
     } else {    
         return false;
     }
+};
+
+void Processor::generateColorBuckets(std::vector<SDL_Color>& colors) {
+    // MEDIAN_CUT_BATCH  
+
+
+};
+
+void Processor::sortColorMap(std::vector<SDL_Color>& colors) {
+    qsort(
+        &colors[0],
+        colors.size(), 
+        sizeof(SDL_Color), 
+        [](const void* element1, const void* element2) -> int { 
+            if (((SDL_Color*)element1)->r < ((SDL_Color*)element2)->r) {
+                return -1;
+            }
+            return 1;
+        });
 };
 
 SDL_Color Processor::getPixel(SDL_Surface* surface, int x, int y) {
@@ -73,7 +95,12 @@ void Processor::setPixel(SDL_Surface* surface, int x, int y, SDL_Color color) {
 int Processor::convertToCGU(SDL_Surface* surface) {
     std::vector<SDL_Color> colors = getBitColorMap(surface);
 
-    std::cout << colors.size() << std::endl;
+    sortColorMap(colors);
+    generateColorBuckets(colors);
+
+    for (auto element : colors) {
+        std::cout << "element: " << "r: " << (int)element.r << " g: " << (int)element.g << " b: " << (int)element.b << std::endl;
+    };
 
     return EXIT_SUCCESS;
 }
@@ -96,7 +123,6 @@ SDL_Color Processor::convert7BitRGBTo24BitRGB(Uint8 color) {
     int newG=(color&(0b00011100))>>2;
     int newB=(color&(0b00000011));
 
-    
     return {
         .r = static_cast<Uint8>(newR*255.0/3.0), 
         .g = static_cast<Uint8>(newG*255.0/7.0),

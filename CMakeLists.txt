@@ -9,6 +9,7 @@ if (NOT WIN32)
 
 	add_compile_definitions(VIEW_WINDOW_TITLE="View window title")
 	add_compile_definitions(BIT_NUM_MAX=128)
+	add_compile_definitions(MEDIAN_CUT_BATCH=2)
 
 	include_directories(
 		"include/"

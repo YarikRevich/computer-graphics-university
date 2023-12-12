@@ -28,8 +28,23 @@ private:
 
     /**
      * Checks if the given color is present in the given color map.
+     * @param colors - given map of colors.
+     * @param color - given color for a condition check.
+     * @return result if given color is present in the given map of colors.
     */
     static bool isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& color);
+
+    /**
+     * Generates color buckets from the given color bit map using MedianCut algorithm.
+     * @param colors - given colors bit map.
+    */
+    static void generateColorBuckets(std::vector<SDL_Color>& colors);
+
+    /**
+     * Sorts given color map in the incrementing way.
+     * @param colors - given map of colors.
+    */
+    static void sortColorMap(std::vector<SDL_Color>& colors);
 
     /**
      * Retrieves pixel of the surface in the given position.

@@ -22,10 +22,23 @@ int Window::init() {
         return EXIT_FAILURE;
     }
 
+    this->renderer = SDL_CreateRenderer(window, -1, 0);
+
     return EXIT_SUCCESS;
 }
 
 int Window::handle(SDL_Surface* surface) {
+    SDL_SetWindowSize(window, surface->w, surface->h);
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_QueryTexture(
+        texture, NULL, NULL, &(native.w), &(native.h));
+
+    SDL_Rect rect = { 0, 0, native.w, native.h };
+    SDL_RenderCopy(
+        renderer, texture, NULL, &rect);
+    SDL_RenderPresent(renderer); 
+
     bool finish = false;
 
     SDL_Event event;

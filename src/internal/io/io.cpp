@@ -1,4 +1,5 @@
 #include "io.hpp"
+#include <iostream>
 
 IO::TYPES IO::getType(std::string src){
     if (src == "jpg" || src == "jpeg") {
@@ -27,7 +28,7 @@ SDL_Surface* IO::readFilePNG(std::string path) {
 };
 
 SDL_Surface* IO::readFileCGU(std::string path) {
-    return NULL;
+    return IMG_Load(path.c_str());
 };
 
 int IO::writeFileJPEG(std::string path, SDL_Surface* surface){
@@ -39,5 +40,5 @@ int IO::writeFilePNG(std::string path, SDL_Surface* surface){
 };
 
 int IO::writeFileCGU(std::string path, SDL_Surface* surface){
-    return EXIT_SUCCESS;
+    return SDL_SaveBMP(surface, path.c_str());
 };
