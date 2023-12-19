@@ -13,10 +13,19 @@ public:
      * Represents all image formats available
      * to be processed.
     */
-    enum class TYPES {
+    enum class FILE_TYPES {
         JPG,
         PNG,
         NONE
+    };
+
+    /**
+     * Represents all convertion approach types 
+     * available to be chosen.
+    */
+    enum class CONVERSION_TYPES {
+        NATIVE,
+        PALETTE
     };
 
     /**
@@ -24,7 +33,7 @@ public:
      * @param src - given file type.
      * @return enum representation of a file type.
     */
-    static IO::TYPES getType(std::string src);
+    static IO::FILE_TYPES getType(std::string src);
 
     /**
      * Reads a media JPEG file with the given path

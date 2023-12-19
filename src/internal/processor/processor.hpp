@@ -10,13 +10,13 @@
  * Сontains toolset to perform codec operations.
 */
 class Processor {
-private:
+public:
     /**
-     * Composes bit color map of the given surface.
-     * @param
-     * @return
+     * Composes reduced bit color map of the given surface. 
+     * @param surface
+     * @return reduced bit color map.
     */
-    static std::vector<SDL_Color> getBitColorMap(SDL_Surface* surface);
+    static std::vector<SDL_Color> getReducedBitColorMap(SDL_Surface* surface);
 
     /**
      * Checks if the given colors are equal.
@@ -35,10 +35,12 @@ private:
     static bool isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& color);
 
     /**
-     * Generates color buckets from the given color bit map using MedianCut algorithm.
-     * @param colors - given colors bit map.
+     * Retrieves position of the nearest color to the given color compound.
+     * @param colors - given map of colors.
+     * @param compund - one color compund.
+     * @return nearest color to the given color compound.
     */
-    static void generateColorBuckets(std::vector<SDL_Color>& colors);
+    static SDL_Color getNearestColor(std::vector<SDL_Color> colors, Uint8 compound);
 
     /**
      * Sorts given color map in the incrementing way.
@@ -47,38 +49,18 @@ private:
     static void sortColorMap(std::vector<SDL_Color>& colors);
 
     /**
-     * Retrieves pixel of the surface in the given position.
-     * @param
-     * @param
-     * @param
-     * @return
+     * Generates median cut selection using proper algorithm implementation.
+     * 
     */
-    static SDL_Color getPixel(SDL_Surface* surface, int x, int y);
+    static SDL_Color generateMedianCutSelection(int begin, int end, int iteration);
 
     /**
-     * Sets pixel of the surface in the given position.
-     * @param
-     * @param
-     * @param
-     * @param
-     * @return
+     * Generates color buckets from the given color bit map using MedianCut algorithm.
+     * @param colors - given colors bit map.
+     * @param pixels - amount of pixels in the analysed surface.
+     * @return palet of the color buckets.
     */
-    static void setPixel(SDL_Surface* surface, int x, int y, SDL_Color color);
-public:
-    /**
-     * Converts given surface canvas to CGU media type.
-     * @param surface - given surface to be converted.
-     * @return result operation status code.
-    */
-    static int convertToCGU(SDL_Surface* surface);
-
-    /**
-     * Converts given surface canvas from CGU media type
-     * back to the original, but with the some loss of quality.
-     * @param surface - given surface to be converted.
-     * @return result operation status code.
-    */
-    static int convertFromCGU(SDL_Surface* surface);
+    static std::vector<SDL_Color> generateColorBuckets(std::vector<SDL_Color>& colors, int pixels);
 
     /**
      * Converts given 24 bit RGB color to 7 bit RGB single.
@@ -116,4 +98,30 @@ public:
      * @return normilized value.
     */
     static int normalizeValue(int value, int min, int max);
+
+    /**
+     * Retrieves pixel of the surface in the given position.
+     * @param
+     * @param
+     * @param
+     * @return
+    */
+    static SDL_Color getPixel(SDL_Surface* surface, int x, int y);
+
+    /**
+     * Retrieves amount of pixels in the given surface.
+     * @param surface - surface where pixels are intended to be counted.
+     * @return amount of pixels in the given surface.
+    */
+    static int getPixelAmount(SDL_Surface* surface);
+
+    /**
+     * Sets pixel of the surface in the given position.
+     * @param
+     * @param
+     * @param
+     * @param
+     * @return
+    */
+    static void setPixel(SDL_Surface* surface, int x, int y, SDL_Color color);
 };

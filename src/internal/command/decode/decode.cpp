@@ -6,6 +6,7 @@ Decode::Decode(args::ArgumentParser* argumentParser) {
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "jpg|jpeg|png", "Type of the output media", {"type"});
+    this->conversion = new args::ValueFlag<std::string>(*group, "native|palette", "Type of the media conversion", {"conversion"});
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -24,6 +25,11 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
+    if (!conversion->Matched()) {
+        Validator::throwValueFlagRequiredException("conversion");
+        return EXIT_FAILURE;
+    }
+
     if (!to->Matched()){
         Validator::throwValueFlagRequiredException("to");
         return EXIT_FAILURE;
@@ -35,17 +41,17 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
-    if (Processor::convertFromCGU(input) != EXIT_SUCCESS){
+    if (Converter::convertFromCGU(input) != EXIT_SUCCESS){
         return EXIT_FAILURE;
     };
 
     switch (IO::getType(type->Get())) {
-        case IO::TYPES::JPG:
+        case IO::FILE_TYPES::JPG:
             if (IO::writeFileJPEG(to->Get(), input) != EXIT_SUCCESS){
                 return EXIT_SUCCESS;
             };
             break;
-        case IO::TYPES::PNG:
+        case IO::FILE_TYPES::PNG:
             if (IO::writeFilePNG(to->Get(), input) != EXIT_SUCCESS){
                 return EXIT_SUCCESS;
             };

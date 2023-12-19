@@ -1,14 +1,14 @@
 #include "io.hpp"
 #include <iostream>
 
-IO::TYPES IO::getType(std::string src){
+IO::FILE_TYPES IO::getType(std::string src){
     if (src == "jpg" || src == "jpeg") {
-        return IO::TYPES::JPG;
+        return IO::FILE_TYPES::JPG;
     } else if (src == "png") {
-        return IO::TYPES::PNG;
+        return IO::FILE_TYPES::PNG;
     }
 
-    return IO::TYPES::NONE;
+    return IO::FILE_TYPES::NONE;
 }
 
 SDL_Surface* IO::readFileJPEG(std::string path) {

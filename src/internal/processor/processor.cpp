@@ -1,7 +1,6 @@
 #include "processor.hpp"
-#include <iostream>
 
-std::vector<SDL_Color> Processor::getBitColorMap(SDL_Surface* surface){
+std::vector<SDL_Color> Processor::getReducedBitColorMap(SDL_Surface* surface){
     std::vector<SDL_Color> result;
 
     SDL_Color color;
@@ -38,10 +37,39 @@ bool Processor::isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& c
     }
 };
 
-void Processor::generateColorBuckets(std::vector<SDL_Color>& colors) {
-    // MEDIAN_CUT_BATCH  
+// int znajdzSasiadaBW(Uint8 wartosc){
+//     int minimum = 999;
+//     int indexMinimum=0;
 
+//     int odleglosc=0;
 
+//     for(int i=0;i<4;i++){
+//         odleglosc=abs(wartosc-paleta[i].r);
+//         if(odleglosc < minimum){
+//             minimum = odleglosc;
+//             indexMinimum=i;
+//         }
+//     }
+
+//     return indexMinimum;
+// }
+
+SDL_Color Processor::getNearestColor(std::vector<SDL_Color> colors, Uint8 compound) {
+    SDL_Color result;
+
+    int min = -1;
+    int distance;
+
+    for (SDL_Color color : colors) {
+        distance = abs(compound - color.r);
+
+        if (distance < min || min == -1) {
+            min = distance;
+            result = color;
+        }
+    }
+
+    return result;
 };
 
 void Processor::sortColorMap(std::vector<SDL_Color>& colors) {
@@ -57,58 +85,38 @@ void Processor::sortColorMap(std::vector<SDL_Color>& colors) {
         });
 };
 
-SDL_Color Processor::getPixel(SDL_Surface* surface, int x, int y) {
-    SDL_Color result;
-    Uint32 col = 0;
-    
-    if ((x >= 0) && (x < surface->w) && (y >= 0) && (y < surface->h)) {
-        char* pPosition = (char*)surface->pixels;
+static SDL_Color generateMedianCutSelection(int begin, int end, int iteration){
+    if (iteration > 0){
+        
+    } else {
 
-        pPosition += (surface->pitch * y * 2);
-        pPosition += (surface->format->BytesPerPixel * x * 2);
-
-        memcpy(&col, pPosition, surface->format->BytesPerPixel);
-        SDL_GetRGB(col, surface->format, &result.r, &result.g, &result.b);
     }
 
-    return result;
-}
+    if(iteracja > 0){
+        sortujKubelekBW(start, koniec);
 
-void Processor::setPixel(SDL_Surface* surface, int x, int y, SDL_Color color) {
-    if ((x >= 0) && (x < surface->w) && (y >= 0) && (y < surface->h)){
-        Uint32 pixel = SDL_MapRGB(surface->format, color.r, color.g, color.b);
+        //wyznaczamy środek podziału
+        int srodek=(start+koniec+1)/2;
 
-        int bpp = surface->format->BytesPerPixel;
+        //i dzielimy kubełek na mniejsze
+        MedianCutBW(start, srodek-1, iteracja-1);
+        MedianCutBW(srodek, koniec, iteracja-1);
+    }
+    else{
+        int sumaBW=0;
+        for(int p=start; p<=koniec; p++){
+            sumaBW+=obrazek[p].r;
+        }
+        Uint8 noweBW=sumaBW/(koniec+1 - start);
+        SDL_Color nowyKolor={noweBW, noweBW, noweBW};
+        paleta[ileKubelkow]=nowyKolor;
+        ileKubelkow++;
+    }
+};
 
-        Uint8 *p1 = (Uint8 *)surface->pixels + (y * 2) * surface->pitch + (x*2) * bpp;
-        Uint8 *p2 = (Uint8 *)surface->pixels + (y * 2 + 1) * surface->pitch + (x*2) * bpp;
-        Uint8 *p3 = (Uint8 *)surface->pixels + (y*2) * surface->pitch + (x*2+1) * bpp;
-        Uint8 *p4 = (Uint8 *)surface->pixels + (y*2+1) * surface->pitch + (x*2+1) * bpp;
-
-        *p1 = pixel;
-        *p2 = pixel;
-        *p3 = pixel;
-        *p4 = pixel;
-  }
-}
-
-int Processor::convertToCGU(SDL_Surface* surface) {
-    std::vector<SDL_Color> colors = getBitColorMap(surface);
-
-    sortColorMap(colors);
-    generateColorBuckets(colors);
-
-    for (auto element : colors) {
-        std::cout << "element: " << "r: " << (int)element.r << " g: " << (int)element.g << " b: " << (int)element.b << std::endl;
-    };
-
-    return EXIT_SUCCESS;
-}
-
-int Processor::convertFromCGU(SDL_Surface* surface) {
-    //
-    return EXIT_SUCCESS;
-}
+std::vector<SDL_Color> Processor::generateColorBuckets(std::vector<SDL_Color>& colors, int pixels) {
+    generateMedianCutSelection(0, pixels, MEDIAN_CUT_BATCH);
+};
 
 Uint8 Processor::convert24BitRGBTo7BitRGB(SDL_Color color) {
     int newR=round(color.r*3.0/255.0);
@@ -152,4 +160,43 @@ int Processor::normalizeValue(int value, int min, int max) {
     }
 
     return value;
+}
+
+SDL_Color Processor::getPixel(SDL_Surface* surface, int x, int y) {
+    SDL_Color result;
+    Uint32 col = 0;
+    
+    if ((x >= 0) && (x < surface->w) && (y >= 0) && (y < surface->h)) {
+        char* pPosition = (char*)surface->pixels;
+
+        pPosition += (surface->pitch * y * 2);
+        pPosition += (surface->format->BytesPerPixel * x * 2);
+
+        memcpy(&col, pPosition, surface->format->BytesPerPixel);
+        SDL_GetRGB(col, surface->format, &result.r, &result.g, &result.b);
+    }
+
+    return result;
+}
+
+int Processor::getPixelAmount(SDL_Surface* surface) {
+    return surface->w * surface->h;
+}
+
+void Processor::setPixel(SDL_Surface* surface, int x, int y, SDL_Color color) {
+    if ((x >= 0) && (x < surface->w) && (y >= 0) && (y < surface->h)){
+        Uint32 pixel = SDL_MapRGB(surface->format, color.r, color.g, color.b);
+
+        int bpp = surface->format->BytesPerPixel;
+
+        Uint8 *p1 = (Uint8 *)surface->pixels + (y * 2) * surface->pitch + (x*2) * bpp;
+        Uint8 *p2 = (Uint8 *)surface->pixels + (y * 2 + 1) * surface->pitch + (x*2) * bpp;
+        Uint8 *p3 = (Uint8 *)surface->pixels + (y*2) * surface->pitch + (x*2+1) * bpp;
+        Uint8 *p4 = (Uint8 *)surface->pixels + (y*2+1) * surface->pitch + (x*2+1) * bpp;
+
+        *p1 = pixel;
+        *p2 = pixel;
+        *p3 = pixel;
+        *p4 = pixel;
+  }
 }

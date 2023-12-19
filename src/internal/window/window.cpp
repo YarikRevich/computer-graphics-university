@@ -16,7 +16,7 @@ int Window::init() {
         SDL_WINDOWPOS_CENTERED, 
         native.w/2, 
         native.h/2, 
-        SDL_WINDOW_SHOWN);
+        SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
     if (window == NULL) {
         return EXIT_FAILURE;

@@ -6,6 +6,7 @@ Encode::Encode(args::ArgumentParser* argumentParser) {
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "jpg|jpeg|png", "Type of the source media", {"type"});
+    this->conversion = new args::ValueFlag<std::string>(*group, "native|palette", "Type of the media conversion", {"conversion"});
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -24,6 +25,11 @@ int Encode::handle() {
         return EXIT_FAILURE;
     }
 
+    if (!conversion->Matched()) {
+        Validator::throwValueFlagRequiredException("conversion");
+        return EXIT_FAILURE;
+    }
+
     if (!to->Matched()){
         Validator::throwValueFlagRequiredException("to");
         return EXIT_FAILURE;
@@ -32,10 +38,10 @@ int Encode::handle() {
     SDL_Surface* input;
 
     switch (IO::getType(type->Get())) {
-        case IO::TYPES::JPG:
+        case IO::FILE_TYPES::JPG:
             input = IO::readFileJPEG(from->Get());
             break;
-        case IO::TYPES::PNG:
+        case IO::FILE_TYPES::PNG:
             input = IO::readFilePNG(from->Get());
             break;
         default:
@@ -48,7 +54,7 @@ int Encode::handle() {
         return EXIT_FAILURE;
     }
 
-    if (Processor::convertToCGU(input) != EXIT_SUCCESS){
+    if (Converter::convertToCGU(input) != EXIT_SUCCESS){
         return EXIT_FAILURE;
     };
 
