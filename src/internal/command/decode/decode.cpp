@@ -41,11 +41,25 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
-    if (Converter::convertFromCGU(input) != EXIT_SUCCESS){
+    int result;
+
+    switch (IO::getConversionType(conversion->Get())) {
+        case IO::CONVERSION_TYPES::NATIVE:
+            result = Converter::convertFromCGUNative(input);
+            break;
+        case IO::CONVERSION_TYPES::PALETTE:
+            result = Converter::convertFromCGUPalette(input);
+            break;
+        default:
+            Validator::throwValueFlagInvalidException("conversion");
+            return EXIT_FAILURE;
+    }
+
+    if (result != EXIT_SUCCESS){
         return EXIT_FAILURE;
     };
 
-    switch (IO::getType(type->Get())) {
+    switch (IO::getFileType(type->Get())) {
         case IO::FILE_TYPES::JPG:
             if (IO::writeFileJPEG(to->Get(), input) != EXIT_SUCCESS){
                 return EXIT_SUCCESS;
@@ -53,6 +67,11 @@ int Decode::handle() {
             break;
         case IO::FILE_TYPES::PNG:
             if (IO::writeFilePNG(to->Get(), input) != EXIT_SUCCESS){
+                return EXIT_SUCCESS;
+            };
+            break;
+        case IO::FILE_TYPES::BMP:
+            if (IO::writeFileBMP(to->Get(), input) != EXIT_SUCCESS){
                 return EXIT_SUCCESS;
             };
             break;

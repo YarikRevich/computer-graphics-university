@@ -9,7 +9,10 @@ if (NOT WIN32)
 
 	add_compile_definitions(VIEW_WINDOW_TITLE="View window title")
 	add_compile_definitions(BIT_NUM_MAX=128)
-	add_compile_definitions(MEDIAN_CUT_BATCH=2)
+	add_compile_definitions(NATIVE_SHIFT=1)
+	add_compile_definitions(MEDIAN_CUT_BATCH=7)
+
+	add_compile_definitions(BIT_SIZE_MAX_EXCEPTION="Given image has too much unique color bits")
 
 	include_directories(
 		"include/"
@@ -32,6 +35,7 @@ if (NOT WIN32)
 
 		src/internal/command/handler/handler.cpp
 
+		src/internal/logger/logger.cpp
 		src/internal/converter/converter.cpp
 		src/internal/processor/processor.cpp
 		src/internal/io/io.cpp

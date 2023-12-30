@@ -37,12 +37,15 @@ int Encode::handle() {
 
     SDL_Surface* input;
 
-    switch (IO::getType(type->Get())) {
+    switch (IO::getFileType(type->Get())) {
         case IO::FILE_TYPES::JPG:
             input = IO::readFileJPEG(from->Get());
             break;
         case IO::FILE_TYPES::PNG:
             input = IO::readFilePNG(from->Get());
+            break;
+        case IO::FILE_TYPES::BMP:
+            input = IO::readFileBMP(from->Get());
             break;
         default:
             Validator::throwValueFlagInvalidException("type");
@@ -54,7 +57,21 @@ int Encode::handle() {
         return EXIT_FAILURE;
     }
 
-    if (Converter::convertToCGU(input) != EXIT_SUCCESS){
+    int result;
+
+    switch (IO::getConversionType(conversion->Get())) {
+        case IO::CONVERSION_TYPES::NATIVE:
+            result = Converter::convertToCGUNative(input);
+            break;
+        case IO::CONVERSION_TYPES::PALETTE:
+            result = Converter::convertToCGUPalette(input);
+            break;
+        default:
+            Validator::throwValueFlagInvalidException("conversion");
+            return EXIT_FAILURE;
+    }
+
+    if (result != EXIT_SUCCESS){
         return EXIT_FAILURE;
     };
 

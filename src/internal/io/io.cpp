@@ -1,14 +1,26 @@
 #include "io.hpp"
 #include <iostream>
 
-IO::FILE_TYPES IO::getType(std::string src){
+IO::FILE_TYPES IO::getFileType(std::string src){
     if (src == "jpg" || src == "jpeg") {
         return IO::FILE_TYPES::JPG;
     } else if (src == "png") {
         return IO::FILE_TYPES::PNG;
+    } else if (src == "bmp") {
+        return IO::FILE_TYPES::BMP;
     }
 
     return IO::FILE_TYPES::NONE;
+}
+
+IO::CONVERSION_TYPES IO::getConversionType(std::string src){
+    if (src == "native") {
+        return IO::CONVERSION_TYPES::NATIVE;
+    } else if (src == "palette") {
+        return IO::CONVERSION_TYPES::PALETTE;
+    }
+
+    return IO::CONVERSION_TYPES::NONE;
 }
 
 SDL_Surface* IO::readFileJPEG(std::string path) {
@@ -27,6 +39,10 @@ SDL_Surface* IO::readFilePNG(std::string path) {
     return IMG_Load(path.c_str());
 };
 
+SDL_Surface* IO::readFileBMP(std::string path) {
+    return SDL_LoadBMP(path.c_str());
+}
+
 SDL_Surface* IO::readFileCGU(std::string path) {
     return IMG_Load(path.c_str());
 };
@@ -37,6 +53,10 @@ int IO::writeFileJPEG(std::string path, SDL_Surface* surface){
 
 int IO::writeFilePNG(std::string path, SDL_Surface* surface){
     return IMG_SavePNG(surface, path.c_str());  
+};
+
+int IO::writeFileBMP(std::string path, SDL_Surface* surface) {
+    return SDL_SaveBMP(surface, path.c_str());
 };
 
 int IO::writeFileCGU(std::string path, SDL_Surface* surface){
