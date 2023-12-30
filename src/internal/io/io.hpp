@@ -25,8 +25,10 @@ public:
      * available to be chosen.
     */
     enum class CONVERSION_TYPES {
-        NATIVE,
-        PALETTE,
+        NATIVE_RGB,
+        NATIVE_BW,
+        PALETTE_RGB,
+        PALETTE_BW,
         NONE
     };
 

@@ -14,10 +14,14 @@ IO::FILE_TYPES IO::getFileType(std::string src){
 }
 
 IO::CONVERSION_TYPES IO::getConversionType(std::string src){
-    if (src == "native") {
-        return IO::CONVERSION_TYPES::NATIVE;
-    } else if (src == "palette") {
-        return IO::CONVERSION_TYPES::PALETTE;
+    if (src == "native_rgb") {
+        return IO::CONVERSION_TYPES::NATIVE_RGB;
+    } else if (src == "native_bw") {
+        return IO::CONVERSION_TYPES::NATIVE_BW;
+    } else if (src == "palette_rgb") {
+        return IO::CONVERSION_TYPES::PALETTE_RGB;
+    } else if (src == "palette_bw") {
+        return IO::CONVERSION_TYPES::PALETTE_BW;
     }
 
     return IO::CONVERSION_TYPES::NONE;

@@ -12,18 +12,32 @@
 class Converter {
 public:
     /**
-     * Converts given surface canvas to CGU media type in native mode.
+     * Converts given surface canvas to CGU media type in native RGB mode.
      * @param surface - given surface to be converted.
      * @return result operation status code.
     */
-    static int convertToCGUNative(SDL_Surface* surface);
+    static int convertToCGUNativeRGB(SDL_Surface* surface);
 
     /**
-     * Converts given surface canvas to CGU media type in palette mode.
+     * Converts given surface canvas to CGU media type in native BW mode.
      * @param surface - given surface to be converted.
      * @return result operation status code.
     */
-    static int convertToCGUPalette(SDL_Surface* surface);
+    static int convertToCGUNativeBW(SDL_Surface* surface);
+
+    /**
+     * Converts given surface canvas to CGU media type in palette RGB mode.
+     * @param surface - given surface to be converted.
+     * @return result operation status code.
+    */
+    static int convertToCGUPaletteRGB(SDL_Surface* surface);
+
+    /**
+     * Converts given surface canvas to CGU media type in palette BW mode.
+     * @param surface - given surface to be converted.
+     * @return result operation status code.
+    */
+    static int convertToCGUPaletteBW(SDL_Surface* surface);
 
     /**
      * Converts given surface canvas from CGU media type in native mode.
