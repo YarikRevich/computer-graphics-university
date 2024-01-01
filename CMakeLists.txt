@@ -35,6 +35,7 @@ if (NOT WIN32)
 
 		src/internal/command/handler/handler.cpp
 
+		src/internal/tools/tools.cpp
 		src/internal/logger/logger.cpp
 		src/internal/converter/converter.cpp
 		src/internal/processor/processor.cpp

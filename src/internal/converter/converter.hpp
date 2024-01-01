@@ -1,6 +1,8 @@
 #pragma once
 
+#include "../logger/logger.hpp"
 #include "../io/io.hpp"
+#include "../tools/tools.hpp"
 #include "../processor/processor.hpp"
 
 #include <vector>

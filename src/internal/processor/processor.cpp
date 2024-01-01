@@ -45,7 +45,7 @@ bool Processor::isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& c
     }
 };
 
-SDL_Color Processor::getNearestColor(std::vector<SDL_Color> colors, Uint8 compound) {
+SDL_Color Processor::getNearestColorBW(std::vector<SDL_Color> colors, Uint8 compound) {
     SDL_Color result;
 
     int min = -1;
@@ -63,23 +63,46 @@ SDL_Color Processor::getNearestColor(std::vector<SDL_Color> colors, Uint8 compou
     return result;
 };
 
-void Processor::sortColorMap(std::vector<SDL_Color>& colors, int begin, int end) {
-    std::vector<SDL_Color> src;
+SDL_Color Processor::getNearestColorRGB(std::vector<SDL_Color> colors, SDL_Color src) {
+    SDL_Color result;
 
-// std::cout << src.size() << std::endl;
+    int min = -1;
+    int distance;
 
-    // std::cout << colors.size() << std::endl;
-    // std::cout << begin << std::endl;
-    // std::cout << end << std::endl;
-    for (int i = begin; i < end; i++) {
-        src.push_back(colors.at(i));
+    for (SDL_Color color : colors) {
+        distance = abs(src.r - color.r) + abs(src.g - color.g) + abs(src.b - color.b);
+
+        if (distance < min || min == -1) {
+            min = distance;
+            result = color;
+        }
     }
 
-    // std::vector<SDL_Color> src = 
-    //     std::vector<SDL_Color>(colors.begin() + begin, colors.end() - (colors.size() - end));
+    return result;
 
-    // std::cout << unsigned(colors.begin() + begin) << " " << colors.end() - (colors.size() - end) << std::endl;
-    // std::cout << src.size() << std::endl;
+
+
+    // int minimum=999;
+    // int indexMinimum;
+    // SDL_Color kolorPaleta;
+    // int odleglosc;
+    // for(int i=0; i<128; i++){
+    //     kolorPaleta=paleta[i];
+    //     odleglosc=abs(kolor.r-kolorPaleta.r)+abs(kolor.g-kolorPaleta.g)+abs(kolor.b-kolorPaleta.b);
+    //     if(odleglosc < minimum){
+    //         indexMinimum=i;
+    //         minimum=odleglosc;
+    //     }
+    // }
+    // return indexMinimum;
+};
+
+void Processor::sortColorMapBW(std::vector<SDL_Color>& colors, int begin, int end) {
+    std::vector<SDL_Color> src;
+
+    for (int i = begin; i < end; i++) {
+        src.push_back(colors[i]);
+    }
 
     qsort(
         &src[0],
@@ -93,16 +116,128 @@ void Processor::sortColorMap(std::vector<SDL_Color>& colors, int begin, int end)
         });
 
     for (int i = 0; i < src.size(); i++) {
-        // std::cout << unsigned(src.at(i).r) << std::endl;
-        colors.insert(colors.begin() + begin + i, src.at(i));
+        colors.at(begin + i) = src[i];
+    }
+};
+
+void Processor::sortColorMapRGB(std::vector<SDL_Color>& colors, int begin, int end, COLOR_COMPOUNDS compound) {
+    std::vector<SDL_Color> src;
+
+    for (int i = begin; i < end; i++) {
+        src.push_back(colors[i]);
     }
 
-    // std::cout << std::endl;
+    switch (compound) {
+        case Processor::COLOR_COMPOUNDS::RED:
+            qsort(
+                &src[0],
+                src.size(), 
+                sizeof(SDL_Color), 
+                [](const void* element1, const void* element2) -> int { 
+                    if (((SDL_Color*)element1)->r < ((SDL_Color*)element2)->r) {
+                        return -1;
+                    }
+                    return 1;
+            });
+            break;
+        case Processor::COLOR_COMPOUNDS::GREEN:
+            qsort(
+                &src[0],
+                src.size(), 
+                sizeof(SDL_Color), 
+                [](const void* element1, const void* element2) -> int { 
+                    if (((SDL_Color*)element1)->g < ((SDL_Color*)element2)->g) {
+                        return -1;
+                    }
+                    return 1;
+            });
+            break;
+        case Processor::COLOR_COMPOUNDS::BLUE:
+            qsort(
+                &src[0],
+                src.size(), 
+                sizeof(SDL_Color), 
+                [](const void* element1, const void* element2) -> int { 
+                    if (((SDL_Color*)element1)->b < ((SDL_Color*)element2)->b) {
+                        return -1;
+                    }
+                    return 1;
+            });
+    }
+
+    for (int i = 0; i < src.size(); i++) {
+        colors.at(begin + i) = src[i];
+    }
 };
+
+void Processor::generateMedianCutRGBSelectionRaw(std::vector<SDL_Color>& image, std::vector<SDL_Color>& colors, int begin, int end, int* bucket, int iteration){
+    if (iteration > 0){
+        Processor::COLOR_COMPOUNDS compound = getCompoundDifference(image, begin, end);
+        sortColorMapRGB(image, begin, end, compound);
+
+        int mid = (begin + end + 1) / 2;
+
+        generateMedianCutRGBSelectionRaw(image, colors, begin, mid - 1, bucket, iteration - 1);
+        generateMedianCutRGBSelectionRaw(image, colors, mid + 1, end, bucket, iteration - 1);
+    } else {
+        int sumColorR = 0, sumColorG = 0, sumColorB = 0;
+ 
+        std::for_each(image.begin() + begin, image.end() - (image.size() - end), [&] (SDL_Color color) {
+            sumColorR += color.r;
+            sumColorG += color.g;
+            sumColorB += color.b;
+        });
+
+        colors[*bucket] = {
+            (Uint8)(sumColorR / (end + 1 - begin)), 
+            (Uint8)(sumColorG / (end + 1 - begin)),
+            (Uint8)(sumColorB / (end + 1 - begin))
+        };
+
+        (*bucket)++;
+    }
+}
+
+std::vector<SDL_Color> Processor::generateMedianCutRGBSelection(std::vector<SDL_Color>& image, int pixels) {
+    std::vector<SDL_Color> result(BIT_NUM_MAX);
+    
+    generateMedianCutRGBSelectionRaw(image, result, 0, pixels, new int(0), MEDIAN_CUT_BATCH);
+
+    return result;
+}
+
+Processor::COLOR_COMPOUNDS Processor::getCompoundDifference(std::vector<SDL_Color>& image, int begin, int end) {
+    Uint8 minColorR = 0, minColorG = 0, minColorB = 0;
+    Uint8 maxColorR = 0, maxColorG = 0, maxColorB = 0;
+
+    std::for_each(image.begin() + begin, image.end() - (image.size() - end), [&] (SDL_Color color) {
+        if(color.b < minColorB)
+            minColorB = color.b;
+        if(color.g < minColorG)
+            minColorG = color.g;
+        if(color.r < minColorR)
+            minColorR = color.r;
+        if(color.b > maxColorB)
+            maxColorB = color.b;
+        if(color.g > maxColorG)
+            maxColorG = color.g;
+        if(color.r > maxColorR)
+            maxColorR = color.r;
+    });
+
+    switch (std::max(std::max(maxColorR - minColorR, maxColorG - minColorG), maxColorB - minColorB)) {
+        case 1:
+            return Processor::COLOR_COMPOUNDS::RED;
+        case 2:
+            return Processor::COLOR_COMPOUNDS::GREEN;
+        default:
+            return Processor::COLOR_COMPOUNDS::BLUE;
+    };
+}
 
 void Processor::generateMedianCutBWSelectionRaw(std::vector<SDL_Color>& image, std::vector<SDL_Color>& colors, int begin, int end, int* bucket, int iteration){
     if (iteration > 0){
-        sortColorMap(image, begin, end);
+        sortColorMapBW(image, begin, end);
 
         int mid = (begin + end + 1) / 2;
 
@@ -116,12 +251,8 @@ void Processor::generateMedianCutBWSelectionRaw(std::vector<SDL_Color>& image, s
         });
 
         Uint8 compound = sum / (begin + 1 - end);
+        colors[*bucket] = {compound, compound, compound};
 
-        std::cout << unsigned(compound) << std::endl;
-        colors.at(*bucket) = {compound, compound, compound};
-
-        // std::cout<<"Kubelek "<<*bucket<<": (s:"<<begin<<", k:"<<end<<", e:"<<(end+1 - begin)<<")"<<std::endl;
-        // cout<<"Kolor "<<*bucket<<": ("<<(int)nowyKolor.r<<","<<(int)nowyKolor.g<<","<<(int)nowyKolor.b<<")"<<endl;
         (*bucket)++;
     }
 };
@@ -134,66 +265,69 @@ std::vector<SDL_Color> Processor::generateMedianCutBWSelection(std::vector<SDL_C
     return result;
 };
 
-std::vector<SDL_Color> Processor::generateColorBuckets(SDL_Surface* surface, std::vector<SDL_Color>& image) {
-    std::vector<SDL_Color> result;
+std::vector<Processor::PixelPoint> Processor::generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image) {
+    std::vector<Processor::PixelPoint> result;
 
     std::vector<SDL_Color> colors = generateMedianCutBWSelection(image, getPixelAmount(surface));
 
     SDL_Color color;
-
     for (int y = 0; y < surface->h; y++) {
         for (int x = 0; x < surface->w; x++) {
             color = getPixel(surface, x, y);
 
-            SDL_Color nearest = getNearestColor(colors, 0.299*color.r+0.587*color.g+0.114*color.b);
-            // std::cout << "element: " << "r: " << (int)nearest.r << " g: " << (int)nearest.g << " b: " << (int)nearest.b << std::endl;
-            setPixel(surface, x, y, nearest);
-            // result.push_back(getNearestColor(colors, 0.299*color.r+0.587*color.g+0.114*color.b));
+            result.push_back(PixelPoint(x, y, getNearestColorBW(colors, 0.299*color.r+0.587*color.g+0.114*color.b)));
         }
     }
 
-    // std::cout << colors.size() << std::endl;
+    return result;
+};
 
-    // kolor=getPixel(x, y);
-    //         szary=0.299*kolor.r+0.587*kolor.g+0.114*kolor.b;
-    //         indeks=znajdzSasiadaBW(szary);
-    //         setPixel(x+szerokosc/2,y+wysokosc/2, paleta[indeks].r, paleta[indeks].g, paleta[indeks].b);
-    // for (SDL_Color color : colors) {
-    //     result.push_back(getNearestColor(colors, color.r));
-    // }
+std::vector<Processor::PixelPoint> Processor::generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image) {
+    std::vector<Processor::PixelPoint> result;
+
+    std::vector<SDL_Color> colors = generateMedianCutRGBSelection(image, getPixelAmount(surface));
+
+    SDL_Color color;
+    for (int y = 0; y < surface->h; y++) {
+        for (int x = 0; x < surface->w; x++) {
+            color = getPixel(surface, x, y);
+
+            result.push_back(PixelPoint(x, y, getNearestColorRGB(colors, color)));
+        }
+    }
 
     return result;
 };
 
 Uint8 Processor::convert24BitRGBTo7BitRGB(SDL_Color color) {
-    int newR=round(color.r*3.0/255.0);
-    int newG=round(color.g*7.0/255.0);
-    int newB=round(color.b*3.0/255.0);
+    int newColorR = round(color.r*3.0/255.0);
+    int newColorG = round(color.g*7.0/255.0);
+    int newColorB = round(color.b*3.0/255.0);
 
-    return (newR<<5)|(newG<<2)|newB;
+    return (newColorR << 5) | (newColorG << 2) | newColorB;
 }
 
 SDL_Color Processor::convert7BitRGBTo24BitRGB(Uint8 color) {
-    int newR=(color&(0b01100000))>>5;
-    int newG=(color&(0b00011100))>>2;
-    int newB=(color&(0b00000011));
+    int newColorR = (color & (0b01100000)) >> 5;
+    int newColorG = (color & (0b00011100)) >> 2;
+    int newColorB = (color & (0b00000011));
 
     return {
-        .r = static_cast<Uint8>(newR*255.0/3.0), 
-        .g = static_cast<Uint8>(newG*255.0/7.0),
-        .b = static_cast<Uint8>(newB*255.0/3.0)
+        .r = static_cast<Uint8>(newColorR * 255.0 / 3.0), 
+        .g = static_cast<Uint8>(newColorG * 255.0 / 7.0),
+        .b = static_cast<Uint8>(newColorB * 255.0 / 3.0)
     };
 }
 
 Uint8 Processor::convert24BitRGBTo7BitGrey(SDL_Color color) {
-    return round((0.299*color.r+0.587*color.g+0.114*color.b)*127.0/255.0);
+    return round((0.299 * color.r + 0.587 * color.g + 0.114 * color.b) * 127.0 / 255.0);
 }
 
 SDL_Color Processor::convert7BitGreyTo24BitRGB(Uint8 grey) {
     return {
-        .r = static_cast<Uint8>(grey*255.0/127.0),
-        .g = static_cast<Uint8>(grey*255.0/127.0),
-        .b = static_cast<Uint8>(grey*255.0/127.0)
+        .r = static_cast<Uint8>(grey * 255.0 / 127.0),
+        .g = static_cast<Uint8>(grey * 255.0 / 127.0),
+        .b = static_cast<Uint8>(grey * 255.0 / 127.0)
     };
 }
 
@@ -267,18 +401,8 @@ void Processor::setPixel(SDL_Surface* surface, int x, int y, SDL_Color color) {
     }
 }
 
-void Processor::setColors(SDL_Surface* surface, std::vector<SDL_Color> colors) {
-    int x = 0;
-    int y = 0;
-
-    for (SDL_Color color : colors) {
-        setPixel(surface, x, y, color);
-
-        if (x < surface->w) {
-            x++;
-        } else{
-            x = 0;
-            y++;
-        }
+void Processor::setPixels(SDL_Surface* surface, std::vector<Processor::PixelPoint> pixels) {
+    for (Processor::PixelPoint pixel : pixels) {
+        setPixel(surface, pixel.x, pixel.y, pixel.color);
     }
 }

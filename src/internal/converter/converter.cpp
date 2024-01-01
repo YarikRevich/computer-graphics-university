@@ -1,8 +1,9 @@
-#include "../logger/logger.hpp"
 #include "converter.hpp"
 #include <iostream>
 
 int Converter::convertToCGUNativeRGB(SDL_Surface* surface) {
+    Tools::startIndefiniteSpinner();
+
     SDL_Color color, newColor, tempColor;
 
     std::vector<std::vector<float>> colorShiftsR((surface->w)+2, std::vector<float>((surface->h)+2));
@@ -55,6 +56,8 @@ int Converter::convertToCGUNativeRGB(SDL_Surface* surface) {
 }
 
 int Converter::convertToCGUNativeBW(SDL_Surface* surface) {
+    Tools::startIndefiniteSpinner();
+
     SDL_Color color, newColor, tempColor;
 
     std::vector<std::vector<float>> colorShiftsR((surface->w)+2, std::vector<float>((surface->h)+2));
@@ -107,10 +110,8 @@ int Converter::convertToCGUNativeBW(SDL_Surface* surface) {
 }
 
 int Converter::convertToCGUPaletteRGB(SDL_Surface* surface) {
-    return EXIT_SUCCESS;
-}
+    Tools::startIndefiniteSpinner();
 
-int Converter::convertToCGUPaletteBW(SDL_Surface* surface) {
     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
     if (colors.size() > BIT_NUM_MAX) {
         Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
@@ -119,23 +120,41 @@ int Converter::convertToCGUPaletteBW(SDL_Surface* surface) {
 
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
-    std::vector<SDL_Color> result =
-        Processor::generateColorBuckets(surface, image);
+    std::vector<Processor::PixelPoint> result =
+        Processor::generateColorBucketsRGB(surface, image);
+    Processor::setPixels(surface, result);
 
-    // for (auto element : result) {
-    //     std::cout << "element: " << "r: " << (int)element.r << " g: " << (int)element.g << " b: " << (int)element.b << std::endl;
-    // };
-    // Processor::setColors(surface, result);
+    return EXIT_SUCCESS;
+}
+
+int Converter::convertToCGUPaletteBW(SDL_Surface* surface) {
+    Tools::startIndefiniteSpinner();
+
+    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
+    if (colors.size() > BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
+        return EXIT_FAILURE;
+    }
+
+    std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
+
+    std::vector<Processor::PixelPoint> result =
+        Processor::generateColorBucketsBW(surface, image);
+    Processor::setPixels(surface, result);
 
     return EXIT_SUCCESS;
 }
 
 int Converter::convertFromCGUNative(SDL_Surface* surface) {
+    Tools::startIndefiniteSpinner();
+
     //
     return EXIT_SUCCESS;
 }
 
 int Converter::convertFromCGUPalette(SDL_Surface* surface) {
+    Tools::startIndefiniteSpinner();
+
     //
     return EXIT_SUCCESS;
 }

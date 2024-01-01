@@ -10,61 +10,18 @@
  * Сontains toolset to perform codec operations.
 */
 class Processor {
-private:
+public:
     /**
-     * Checks if the given colors are equal.
-     * @param
-     * @param
-     * @return
+     * Represents pixel unit to be used for batch surface update.
     */
-    static bool isColorEqual(SDL_Color color1, SDL_Color color2);
+    class PixelPoint {
+        public:
+            int x, y;
 
-    /**
-     * Checks if the given color is present in the given color map.
-     * @param colors - given map of colors.
-     * @param color - given color for a condition check.
-     * @return result if given color is present in the given map of colors.
-    */
-    static bool isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& color);
+            SDL_Color color;
 
-    /**
-     * Retrieves position of the nearest color to the given color compound.
-     * @param colors - given map of colors.
-     * @param compund - one color compund.
-     * @return nearest color to the given color compound.
-    */
-    static SDL_Color getNearestColor(std::vector<SDL_Color> colors, Uint8 compound);
-
-    /**
-     * Sorts given color map in the incrementing way.
-     * @param colors - given map of colors.
-     * @param begin - index of the beginning of the the color map.
-     * @param end - index of the end of the color bit map.
-    */
-    static void sortColorMap(std::vector<SDL_Color>& colors, int begin, int end);
-
-    /**
-     * Generates median cut selection using proper algorithm implementation.
-     * @param image - given raw image color bits.
-     * @param colors - reference for a result color bits.
-     * @param begin - beggining of scanning process.
-     * @param end - ending of scanning process.
-     * @param bucket - amount of generated bucket.
-     * @param iteration - current iteration number. 
-    */
-    static void generateMedianCutBWSelectionRaw(std::vector<SDL_Color>& image, std::vector<SDL_Color>& colors, int begin, int end, int* bucket, int iteration);
-
-    static void generateMedianCutRGBSelectionRaw();
-
-    /**
-     * Generates median cut selection using proper algorithm implementation.
-     * @param image - given raw image color bits.
-     * @param pixels - amount of pixels of the given raw image.
-     * @return result bit color map.
-    */
-    static std::vector<SDL_Color> generateMedianCutBWSelection(std::vector<SDL_Color>& image, int pixels);
-
-    static std::vector<SDL_Color> generateMedianCutRGBSelection();
+            PixelPoint(int x, int y, SDL_Color color) : x(x), y(y), color(color) {}
+    };
 
     /**
      * Represents all available color compounds.
@@ -75,15 +32,6 @@ private:
         BLUE
     };
 
-    /**
-     * Retrieves color with the biggest difference in case of compounds.
-     * @param image - given raw image color bits.
-     * @param begin - beggining of scanning process.
-     * @param end - ending of scanning process.
-     * @return color compound with the biggest global difference.
-    */
-    static COLOR_COMPOUNDS getCompoundDifference(std::vector<SDL_Color>& image, int begin, int end);
-public:
     /**
      * Composes reduced bit color map of the given surface. 
      * @param surface - surface intended to be scaned.
@@ -99,11 +47,18 @@ public:
     static std::vector<SDL_Color> getCompleteBitColorMap(SDL_Surface* surface);
     
     /**
-     * Generates color buckets from the given color bit map using MedianCut algorithm.
+     * Generates color buckets from the given color bit map using MedianCut algorithm in BW mode.
      * @param image - given image colors bit map.
      * @return palet of the color buckets.
     */
-    static std::vector<SDL_Color> generateColorBuckets(SDL_Surface* surface, std::vector<SDL_Color>& image);
+    static std::vector<Processor::PixelPoint> generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image);
+
+    /**
+     * Generates color buckets from the given color bit map using MedianCut algorithm in RGB mode.
+     * @param image - given image colors bit map.
+     * @return palet of the color buckets.
+    */
+    static std::vector<Processor::PixelPoint> generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image);
 
     /**
      * Converts given 24 bit RGB color to 7 bit RGB single.
@@ -151,25 +106,122 @@ public:
 
     /**
      * Retrieves pixel of the surface in the given position.
-     * @param
-     * @param
-     * @param
-     * @return
+     * @param surface - surface where pixels are intended to be retrieved.
+     * @param x - pixel location in the x-axis.
+     * @param y - pixel location in the y-axis.
+     * @return pixel at the given location.
     */
     static SDL_Color getPixel(SDL_Surface* surface, int x, int y);
 
     /**
-     * Sets pixel of the surface in the given position.
-     * @param
-     * @param
-     * @param
-     * @param
-     * @return
+     * Sets pixel for the surface in the given position.
+     * @param surface - surface where pixel is intended to be set.
+     * @param x - pixel location in the x-axis.
+     * @param y - pixel location in the y-axis.
+     * @param color - color to be set at the given location.
     */
     static void setPixel(SDL_Surface* surface, int x, int y, SDL_Color color);
 
     /**
-     * 
+     * Sets given pixels for the surface.
+     * @param surface - surface where pixels are intended to be set.
+     * @param pixels - pixels intended to be set in the given surface.
     */
-    static void setColors(SDL_Surface* surface, std::vector<SDL_Color> colors);
+    static void setPixels(SDL_Surface* surface, std::vector<PixelPoint> pixels);
+private:
+    /**
+     * Checks if the given colors are equal.
+     * @param color1 - first color to be used in comparison
+     * @param color2 - second color to be used in comparison
+     * @return result of the check.
+    */
+    static bool isColorEqual(SDL_Color color1, SDL_Color color2);
+
+    /**
+     * Checks if the given color is present in the given color map.
+     * @param colors - given map of colors.
+     * @param color - given color for a condition check.
+     * @return result if given color is present in the given map of colors.
+    */
+    static bool isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& color);
+
+    /**
+     * Retrieves position of the nearest color to the given BW color compound.
+     * @param colors - given map of colors.
+     * @param compund - one color compund.
+     * @return nearest color to the given color compound.
+    */
+    static SDL_Color getNearestColorBW(std::vector<SDL_Color> colors, Uint8 compound);
+
+    /**
+     * Retrieves position of the nearest color to the given RGB color.
+     * @param colors - given map of colors.
+     * @param compund - one color compund.
+     * @return nearest color to the given color compound.
+    */
+    static SDL_Color getNearestColorRGB(std::vector<SDL_Color> colors, SDL_Color src);
+
+    /**
+     * Sorts given color map in BW mode, in the incrementing way.
+     * @param colors - given map of colors.
+     * @param begin - index of the beginning of the the color map.
+     * @param end - index of the end of the color bit map.
+    */
+    static void sortColorMapBW(std::vector<SDL_Color>& colors, int begin, int end);
+
+    /**
+     * Sorts given color map in RGB mode, in the incrementing way.
+     * @param colors - given map of colors.
+     * @param begin - index of the beginning of the the color map.
+     * @param end - index of the end of the color bit map.
+     * @param compound - selective color compound. 
+    */
+    static void sortColorMapRGB(std::vector<SDL_Color>& colors, int begin, int end, COLOR_COMPOUNDS compound);
+
+    /**
+     * Generates MedianCut selection in BW mode, using proper algorithm implementation.
+     * @param image - given raw image color bits.
+     * @param colors - reference for a result color bits.
+     * @param begin - beggining of scanning process.
+     * @param end - ending of scanning process.
+     * @param bucket - amount of generated bucket.
+     * @param iteration - current iteration number. 
+    */
+    static void generateMedianCutBWSelectionRaw(std::vector<SDL_Color>& image, std::vector<SDL_Color>& colors, int begin, int end, int* bucket, int iteration);
+
+    /**
+     * Generates MedianCut selection in RGB mode, using proper algorithm implementation.
+     * @param image - given raw image color bits.
+     * @param colors - reference for a result color bits.
+     * @param begin - beggining of scanning process.
+     * @param end - ending of scanning process.
+     * @param bucket - amount of generated bucket.
+     * @param iteration - current iteration number. 
+    */
+    static void generateMedianCutRGBSelectionRaw(std::vector<SDL_Color>& image, std::vector<SDL_Color>& colors, int begin, int end, int* bucket, int iteration);
+
+    /**
+     * Executes MedianCut selection for BW, using proper algorithm implementation.
+     * @param image - given raw image color bits.
+     * @param pixels - amount of pixels of the given raw image.
+     * @return result bit color map.
+    */
+    static std::vector<SDL_Color> generateMedianCutBWSelection(std::vector<SDL_Color>& image, int pixels);
+
+    /**
+     * Executes MedianCut selection for RGB, using proper algorithm implementation.
+     * @param image - given raw image color bits.
+     * @param pixels - amount of pixels of the given raw image.
+     * @return result bit color map.
+    */
+    static std::vector<SDL_Color> generateMedianCutRGBSelection(std::vector<SDL_Color>& image, int pixels);
+
+    /**
+     * Retrieves color with the biggest difference in case of compounds.
+     * @param image - given raw image color bits.
+     * @param begin - beggining of scanning process.
+     * @param end - ending of scanning process.
+     * @return color compound with the biggest global difference.
+    */
+    static COLOR_COMPOUNDS getCompoundDifference(std::vector<SDL_Color>& image, int begin, int end);
 };
