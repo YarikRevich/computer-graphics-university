@@ -2,7 +2,7 @@
 #include <iostream>
 
 Handler::Handler(int argc, char **argv) : argc(argc), argv(argv) {
-    this->argumentParser = new args::ArgumentParser("A codec for CGU media format.\nStand with Ukraine!");
+    this->argumentParser = new args::ArgumentParser("A codec for CGU media format.\nStand with Ukraine! https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md");
 
     this->decode = new Decode(argumentParser);
     this->encode = new Encode(argumentParser);

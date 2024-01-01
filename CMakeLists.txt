@@ -8,6 +8,11 @@ if (NOT WIN32)
 	message("Make build output path is /bin")
 
 	add_compile_definitions(VIEW_WINDOW_TITLE="View window title")
+	add_compile_definitions(BIT_NUM_MAX=128)
+	add_compile_definitions(NATIVE_SHIFT=1)
+	add_compile_definitions(MEDIAN_CUT_BATCH=7)
+
+	add_compile_definitions(BIT_SIZE_MAX_EXCEPTION="Given image has too much unique color bits")
 
 	include_directories(
 		"include/"
@@ -30,6 +35,9 @@ if (NOT WIN32)
 
 		src/internal/command/handler/handler.cpp
 
+		src/internal/tools/tools.cpp
+		src/internal/logger/logger.cpp
+		src/internal/converter/converter.cpp
 		src/internal/processor/processor.cpp
 		src/internal/io/io.cpp
 		src/internal/window/window.cpp
@@ -49,7 +57,14 @@ if (NOT WIN32)
 			${CMAKE_SOURCE_DIR}/lib/sdl2/windows/libSDL2main.a
 		)
 	elseif(UNIX)
+		target_link_libraries(
+			cgu 
 
+			${CMAKE_SOURCE_DIR}/lib/hwy/linux/libhwy.so.1
+			${CMAKE_SOURCE_DIR}/lib/jxl/linux/libjxl.so.0.8
+			${CMAKE_SOURCE_DIR}/lib/sdl2/linux/libSDL2.so
+			${CMAKE_SOURCE_DIR}/lib/sdl2_image/linux/libSDL2_image-2.0.so.0
+		)
 	endif()
 
 	if (NOT WIN32)

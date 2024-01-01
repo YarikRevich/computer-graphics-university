@@ -1,17 +1,34 @@
 #include "io.hpp"
+#include <iostream>
 
-IO::TYPES IO::getType(std::string src){
+IO::FILE_TYPES IO::getFileType(std::string src){
     if (src == "jpg" || src == "jpeg") {
-        return IO::TYPES::JPG;
+        return IO::FILE_TYPES::JPG;
     } else if (src == "png") {
-        return IO::TYPES::PNG;
+        return IO::FILE_TYPES::PNG;
+    } else if (src == "bmp") {
+        return IO::FILE_TYPES::BMP;
     }
 
-    return IO::TYPES::NONE;
+    return IO::FILE_TYPES::NONE;
+}
+
+IO::CONVERSION_TYPES IO::getConversionType(std::string src){
+    if (src == "native_rgb") {
+        return IO::CONVERSION_TYPES::NATIVE_RGB;
+    } else if (src == "native_bw") {
+        return IO::CONVERSION_TYPES::NATIVE_BW;
+    } else if (src == "palette_rgb") {
+        return IO::CONVERSION_TYPES::PALETTE_RGB;
+    } else if (src == "palette_bw") {
+        return IO::CONVERSION_TYPES::PALETTE_BW;
+    }
+
+    return IO::CONVERSION_TYPES::NONE;
 }
 
 SDL_Surface* IO::readFileJPEG(std::string path) {
-    if (IMG_Init(IMG_INIT_JPG) != EXIT_SUCCESS){
+    if ((IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG) != IMG_INIT_JPG){
         return NULL;
     }
 
@@ -19,15 +36,19 @@ SDL_Surface* IO::readFileJPEG(std::string path) {
 }
 
 SDL_Surface* IO::readFilePNG(std::string path) {
-    if (IMG_Init(IMG_INIT_PNG) != EXIT_SUCCESS){
+    if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG){
         return NULL;
     }
 
     return IMG_Load(path.c_str());
 };
 
+SDL_Surface* IO::readFileBMP(std::string path) {
+    return SDL_LoadBMP(path.c_str());
+}
+
 SDL_Surface* IO::readFileCGU(std::string path) {
-    return NULL;
+    return IMG_Load(path.c_str());
 };
 
 int IO::writeFileJPEG(std::string path, SDL_Surface* surface){
@@ -38,6 +59,10 @@ int IO::writeFilePNG(std::string path, SDL_Surface* surface){
     return IMG_SavePNG(surface, path.c_str());  
 };
 
+int IO::writeFileBMP(std::string path, SDL_Surface* surface) {
+    return SDL_SaveBMP(surface, path.c_str());
+};
+
 int IO::writeFileCGU(std::string path, SDL_Surface* surface){
-    return EXIT_SUCCESS;
+    return SDL_SaveBMP(surface, path.c_str());
 };
