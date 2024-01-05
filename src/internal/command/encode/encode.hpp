@@ -14,6 +14,7 @@ private:
     args::ValueFlag<std::string>* from = NULL;
     args::ValueFlag<std::string>* type = NULL;
     args::ValueFlag<std::string>* conversion = NULL;
+    args::ValueFlag<bool>* compression = NULL;
     args::ValueFlag<std::string>* to = NULL;
 
 public:
