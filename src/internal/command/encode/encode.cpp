@@ -82,5 +82,9 @@ int Encode::handle() {
         return EXIT_FAILURE;
     };
 
-    return IO::writeFileCGU(to->Get(), input);
+    return IO::writeFileCGU(
+        to->Get(), 
+        IO::composeMetadata(
+            IO::getConversionType(conversion->Get())), 
+        input);
 }

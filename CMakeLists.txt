@@ -7,12 +7,20 @@ if (NOT WIN32)
 	set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 	message("Make build output path is /bin")
 
+	# Describes general viewport properties.
 	add_compile_definitions(VIEW_WINDOW_TITLE="View window title")
+
+	# Describes internal CGU algorithm functionality.
 	add_compile_definitions(BIT_NUM_MAX=128)
 	add_compile_definitions(NATIVE_SHIFT=1)
 	add_compile_definitions(MEDIAN_CUT_BATCH=7)
 
+	# Describes CGU metadata properties.
+	add_compile_definitions(METADATA_FIELDS_NUM=2)
+
+	# Describes pre-defined errors used for functionality validation.
 	add_compile_definitions(BIT_SIZE_MAX_EXCEPTION="Given image has too much unique color bits")
+	add_compile_definitions(FILE_NOT_COMPATIBLE_EXCEPTION="Given file is not compatible with CGU codec.")
 
 	include_directories(
 		"include/"

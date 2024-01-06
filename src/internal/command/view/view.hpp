@@ -2,6 +2,7 @@
 
 #include <args/args.hxx>
 
+#include "../../logger/logger.hpp"
 #include "../validator/validator.hpp"
 #include "../../window/window.hpp"
 #include "../../io/io.hpp"

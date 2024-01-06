@@ -20,6 +20,11 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
+    if (!IO::isFileCGUCompatible(from->Get())) {
+        Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
+        return EXIT_FAILURE;
+    }
+
     if (!type->Matched()){
         Validator::throwValueFlagRequiredException("type");
         return EXIT_FAILURE;
