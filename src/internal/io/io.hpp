@@ -193,14 +193,14 @@ public:
      * @return CGU compatibility check.
     */
     static bool isFileCGUCompatible(std::string path);
-private:
+
     /**
      * Reads metadata from the given CGU file.
      * @param path - a location of the file to be read.
      * @return CGU file metadata.
     */
     static IO::FileMetadata readMetadataFromFileCGU(std::string path);
-
+private:
     /**
      * Writes given metadata to the CGU file at the given location.
      * @param path - a location of the file, where metadata is intended to be set.

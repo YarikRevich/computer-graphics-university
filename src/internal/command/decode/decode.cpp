@@ -6,7 +6,6 @@ Decode::Decode(args::ArgumentParser* argumentParser) {
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the output media", {"type"});
-    this->conversion = new args::ValueFlag<std::string>(*group, "native_rgb|native_bw|palette_rgb|palette_bw", "Type of the media conversion", {"conversion"});
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -20,23 +19,18 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
-    if (!IO::isFileCGUCompatible(from->Get())) {
-        Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
-        return EXIT_FAILURE;
-    }
-
     if (!type->Matched()){
         Validator::throwValueFlagRequiredException("type");
         return EXIT_FAILURE;
     }
 
-    if (!conversion->Matched()) {
-        Validator::throwValueFlagRequiredException("conversion");
+    if (!to->Matched()){
+        Validator::throwValueFlagRequiredException("to");
         return EXIT_FAILURE;
     }
 
-    if (!to->Matched()){
-        Validator::throwValueFlagRequiredException("to");
+    if (!IO::isFileCGUCompatible(from->Get())) {
+        Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
         return EXIT_FAILURE;
     }
 
@@ -46,14 +40,22 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
+    IO::FileMetadata metadata = IO::readMetadataFromFileCGU(from->Get());
+
     int result;
 
-    switch (IO::getConversionType(conversion->Get())) {
+    switch (metadata.getConvertion()) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
-            result = Converter::convertFromCGUNative(input);
+            result = Converter::convertFromCGUNativeRGB(input);
+            break;
+        case IO::CONVERSION_TYPES::NATIVE_BW:
+            result = Converter::convertFromCGUNativeBW(input);
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
-            result = Converter::convertFromCGUPalette(input);
+            result = Converter::convertFromCGUPaletteRGB(input);
+            break;
+        case IO::CONVERSION_TYPES::PALETTE_BW:
+            result = Converter::convertFromCGUPaletteBW(input);
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");
