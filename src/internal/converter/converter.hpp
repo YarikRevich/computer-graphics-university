@@ -42,18 +42,34 @@ public:
     static int convertToCGUPaletteBW(SDL_Surface* surface);
 
     /**
-     * Converts given surface canvas from CGU media type in native mode.
+     * Converts given surface canvas from CGU media type in native BW mode.
      * back to the original, but with the some loss of quality.
      * @param surface - given surface to be converted.
      * @return result operation status code.
     */
-    static int convertFromCGUNative(SDL_Surface* surface);
+    static int convertFromCGUNativeBW(SDL_Surface* surface);
 
     /**
-     * Converts given surface canvas from CGU media type in palette mode.
+     * Converts given surface canvas from CGU media type in native RGB mode.
      * back to the original, but with the some loss of quality.
      * @param surface - given surface to be converted.
      * @return result operation status code.
     */
-    static int convertFromCGUPalette(SDL_Surface* surface);
+    static int convertFromCGUNativeRGB(SDL_Surface* surface);
+
+    /**
+     * Converts given surface canvas from CGU media type in palette BW mode.
+     * back to the original, but with the some loss of quality.
+     * @param surface - given surface to be converted.
+     * @return result operation status code.
+    */
+    static int convertFromCGUPaletteBW(SDL_Surface* surface);
+
+    /**
+     * Converts given surface canvas from CGU media type in palette RGB mode.
+     * back to the original, but with the some loss of quality.
+     * @param surface - given surface to be converted.
+     * @return result operation status code.
+    */
+    static int convertFromCGUPaletteRGB(SDL_Surface* surface);
 };

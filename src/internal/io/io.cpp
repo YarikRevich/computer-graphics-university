@@ -27,6 +27,22 @@ IO::CONVERSION_TYPES IO::getConversionType(std::string src){
     return IO::CONVERSION_TYPES::NONE;
 }
 
+uint16_t IO::FileMetadata::getCompatible() {
+    return compatible;
+}
+
+void IO::FileMetadata::setCompatible(uint16_t value) {
+    this->compatible = value;
+};
+
+IO::CONVERSION_TYPES IO::FileMetadata::getConvertion() {
+    return convertion;
+}
+
+void IO::FileMetadata::setConvertion(IO::CONVERSION_TYPES value) {
+    this->convertion = value;
+};
+
 SDL_Surface* IO::readFileJPEG(std::string path) {
     if ((IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG) != IMG_INIT_JPG){
         return NULL;
@@ -63,6 +79,40 @@ int IO::writeFileBMP(std::string path, SDL_Surface* surface) {
     return SDL_SaveBMP(surface, path.c_str());
 };
 
-int IO::writeFileCGU(std::string path, SDL_Surface* surface){
-    return SDL_SaveBMP(surface, path.c_str());
+int IO::writeFileCGU(std::string path, IO::FileMetadata metadata, SDL_Surface* surface){
+    if (SDL_SaveBMP(surface, path.c_str()) != EXIT_SUCCESS) {
+        return EXIT_FAILURE;
+    }
+
+    writeMetadataToFileCGU(path, metadata);
+
+    return EXIT_SUCCESS;
 };
+
+bool IO::isFileCGUCompatible(std::string path) {
+    IO::FileMetadata metadata = readMetadataFromFileCGU(path);
+
+    return metadata.getCompatible() == 1;
+}
+
+void IO::writeMetadataToFileCGU(std::string path, IO::FileMetadata metadata) {
+    std::ofstream file(path, std::ios_base::app);
+
+    file.seekp(0, std::ios::end);
+    file << metadata;
+
+    file.close();
+}
+
+IO::FileMetadata IO::readMetadataFromFileCGU(std::string path) {
+    IO::FileMetadata result;
+
+    std::ifstream file(path);
+
+    file.seekg(((int)file.tellg()) - (METADATA_FIELDS_NUM + 1), std::ios::end);
+    file >> result;
+
+    file.close();
+
+    return result;
+}
