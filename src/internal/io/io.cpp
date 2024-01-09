@@ -43,6 +43,26 @@ void IO::FileMetadata::setConvertion(IO::CONVERSION_TYPES value) {
     this->convertion = value;
 };
 
+std::vector<int> IO::FileMetadata::getIndexes() {
+    return indexes;
+};
+
+void IO::FileMetadata::setIndexes(std::vector<int> indexes) {
+    this->indexes = indexes;
+};
+
+IO::FileMetadata composeNativeMetadata(IO::CONVERSION_TYPES convertion) {
+    IO::FileMetadata result(convertion);
+
+    return result;
+}
+
+IO::FileMetadata composePaletteMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indexes) {
+    IO::FileMetadata result(convertion, indexes);
+
+    return result;
+}
+
 SDL_Surface* IO::readFileJPEG(std::string path) {
     if ((IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG) != IMG_INIT_JPG){
         return NULL;

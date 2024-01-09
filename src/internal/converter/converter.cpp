@@ -4,6 +4,12 @@
 int Converter::convertToCGUNativeRGB(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
+    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
+    if (colors.size() < BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
+        return EXIT_FAILURE;
+    }
+
     SDL_Color color, newColor, tempColor;
 
     std::vector<std::vector<float>> colorShiftsR((surface->w) + 2, std::vector<float>((surface->h) + 2));
@@ -57,6 +63,12 @@ int Converter::convertToCGUNativeRGB(SDL_Surface* surface) {
 
 int Converter::convertToCGUNativeBW(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
+
+    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
+    if (colors.size() < BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
+        return EXIT_FAILURE;
+    }
 
     SDL_Color color, newColor, tempColor;
 
@@ -112,6 +124,12 @@ int Converter::convertToCGUNativeBW(SDL_Surface* surface) {
 int Converter::convertToCGUPaletteRGB(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
+    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
+    if (colors.size() < BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
+        return EXIT_FAILURE;
+    }
+
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
     std::vector<Processor::PixelPoint> result =
@@ -123,6 +141,12 @@ int Converter::convertToCGUPaletteRGB(SDL_Surface* surface) {
 
 int Converter::convertToCGUPaletteBW(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
+
+    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
+    if (colors.size() < BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
+        return EXIT_FAILURE;
+    }
 
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
@@ -136,47 +160,25 @@ int Converter::convertToCGUPaletteBW(SDL_Surface* surface) {
 int Converter::convertFromCGUNativeBW(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
-    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    if (colors.size() > BIT_NUM_MAX) {
-        Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
-        return EXIT_FAILURE;
-    }
-
     return EXIT_SUCCESS;
 }
 
 int Converter::convertFromCGUNativeRGB(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
-    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    if (colors.size() > BIT_NUM_MAX) {
-        Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
-        return EXIT_FAILURE;
-    }
-
     return EXIT_SUCCESS;
 }
 
-int Converter::convertFromCGUPaletteBW(SDL_Surface* surface) {
+std::vector<int> Converter::convertFromCGUPaletteBW(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
-    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    if (colors.size() > BIT_NUM_MAX) {
-        Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+    // return EXIT_SUCCESS;
+    return nullptr;
 }
 
-int Converter::convertFromCGUPaletteRGB(SDL_Surface* surface) {
+std::vector<int> Converter::convertFromCGUPaletteRGB(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
-    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    if (colors.size() > BIT_NUM_MAX) {
-        Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+    // return EXIT_SUCCESS;
+    return nullptr;
 }

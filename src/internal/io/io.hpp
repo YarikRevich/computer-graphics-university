@@ -42,10 +42,14 @@ public:
         uint16_t compatible;
 
         IO::CONVERSION_TYPES convertion;
+
+        std::vector<int> indexes;
     public:
         FileMetadata() {};
 
         FileMetadata(IO::CONVERSION_TYPES convertion) : compatible(1), convertion(convertion) {};
+        
+        FileMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indexes) : compatible(1), convertion(convertion), indexes(indexes) {};
 
         /**
          * Retrieves compatibility flag.
@@ -71,11 +75,27 @@ public:
         */
         void setConvertion(IO::CONVERSION_TYPES value);
 
+        /**
+         * Retrieves indexes for the image convertion.
+         * @return CGU file indexes.
+        */
+        std::vector<int> getIndexes();
+
+        /**
+         * Sets indexes for the image convertion.
+         * @param indexes - given CGU file convertion indexes.
+        */
+        void setIndexes(std::vector<int> indexes);
+
         friend std::ofstream & operator << (std::ofstream & ofs, IO::FileMetadata value) {
             ofs << std::endl;
             ofs << value.getCompatible();
             ofs << std::endl;
             ofs << static_cast<int>(value.getConvertion());
+            for (int index : value.getIndexes()) {
+                ofs << index << " ";
+            }
+            ofs << std::endl;
 
             return ofs;
         };
@@ -83,6 +103,7 @@ public:
         friend std::ifstream & operator >> (std::ifstream & ifs, IO::FileMetadata & value) {
             uint16_t compatible;
             int convertion;
+            std::vector<int> indexes;
 
             ifs >> compatible;
             ifs >> convertion;
@@ -99,11 +120,14 @@ public:
      * @param convertion - given CGU file convertion type.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata composeMetadata(IO::CONVERSION_TYPES convertion) {
-        IO::FileMetadata result(convertion);
+    static IO::FileMetadata composeNativeMetadata(IO::CONVERSION_TYPES convertion);
 
-        return result;
-    }
+    /**
+     * Composes CGU file metadata struct with the given arguments.
+     * @param convertion - given CGU file convertion type.
+     * @return composed CGU file metadata.
+    */
+    static IO::FileMetadata composePaletteMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indexes);
 
     /**
      * Converts given file type to enum representation.

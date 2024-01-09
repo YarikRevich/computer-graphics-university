@@ -42,6 +42,13 @@ public:
     static int convertToCGUPaletteBW(SDL_Surface* surface);
 
     /**
+     * Converts given surface canvas to CGU media type in palette Detected mode.
+     * @param surface - given surface to be converted.
+     * @return result operation status code.
+    */
+    static int convertToCGUPaletteDetected(SDL_Surface* surface);
+
+    /**
      * Converts given surface canvas from CGU media type in native BW mode.
      * back to the original, but with the some loss of quality.
      * @param surface - given surface to be converted.
@@ -61,15 +68,23 @@ public:
      * Converts given surface canvas from CGU media type in palette BW mode.
      * back to the original, but with the some loss of quality.
      * @param surface - given surface to be converted.
-     * @return result operation status code.
+     * @return CGU palette indexes.
     */
-    static int convertFromCGUPaletteBW(SDL_Surface* surface);
+    static std::vector<int> convertFromCGUPaletteBW(SDL_Surface* surface);
 
     /**
      * Converts given surface canvas from CGU media type in palette RGB mode.
      * back to the original, but with the some loss of quality.
      * @param surface - given surface to be converted.
-     * @return result operation status code.
+     * @return CGU palette indexes.
     */
-    static int convertFromCGUPaletteRGB(SDL_Surface* surface);
+    static std::vector<int> convertFromCGUPaletteRGB(SDL_Surface* surface);
+
+    /**
+     * Converts given surface canvas from CGU media type in palette Detected mode.
+     * back to the original, but with the some loss of quality.
+     * @param surface - given surface to be converted.
+     * @return CGU palette indexes.
+    */
+    static std::vector<int> convertFromCGUPaletteDetected(SDL_Surface* surface);
 };

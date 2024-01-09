@@ -58,20 +58,26 @@ int Encode::handle() {
         return EXIT_FAILURE;
     }
 
+    IO::FileMetadata metadata;
+
     int result;
 
     switch (IO::getConversionType(conversion->Get())) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
             result = Converter::convertToCGUNativeRGB(input);
+            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_RGB);
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
             result = Converter::convertToCGUNativeBW(input);
+            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_BW);
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
             result = Converter::convertToCGUPaletteRGB(input);
+            metadata = IO::composePaletteMetadata(IO::CONVERSION_TYPES::PALETTE_RGB, NULL);
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
             result = Converter::convertToCGUPaletteBW(input);
+            metadata = IO::composePaletteMetadata(IO::CONVERSION_TYPES::PALETTE_BW, NULL);
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");
@@ -82,9 +88,5 @@ int Encode::handle() {
         return EXIT_FAILURE;
     };
 
-    return IO::writeFileCGU(
-        to->Get(), 
-        IO::composeMetadata(
-            IO::getConversionType(conversion->Get())), 
-        input);
+    return IO::writeFileCGU(to->Get(), metadata, input);
 }
