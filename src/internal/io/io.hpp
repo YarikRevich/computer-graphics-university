@@ -31,6 +31,7 @@ public:
         NATIVE_BW,
         PALETTE_RGB,
         PALETTE_BW,
+        PALETTE_DETECTED,
         NONE
     };
 

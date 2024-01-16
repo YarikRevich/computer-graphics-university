@@ -22,6 +22,8 @@ IO::CONVERSION_TYPES IO::getConversionType(std::string src){
         return IO::CONVERSION_TYPES::PALETTE_RGB;
     } else if (src == "palette_bw") {
         return IO::CONVERSION_TYPES::PALETTE_BW;
+    } else if (src == "palette_detected") {
+        return IO::CONVERSION_TYPES::PALETTE_DETECTED;
     }
 
     return IO::CONVERSION_TYPES::NONE;

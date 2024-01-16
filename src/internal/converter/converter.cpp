@@ -157,6 +157,24 @@ int Converter::convertToCGUPaletteBW(SDL_Surface* surface) {
     return EXIT_SUCCESS;
 }
 
+int Converter::convertToCGUPaletteDetected(SDL_Surface* surface) {
+    Tools::startIndefiniteSpinner();
+
+    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
+    if (colors.size() > BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
+        return EXIT_FAILURE;
+    }
+
+    // std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
+
+    // std::vector<Processor::PixelPoint> result =
+    //     Processor::generateColorBucketsRGB(surface, image);
+    // Processor::setPixels(surface, result);
+
+    return EXIT_SUCCESS;
+}
+
 int Converter::convertFromCGUNativeBW(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 

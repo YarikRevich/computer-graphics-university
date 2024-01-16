@@ -6,8 +6,8 @@ Encode::Encode(args::ArgumentParser* argumentParser) {
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the source media", {"type"});
-    this->conversion = new args::ValueFlag<std::string>(*group, "native_rgb|native_bw|palette_rgb|palette_bw", "Type of the media conversion", {"conversion"});
-    this->compression = new args::ValueFlag<bool>(*group, "true|false", "Enable compression", {"conversion"});
+    this->conversion = new args::ValueFlag<std::string>(*group, "native_rgb|native_bw|palette_rgb|palette_bw|palette_detected", "Type of the media conversion", {"conversion"});
+    this->compression = new args::ValueFlag<bool>(*group, "true|false(default)", "Enable compression", {"conversion"});
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
