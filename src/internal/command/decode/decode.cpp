@@ -52,10 +52,10 @@ int Decode::handle() {
             result = Converter::convertFromCGUNativeBW(input);
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
-            result = Converter::convertFromCGUPaletteRGB(input);
+            // result = Converter::convertFromCGUPaletteRGB(input, );
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
-            result = Converter::convertFromCGUPaletteBW(input);
+            // result = Converter::convertFromCGUPaletteBW(input);
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");

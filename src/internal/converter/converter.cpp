@@ -23,10 +23,6 @@ int Converter::convertToCGUNativeRGBDithering(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    if (colors.size() < BIT_NUM_MAX) {
-        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
-        return EXIT_FAILURE;
-    }
 
     SDL_Color color, newColor, tempColor;
 
@@ -86,9 +82,9 @@ int Converter::convertToCGUNativeBW(SDL_Surface* surface) {
 
     for (int y = 0; y < surface->h; y++){
         for(int x = 0; x < surface->w; x++){
-            color = Processor::convertRGBToGrey(Processor::getPixel(surface, x, y));
+            color = Processor::getPixel(surface, x, y);
 
-            newColor = Processor::convert7BitRGBTo24BitRGB(Processor::convert24BitRGBTo7BitGrey(color));
+            newColor = Processor::convert7BitGreyTo24BitRGB(Processor::convert24BitRGBTo7BitGrey(color));
 
             Processor::setPixel(surface, x, y, newColor);
         }
@@ -101,10 +97,6 @@ int Converter::convertToCGUNativeBWDithering(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    if (colors.size() < BIT_NUM_MAX) {
-        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
-        return EXIT_FAILURE;
-    }
 
     SDL_Color color, newColor, tempColor;
     Uint8 grey, newGrey, tempGrey;
@@ -123,7 +115,7 @@ int Converter::convertToCGUNativeBWDithering(SDL_Surface* surface) {
                 grey + colorShifts[x+NATIVE_SHIFT][y], 0, 255);
 
             tempColor.r = tempGrey;
-            tempColor.b = tempGrey;
+            tempColor.g = tempGrey;
             tempColor.b = tempGrey;
 
             newColor = Processor::convert7BitGreyTo24BitRGB(Processor::convert24BitRGBTo7BitGrey(tempColor));

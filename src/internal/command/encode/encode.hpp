@@ -5,6 +5,7 @@
 #include <string>
 
 #include "../validator/validator.hpp"
+#include "../../state/state.hpp"
 #include "../../converter/converter.hpp"
 #include "../../io/io.hpp"
 

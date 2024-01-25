@@ -65,7 +65,7 @@ int Encode::handle() {
     switch (IO::getConversionType(conversion->Get())) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
                 // result = Converter::convertToCGUNativeRGBDithering(input);
-                result = Converter::convertToCGUNativeRGB(input);
+            result = Converter::convertToCGUNativeRGB(input);
             
             metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_RGB);
             break;
@@ -83,11 +83,17 @@ int Encode::handle() {
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
             result = Converter::convertToCGUPaletteRGB(input);
-            metadata = IO::composePaletteMetadata(IO::CONVERSION_TYPES::PALETTE_RGB, NULL);
+            metadata = 
+                IO::composePaletteMetadata(IO::CONVERSION_TYPES::PALETTE_RGB, State::getPaletteIndeces());
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
             result = Converter::convertToCGUPaletteBW(input);
-            metadata = IO::composePaletteMetadata(IO::CONVERSION_TYPES::PALETTE_BW, NULL);
+            metadata = 
+                IO::composePaletteMetadata(IO::CONVERSION_TYPES::PALETTE_BW, State::getPaletteIndeces());
+            break;
+        case IO::CONVERSION_TYPES::PALETTE_DETECTED:
+            result = Converter::convertToCGUPaletteDetected(input);
+            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::PALETTE_DETECTED);
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");

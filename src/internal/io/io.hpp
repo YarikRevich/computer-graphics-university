@@ -95,10 +95,10 @@ public:
             ofs << value.getCompatible();
             ofs << std::endl;
             ofs << static_cast<int>(value.getConvertion());
-            for (int index : value.getIndexes()) {
-                ofs << index << " ";
-            }
-            ofs << std::endl;
+            // for (int index : value.getIndexes()) {
+            //     ofs << index << " ";
+            // }
+            // ofs << std::endl;
 
             return ofs;
         };

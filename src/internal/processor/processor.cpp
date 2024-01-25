@@ -307,11 +307,14 @@ std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surfa
     for (int k = 0; k < BIT_NUM_MAX; k++) {
         y = k / 8;
         x = k - y / 8;
-        for (int xx = 0; xx < 40; xx++)  {
-            for (int yy = 0; yy < 50; yy++) {
-                result.push_back(PixelPoint(x * 40 + xx, y * 50 + yy, image[k]));
-            }
-        }
+
+        std::cout << "X: " << x << " Y: " << y << std::endl;
+        // for (int xx = 0; xx < 40; xx++)  {
+        //     for (int yy = 0; yy < 50; yy++) {
+        //         std::cout << "X: " << x + 40 + xx << " Y: " << y + 50 + yy << std::endl;
+        //         result.push_back(PixelPoint(x + 40 + xx, y + 50 + yy, image[k]));
+        //     }
+        // }
     }
 
 // void narysujPalete(SDL_Color paleta5[]){
