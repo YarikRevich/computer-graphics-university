@@ -20,6 +20,11 @@ private:
 public:
     Encode(args::ArgumentParser*);
 
+    /**
+     * Checks if the current command is called.
+     * 
+     * @return result of the check if the current command is called.
+    */
     bool isCalled();
 
     int handle();

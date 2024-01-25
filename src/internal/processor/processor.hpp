@@ -55,10 +55,19 @@ public:
 
     /**
      * Generates color buckets from the given color bit map using MedianCut algorithm in RGB mode.
+     * @param surface - surface intended to be scaned.
      * @param image - given image colors bit map.
-     * @return palet of the color buckets.
+     * @return palette of the color buckets.
     */
     static std::vector<Processor::PixelPoint> generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image);
+
+    /**
+     * Generates dedicated palette using the processed reduced color map.
+     * @param surface - surface intended to be scaned.
+     * @param image - given reduced image colors bit map.
+     * @return dedicated palette of the color bit map.
+    */
+    static std::vector<Processor::PixelPoint> generateDedicatedPalette(SDL_Surface* surface, std::vector<SDL_Color>& image);
 
     /**
      * Converts given 24 bit RGB color to 7 bit RGB single.
@@ -87,6 +96,20 @@ public:
      * @return converted 24 bit RGB color.
     */
     static SDL_Color convert7BitGreyTo24BitRGB(Uint8 grey);
+
+    /**
+     * Converts given RGB color to its Grey representation.
+     * @param color - given RGB color to be converted to Grey.
+     * @return result of the conversion.
+    */
+    static Uint8 convertRGBToGreyUint8(SDL_Color color);
+
+    /**
+     * Converts given RGB color to its Grey representation.
+     * @param color - given RGB color to be converted to Grey.
+     * @return result of the conversion.
+    */
+    static SDL_Color convertRGBToGrey(SDL_Color color);
 
     /**
      * Retrieves amount of pixels in the given surface.

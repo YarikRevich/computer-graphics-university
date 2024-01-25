@@ -299,6 +299,38 @@ std::vector<Processor::PixelPoint> Processor::generateColorBucketsRGB(SDL_Surfac
     return result;
 };
 
+std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surface* surface, std::vector<SDL_Color>& image) {
+    std::vector<Processor::PixelPoint> result;
+
+    int x, y;
+
+    for (int k = 0; k < BIT_NUM_MAX; k++) {
+        y = k / 8;
+        x = k - y / 8;
+        for (int xx = 0; xx < 40; xx++)  {
+            for (int yy = 0; yy < 50; yy++) {
+                result.push_back(PixelPoint(x * 40 + xx, y * 50 + yy, image[k]));
+            }
+        }
+    }
+
+// void narysujPalete(SDL_Color paleta5[]){
+//     int x, y;
+//     for(int k=0; k<32; k++) {
+//         y = k / 8;
+//         x = k - y * 8;
+//         for (int xx=0; xx < 40; xx++) {
+//             for(int yy=0; yy < 50; yy++) {
+//                 setPixel(x * 40 + xx, y * 50 + yy, paleta5[k].r, paleta5[k].g, paleta5[k].b);
+//             }
+//         }
+//     }
+
+// }
+
+    return result;
+}
+
 Uint8 Processor::convert24BitRGBTo7BitRGB(SDL_Color color) {
     int newColorR = round(color.r*3.0/255.0);
     int newColorG = round(color.g*7.0/255.0);
@@ -328,6 +360,20 @@ SDL_Color Processor::convert7BitGreyTo24BitRGB(Uint8 grey) {
         .r = static_cast<Uint8>(grey * 255.0 / 127.0),
         .g = static_cast<Uint8>(grey * 255.0 / 127.0),
         .b = static_cast<Uint8>(grey * 255.0 / 127.0)
+    };
+}
+
+Uint8 Processor::convertRGBToGreyUint8(SDL_Color color) {
+    return 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
+}
+
+SDL_Color Processor::convertRGBToGrey(SDL_Color color) {
+    Uint8 grey = convertRGBToGreyUint8(color);
+
+    return {
+        .r = grey,
+        .g = grey,
+        .b = grey
     };
 }
 

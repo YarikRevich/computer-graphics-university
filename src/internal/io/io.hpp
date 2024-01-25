@@ -29,6 +29,8 @@ public:
     enum class CONVERSION_TYPES {
         NATIVE_RGB,
         NATIVE_BW,
+        NATIVE_RGB_DITHERING,
+        NATIVE_BW_DITHERING,
         PALETTE_RGB,
         PALETTE_BW,
         PALETTE_DETECTED,

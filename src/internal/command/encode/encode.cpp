@@ -64,12 +64,22 @@ int Encode::handle() {
 
     switch (IO::getConversionType(conversion->Get())) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
-            result = Converter::convertToCGUNativeRGB(input);
+                // result = Converter::convertToCGUNativeRGBDithering(input);
+                result = Converter::convertToCGUNativeRGB(input);
+            
             metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_RGB);
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
             result = Converter::convertToCGUNativeBW(input);
             metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_BW);
+            break;
+        case IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING:
+            result = Converter::convertToCGUNativeRGBDithering(input);
+            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING);
+            break;
+        case IO::CONVERSION_TYPES::NATIVE_BW_DITHERING:
+            result = Converter::convertToCGUNativeBWDithering(input);
+            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_BW_DITHERING);
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
             result = Converter::convertToCGUPaletteRGB(input);

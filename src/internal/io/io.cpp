@@ -18,6 +18,10 @@ IO::CONVERSION_TYPES IO::getConversionType(std::string src){
         return IO::CONVERSION_TYPES::NATIVE_RGB;
     } else if (src == "native_bw") {
         return IO::CONVERSION_TYPES::NATIVE_BW;
+    } else if (src == "native_rgb_dithering") {
+        return IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING;
+    } else if (src == "native_bw_dithering") {
+        return IO::CONVERSION_TYPES::NATIVE_BW_DITHERING;
     } else if (src == "palette_rgb") {
         return IO::CONVERSION_TYPES::PALETTE_RGB;
     } else if (src == "palette_bw") {
