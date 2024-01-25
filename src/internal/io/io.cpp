@@ -49,12 +49,20 @@ void IO::FileMetadata::setConvertion(IO::CONVERSION_TYPES value) {
     this->convertion = value;
 };
 
-std::vector<int> IO::FileMetadata::getIndexes() {
-    return indexes;
+std::vector<int> IO::FileMetadata::getIndeces() {
+    return indeces;
 };
 
-void IO::FileMetadata::setIndexes(std::vector<int> indexes) {
-    this->indexes = indexes;
+void IO::FileMetadata::setIndeces(std::vector<int> indeces) {
+    this->indeces = indeces;
+};
+
+std::vector<Uint8> IO::FileMetadata::getCompounds() {
+    return compounds;
+};
+
+void IO::FileMetadata::setCompounds(std::vector<Uint8> compounds) {
+    this->compounds = compounds;
 };
 
 IO::FileMetadata IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion) {
@@ -63,8 +71,14 @@ IO::FileMetadata IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion) {
     return result;
 }
 
-IO::FileMetadata IO::composePaletteMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indexes) {
-    IO::FileMetadata result(convertion, indexes);
+IO::FileMetadata IO::composeIndecesMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indeces) {
+    IO::FileMetadata result(convertion, indeces);
+
+    return result;
+}
+
+IO::FileMetadata IO::composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, std::vector<Uint8> compounds) {
+    IO::FileMetadata result(convertion, compounds);
 
     return result;
 }

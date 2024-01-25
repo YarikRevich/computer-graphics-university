@@ -46,13 +46,17 @@ public:
 
         IO::CONVERSION_TYPES convertion;
 
-        std::vector<int> indexes;
+        std::vector<int> indeces;
+
+        std::vector<Uint8> compounds;
     public:
         FileMetadata() {};
 
         FileMetadata(IO::CONVERSION_TYPES convertion) : compatible(1), convertion(convertion) {};
         
-        FileMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indexes) : compatible(1), convertion(convertion), indexes(indexes) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indeces) : compatible(1), convertion(convertion), indeces(indeces) {};
+
+        FileMetadata(IO::CONVERSION_TYPES convertion, std::vector<Uint8> compounds) : compatible(1), convertion(convertion), compounds(compounds) {};
 
         /**
          * Retrieves compatibility flag.
@@ -79,26 +83,54 @@ public:
         void setConvertion(IO::CONVERSION_TYPES value);
 
         /**
-         * Retrieves indexes for the image convertion.
-         * @return CGU file indexes.
+         * Retrieves indeces for the image convertion.
+         * @return CGU file indeces.
         */
-        std::vector<int> getIndexes();
+        std::vector<int> getIndeces();
 
         /**
-         * Sets indexes for the image convertion.
-         * @param indexes - given CGU file convertion indexes.
+         * Sets indeces for the image convertion.
+         * @param indexes - given CGU file convertion indeces.
         */
-        void setIndexes(std::vector<int> indexes);
+        void setIndeces(std::vector<int> indeces);
+
+        /**
+         * Retrieves compounds for the image convertion.
+         * @return CGU file compounds.
+        */
+        std::vector<Uint8> getCompounds();
+
+        /**
+         * Sets compounds for the image convertion.
+         * @param indexes - given CGU file convertion compounds.
+        */
+        void setCompounds(std::vector<Uint8> compounds);
 
         friend std::ofstream & operator << (std::ofstream & ofs, IO::FileMetadata value) {
             ofs << std::endl;
             ofs << value.getCompatible();
             ofs << std::endl;
             ofs << static_cast<int>(value.getConvertion());
-            // for (int index : value.getIndexes()) {
-            //     ofs << index << " ";
-            // }
-            // ofs << std::endl;
+
+            if (value.getIndeces().size() > 0) {
+                ofs << std::endl;
+                ofs << value.getIndeces().size();
+                ofs << std::endl;
+            } else if (value.getCompounds().size() > 0) {
+                ofs << std::endl;
+                ofs << value.getCompounds().size();
+                ofs << std::endl;
+            }
+
+            for (int index : value.getIndeces()) {
+                ofs << index;
+                ofs << std::endl;
+            }
+
+            for (Uint8 compound : value.getCompounds()) {
+                ofs << static_cast<int>(compound);
+                ofs << std::endl;
+            }
 
             return ofs;
         };
@@ -106,10 +138,19 @@ public:
         friend std::ifstream & operator >> (std::ifstream & ifs, IO::FileMetadata & value) {
             uint16_t compatible;
             int convertion;
-            std::vector<int> indexes;
+            size_t data_size;
+            int index;
+            std::vector<int> indeces;
+            Uint8 compound;
+            std::vector<Uint8> compounds;
 
             ifs >> compatible;
             ifs >> convertion;
+            ifs >> data_size;
+
+            if (data_size > 0) {
+                std::cout << data_size << std::endl;
+            }
 
             value.setCompatible(compatible);
             value.setConvertion((IO::CONVERSION_TYPES)convertion);
@@ -128,9 +169,18 @@ public:
     /**
      * Composes CGU file metadata struct with the given arguments.
      * @param convertion - given CGU file convertion type.
+     * @param indeces - given CGU file indeces.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata composePaletteMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indexes);
+    static IO::FileMetadata composeIndecesMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indeces);
+
+    /**
+     * Composes CGU file metadata struct with the given arguments.
+     * @param convertion - given CGU file convertion type.
+     * @param compounds - given CGU file compounds.
+     * @return composed CGU file metadata.
+    */
+    static IO::FileMetadata composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, std::vector<Uint8> compounds);
 
     /**
      * Converts given file type to enum representation.

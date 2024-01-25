@@ -151,6 +151,12 @@ public:
      * @param pixels - pixels intended to be set in the given surface.
     */
     static void setPixels(SDL_Surface* surface, std::vector<PixelPoint> pixels);
+
+    /**
+     * Cleans the given surface with the empty rectangle.
+     * @param surface - given surface to be cleaned.
+    */
+    static void cleanSurface(SDL_Surface* surface);
 private:
     /**
      * Checks if the given colors are equal.

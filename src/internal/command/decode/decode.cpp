@@ -46,10 +46,10 @@ int Decode::handle() {
 
     switch (metadata.getConvertion()) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
-            result = Converter::convertFromCGUNativeRGB(input);
+            // result = Converter::convertFromCGUNativeRGB(input);
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
-            result = Converter::convertFromCGUNativeBW(input);
+            // result = Converter::convertFromCGUNativeBW(input);
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
             // result = Converter::convertFromCGUPaletteRGB(input, );

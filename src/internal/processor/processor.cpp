@@ -79,22 +79,6 @@ SDL_Color Processor::getNearestColorRGB(std::vector<SDL_Color> colors, SDL_Color
     }
 
     return result;
-
-
-
-    // int minimum=999;
-    // int indexMinimum;
-    // SDL_Color kolorPaleta;
-    // int odleglosc;
-    // for(int i=0; i<128; i++){
-    //     kolorPaleta=paleta[i];
-    //     odleglosc=abs(kolor.r-kolorPaleta.r)+abs(kolor.g-kolorPaleta.g)+abs(kolor.b-kolorPaleta.b);
-    //     if(odleglosc < minimum){
-    //         indexMinimum=i;
-    //         minimum=odleglosc;
-    //     }
-    // }
-    // return indexMinimum;
 };
 
 void Processor::sortColorMapBW(std::vector<SDL_Color>& colors, int begin, int end) {
@@ -302,20 +286,39 @@ std::vector<Processor::PixelPoint> Processor::generateColorBucketsRGB(SDL_Surfac
 std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surface* surface, std::vector<SDL_Color>& image) {
     std::vector<Processor::PixelPoint> result;
 
-    int x, y;
+    // TODO: you initial size and than after each
+    // calculation try to minimize it to make the window look correctly
 
-    for (int k = 0; k < BIT_NUM_MAX; k++) {
-        y = k / 8;
-        x = k - y / 8;
+    // while (true) {
+    //     int x, y;
 
-        std::cout << "X: " << x << " Y: " << y << std::endl;
+    //     for (;x < surface->w; ) {
+    //         if ()
+    //         x += 20;
+    //     }
+        
+    // }
+
+
+    // for (int x = 0; x < surface->w; x++) {
+    //     for (int y = 0; y < surface->h; y++) {
+
+    //     }
+    // }
+
+
+    // for (int k = 0; k < BIT_NUM_MAX; k++) {
+    //     y = k / 8;
+    //     x = k - y / 8;
+
+    //     std::cout << "X: " << x << " Y: " << y << std::endl;
         // for (int xx = 0; xx < 40; xx++)  {
         //     for (int yy = 0; yy < 50; yy++) {
         //         std::cout << "X: " << x + 40 + xx << " Y: " << y + 50 + yy << std::endl;
         //         result.push_back(PixelPoint(x + 40 + xx, y + 50 + yy, image[k]));
         //     }
         // }
-    }
+    // }
 
 // void narysujPalete(SDL_Color paleta5[]){
 //     int x, y;
@@ -454,4 +457,8 @@ void Processor::setPixels(SDL_Surface* surface, std::vector<Processor::PixelPoin
     for (Processor::PixelPoint pixel : pixels) {
         setPixel(surface, pixel.x, pixel.y, pixel.color);
     }
+}
+
+void Processor::cleanSurface(SDL_Surface* surface) {
+    SDL_FillRect(surface, NULL, 0x000000);
 }

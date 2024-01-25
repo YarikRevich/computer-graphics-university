@@ -1,76 +1,63 @@
 ```plantuml
 !pragma teoz true
 
-title 
-    Detailed design of "CGU" 
+title
+Detailed design of "CGU"
 end title
 
 actor "Client" as client
 
-box "Control plain" #MOTIVATION
-participant "API Server" as apiserver
+box "External" #MOTIVATION
+participant "Handler" as handler
 
-box "Cloud environment" #Lavender
-queue "Kafka" as kafka
-participant "Kafka starter" as kafkastarter
-participant "Agent" as agent
-entity "Cloud provider" as cloudprovider
+box "Internal" #Lavender
+participant "Converter" as converter
+participant "Processor" as processor
+participant "IO" as io
+participant "Window" as window
 end box
 
 end box
 
-note over kafka: Kafka is considered to be used in persisted mode
-
-opt "endpoints"
-opt "/v1/secrets/acquire [POST]"
-apiserver -> cloudprovider: validate provided credentials
-cloudprovider -> apiserver: validation result
-end
-opt "/v1/topic/logs [GET]"
-apiserver -> kafka: retrieve state for the given "logs" topic
-kafka -> apiserver: transform data stream according to the specified filters
-end
-opt "/v1/terraform/apply [POST]"
-apiserver -> cloudprovider: deploy resource tracking infrastructure
-apiserver -> kafkastarter: request kafka cluster startup 
-kafkastarter -> kafka: start kafka cluster
-end
-opt "/v1/terraform/destroy [POST]"
-apiserver -> cloudprovider: destroy resource tracking infrastructure
-end
+opt "handlers"
+opt "encode"
+handler -> converter: convert from the given origin image type to CGU
+converter -> processor: perform sub operations to complete conversion operation
+converter -> handler: updated image surface 
+handler -> io: validate and write down metadata to the output file
+io -> handler: backed metadata 
+handler -> io: write down update image surface as a BMP
 end
 
-opt "agent execution flow"
-agent -> cloudprovider: execute remote operations
-agent <-- cloudprovider: remote operation result
-agent --> kafka: push latest resource state to "logs" topic
+opt "decode"
+handler -> io: read given image file
+io -> handler: backed image surface
+handler -> io: decerialize file metadata to retrieve conversion type
+io -> handler: decerialized file metadata structure
+handler -> converter: convert from the CGU to the requested image type with the specified conversion type
+converter -> processor: perform sub operations to complete conversion operation
+converter -> handler: updated image surface 
+handler -> io: write down update image surface as an image of the requested type
 end
 
-opt "requests"
-note over client: Uses properties specified in a client\nconfiguration file located in\n a common directory
-opt "credentials validation"
-client -> apiserver: /v1/secrets/acquire [POST]
+opt "view"
+handler -> io: read given image file
+io -> handler: backed image surface
+handler -> io: decerialize file metadata to retrieve conversion type
+io -> handler: decerialized file metadata structure
+handler -> window: open window with the given image surface
 end
-opt "script validation"
-client -> apiserver: /v1/script/acquire [POST]
 end
-opt "health check"
-client -> apiserver: /v1/health [GET]
+
+opt "commands"
+opt "encode"
+client -> handler: perform encode operation of the given input image\nwith the mentioned conversion type
 end
-opt "readiness check"
-client -> apiserver: /v1/readiness [GET]
+opt "decode"
+client -> handler: perform decode operation for the given image in CGU format
 end
-opt "version validation"
-client -> apiserver: /v1/info/version [GET]
+opt "view"
+client -> handler: open window to show the image with the given location
 end
-opt "infrustructure deployment"
-client -> apiserver: /v1/terraform/apply [POST]
-end
-opt "infrustructure clean up"
-client -> apiserver: /v1/terraform/destroy [POST]
-end
-opt "state retrieval"
-client -> apiserver: /v1/topic/logs [GET]
-end 
 end
 ```

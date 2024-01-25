@@ -64,10 +64,9 @@ int Encode::handle() {
 
     switch (IO::getConversionType(conversion->Get())) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
-                // result = Converter::convertToCGUNativeRGBDithering(input);
             result = Converter::convertToCGUNativeRGB(input);
-            
-            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_RGB);
+            metadata = 
+                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_RGB, State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
             result = Converter::convertToCGUNativeBW(input);
@@ -84,12 +83,12 @@ int Encode::handle() {
         case IO::CONVERSION_TYPES::PALETTE_RGB:
             result = Converter::convertToCGUPaletteRGB(input);
             metadata = 
-                IO::composePaletteMetadata(IO::CONVERSION_TYPES::PALETTE_RGB, State::getPaletteIndeces());
+                IO::composeIndecesMetadata(IO::CONVERSION_TYPES::PALETTE_RGB, State::getPaletteIndeces());
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
             result = Converter::convertToCGUPaletteBW(input);
             metadata = 
-                IO::composePaletteMetadata(IO::CONVERSION_TYPES::PALETTE_BW, State::getPaletteIndeces());
+                IO::composeIndecesMetadata(IO::CONVERSION_TYPES::PALETTE_BW, State::getPaletteIndeces());
             break;
         case IO::CONVERSION_TYPES::PALETTE_DETECTED:
             result = Converter::convertToCGUPaletteDetected(input);

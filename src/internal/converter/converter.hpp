@@ -4,6 +4,7 @@
 #include "../io/io.hpp"
 #include "../tools/tools.hpp"
 #include "../processor/processor.hpp"
+#include "../state/state.hpp"
 
 #include <vector>
 #include <SDL2/SDL.h>
@@ -66,17 +67,19 @@ public:
      * Converts given surface canvas from CGU media type in native BW mode.
      * back to the original, but with the some loss of quality.
      * @param surface - given surface to be converted.
+     * @param compounds - given origin compounds.
      * @return result operation status code.
     */
-    static int convertFromCGUNativeBW(SDL_Surface* surface);
+    static int convertFromCGUNativeBW(SDL_Surface* surface, std::vector<Uint8>& compounds);
 
     /**
      * Converts given surface canvas from CGU media type in native RGB mode.
      * back to the original, but with the some loss of quality.
      * @param surface - given surface to be converted.
+     * @param compounds - given origin compounds.
      * @return result operation status code.
     */
-    static int convertFromCGUNativeRGB(SDL_Surface* surface);
+    static int convertFromCGUNativeRGB(SDL_Surface* surface, std::vector<Uint8>& compounds);
 
     /**
      * Converts given surface canvas from CGU media type in palette BW mode.
