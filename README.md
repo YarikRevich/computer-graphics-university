@@ -47,16 +47,27 @@ All the available **metadata** flags:
 Every pixel has **7-bit** color. That color consists of the following compounds:
 * 
 
-> #### RGB
+> ### RGB
 
-> #### BW
+> ### BW
+
+Grey scale 
+
+> ### Dithering
+
+Both RGB and BW support additional feature, which is called **dithering**. 
+
+> Dithering - an intentionally applied form of noise used to randomize quantization error, preventing large-scale patterns such as color banding in images
+
+In the case of native conversion there are the next possible options of dithering algorithm to be used:
+* Floyd-Steinberg
 
 ### Palette conversion
 
 In order to perform color conversion it's required to have generated reduced bit color map of the colors
 of the given image.
 
-> #### Detected palette conversion
+> ### Detected palette conversion
 
 Detected palette conversion uses previously generate reduced bit color map, but, first of all, it checks the number of unique colors. It should not exceed **128** colors. 
 
@@ -64,7 +75,7 @@ The next step is detected palette rendering. Each color will be placed in a rect
 
 // TODO: place the example photo here.
 
-> #### MedianCut
+> ### MedianCut
 
 **MedianCut** is the algorithm used for the color quantization operation. With the help of the generated **7-bit** color palette it can process the given image and return the generated one.
 

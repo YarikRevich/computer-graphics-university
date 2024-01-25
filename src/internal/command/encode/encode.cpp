@@ -7,7 +7,6 @@ Encode::Encode(args::ArgumentParser* argumentParser) {
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the source media", {"type"});
     this->conversion = new args::ValueFlag<std::string>(*group, "native_rgb|native_bw|palette_rgb|palette_bw|palette_detected", "Type of the media conversion", {"conversion"});
-    this->compression = new args::ValueFlag<bool>(*group, "true|false(default)", "Enable compression", {"conversion"});
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -70,15 +69,18 @@ int Encode::handle() {
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
             result = Converter::convertToCGUNativeBW(input);
-            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_BW);
+            metadata = 
+                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_BW, State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING:
             result = Converter::convertToCGUNativeRGBDithering(input);
-            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING);
+            metadata = 
+                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING, State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW_DITHERING:
             result = Converter::convertToCGUNativeBWDithering(input);
-            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::NATIVE_BW_DITHERING);
+            metadata = 
+                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_BW_DITHERING, State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
             result = Converter::convertToCGUPaletteRGB(input);
