@@ -286,6 +286,8 @@ std::vector<Processor::PixelPoint> Processor::generateColorBucketsRGB(SDL_Surfac
 std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surface* surface, std::vector<SDL_Color>& image) {
     std::vector<Processor::PixelPoint> result;
 
+    
+
     // TODO: you initial size and than after each
     // calculation try to minimize it to make the window look correctly
 

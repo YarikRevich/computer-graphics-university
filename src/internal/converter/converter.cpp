@@ -30,8 +30,6 @@ int Converter::convertToCGUNativeRGB(SDL_Surface* surface) {
 int Converter::convertToCGUNativeRGBDithering(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
-    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-
     SDL_Color color, newColor, tempColor;
 
     std::vector<std::vector<float>> colorShiftsR((surface->w) + 2, std::vector<float>((surface->h) + 2));

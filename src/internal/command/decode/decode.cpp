@@ -29,33 +29,45 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
-    if (!IO::isFileCGUCompatible(from->Get())) {
+    IO::FileMetadata* metadata = IO::readMetadataFromFileCGU(from->Get());
+    if (metadata == NULL) {
+        return EXIT_FAILURE;
+    }
+
+    if (!metadata->getCompatible()) {
         Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
         return EXIT_FAILURE;
     }
 
-    SDL_Surface* input = IO::readFileCGU(from->Get());
+    SDL_Surface* input;
+    
+    if (metadata->getOptimal()) {
+        input = IO::readFileCGUOptimal(from->Get());
+    } else {
+        input = IO::readFileCGUDefault(from->Get());
+    }
+     
     if (input == NULL){
         Validator::throwValueFlagInvalidException("from");
         return EXIT_FAILURE;
     }
 
-    IO::FileMetadata metadata = IO::readMetadataFromFileCGU(from->Get());
-
     int result;
 
-    switch (metadata.getConvertion()) {
+    switch (metadata->getConvertion()) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
             // result = Converter::convertFromCGUNativeRGB(input);
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
             // result = Converter::convertFromCGUNativeBW(input);
             break;
+        case IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING:
+            break;
+        case IO::CONVERSION_TYPES::NATIVE_BW_DITHERING:
+            break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
-            // result = Converter::convertFromCGUPaletteRGB(input, );
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
-            // result = Converter::convertFromCGUPaletteBW(input);
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");

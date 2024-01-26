@@ -7,6 +7,7 @@ Encode::Encode(args::ArgumentParser* argumentParser) {
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the source media", {"type"});
     this->conversion = new args::ValueFlag<std::string>(*group, "native_rgb|native_bw|palette_rgb|palette_bw|palette_detected", "Type of the media conversion", {"conversion"});
+    this->optimal = new args::ValueFlag<bool>(*group, "true|false(default)", "Enables optional mode of data saving", {"optimal"});;
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -57,7 +58,7 @@ int Encode::handle() {
         return EXIT_FAILURE;
     }
 
-    IO::FileMetadata metadata;
+    IO::FileMetadata* metadata;
 
     int result;
 
@@ -65,36 +66,36 @@ int Encode::handle() {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
             result = Converter::convertToCGUNativeRGB(input);
             metadata = 
-                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_RGB, State::getImageCompounds());
+                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_RGB, optimal->Get(), State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
             result = Converter::convertToCGUNativeBW(input);
             metadata = 
-                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_BW, State::getImageCompounds());
+                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_BW, optimal->Get(), State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING:
             result = Converter::convertToCGUNativeRGBDithering(input);
             metadata = 
-                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING, State::getImageCompounds());
+                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING, optimal->Get(), State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW_DITHERING:
             result = Converter::convertToCGUNativeBWDithering(input);
             metadata = 
-                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_BW_DITHERING, State::getImageCompounds());
+                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_BW_DITHERING, optimal->Get(), State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
             result = Converter::convertToCGUPaletteRGB(input);
             metadata = 
-                IO::composeIndecesMetadata(IO::CONVERSION_TYPES::PALETTE_RGB, State::getPaletteIndeces());
+                IO::composeIndecesMetadata(IO::CONVERSION_TYPES::PALETTE_RGB, optimal->Get(), State::getPaletteIndeces());
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
             result = Converter::convertToCGUPaletteBW(input);
             metadata = 
-                IO::composeIndecesMetadata(IO::CONVERSION_TYPES::PALETTE_BW, State::getPaletteIndeces());
+                IO::composeIndecesMetadata(IO::CONVERSION_TYPES::PALETTE_BW, optimal->Get(), State::getPaletteIndeces());
             break;
         case IO::CONVERSION_TYPES::PALETTE_DETECTED:
             result = Converter::convertToCGUPaletteDetected(input);
-            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::PALETTE_DETECTED);
+            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::PALETTE_DETECTED, optimal->Get());
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");
@@ -105,5 +106,9 @@ int Encode::handle() {
         return EXIT_FAILURE;
     };
 
-    return IO::writeFileCGU(to->Get(), metadata, input);
+    if (optimal->Get()) {
+        return IO::writeFileCGUOptimal(to->Get(), metadata, input);
+    } 
+    
+    return IO::writeFileCGUDefault(to->Get(), metadata, input);
 }

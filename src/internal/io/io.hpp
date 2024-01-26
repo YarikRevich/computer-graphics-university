@@ -3,6 +3,8 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <iterator>
+#include <sstream>
 #include <SDL2/SDL.h>
 #include <SDL2_image/SDL_image.h>
 
@@ -42,7 +44,14 @@ public:
     */
     class FileMetadata {
     private:
-        uint16_t compatible;
+        uint16_t compatible = 1;
+
+        size_t defaultSize = 0;
+
+        /**
+         * 
+        */
+        bool optimal;
 
         IO::CONVERSION_TYPES convertion;
 
@@ -52,11 +61,11 @@ public:
     public:
         FileMetadata() {};
 
-        FileMetadata(IO::CONVERSION_TYPES convertion) : compatible(1), convertion(convertion) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, bool optimal) : convertion(convertion), optimal(optimal) {};
         
-        FileMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indeces) : compatible(1), convertion(convertion), indeces(indeces) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<int> indeces) : convertion(convertion), optimal(optimal), indeces(indeces) {};
 
-        FileMetadata(IO::CONVERSION_TYPES convertion, std::vector<Uint8> compounds) : compatible(1), convertion(convertion), compounds(compounds) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<Uint8> compounds) : convertion(convertion), optimal(optimal), compounds(compounds) {};
 
         /**
          * Retrieves compatibility flag.
@@ -69,6 +78,24 @@ public:
          * @param value - compatible flag value.
         */
         void setCompatible(uint16_t value);
+
+        /**
+         * Retrieves default size flag.
+         * @return default size.
+        */
+        size_t getDefaultSize();
+
+        /**
+         * Retrieves optimal flag.
+         * @return optimal flag.
+        */
+        uint16_t getOptimal();
+
+        /**
+         * Sets given optimal type.
+         * @param value - optimal flag value.
+        */
+        void setOptimal(uint16_t value);
 
         /**
          * Retrieves CGU file convertion type.
@@ -111,6 +138,8 @@ public:
             ofs << value.getCompatible();
             ofs << std::endl;
             ofs << static_cast<int>(value.getConvertion());
+            ofs << value.getOptimal();
+            ofs << std::endl;
 
             if (value.getIndeces().size() > 0) {
                 ofs << std::endl;
@@ -120,17 +149,23 @@ public:
                 ofs << std::endl;
                 ofs << value.getCompounds().size();
                 ofs << std::endl;
+                std::cout << IO::combineCompounds(value.getCompounds()) << std::endl;
+            } else {
+                ofs << std::endl;
+                ofs << value.getDefaultSize();
             }
 
-            for (int index : value.getIndeces()) {
-                ofs << index;
-                ofs << std::endl;
-            }
+            
 
-            for (Uint8 compound : value.getCompounds()) {
-                ofs << static_cast<int>(compound);
-                ofs << std::endl;
-            }
+            // for (int index : value.getIndeces()) {
+            //     ofs << index;
+            //     ofs << std::endl;
+            // }
+
+            // for (Uint8 compound : value.getCompounds()) {
+            //     ofs << static_cast<int>(compound);
+            //     ofs << std::endl;
+            // }
 
             return ofs;
         };
@@ -138,19 +173,28 @@ public:
         friend std::ifstream & operator >> (std::ifstream & ifs, IO::FileMetadata & value) {
             uint16_t compatible;
             int convertion;
+            bool optimal;
             size_t data_size;
-            int index;
-            std::vector<int> indeces;
-            Uint8 compound;
-            std::vector<Uint8> compounds;
+            // int index;
+            // std::vector<int> indeces;
+            // Uint8 compound;
+            // std::vector<Uint8> compounds;
 
             ifs >> compatible;
             ifs >> convertion;
+            ifs >> optimal;
             ifs >> data_size;
 
-            if (data_size > 0) {
-                std::cout << data_size << std::endl;
-            }
+            // if (data_size > 0) {
+            //     std::cout << compatible << std::endl;
+            //     std::cout << convertion << std::endl;
+            //     std::cout << data_size << std::endl;
+            // }
+
+            std::cout << compatible << std::endl;
+            std::cout << convertion << std::endl;
+            std::cout << optimal << std::endl;
+            std::cout << data_size << std::endl;
 
             value.setCompatible(compatible);
             value.setConvertion((IO::CONVERSION_TYPES)convertion);
@@ -162,25 +206,38 @@ public:
     /**
      * Composes CGU file metadata struct with the given arguments.
      * @param convertion - given CGU file convertion type.
+     * @param optimal - given CGU file writer mode.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata composeNativeMetadata(IO::CONVERSION_TYPES convertion);
+    static IO::FileMetadata* composeNativeMetadata(IO::CONVERSION_TYPES convertion, bool optimal);
 
     /**
      * Composes CGU file metadata struct with the given arguments.
      * @param convertion - given CGU file convertion type.
+     * @param optimal - given CGU file writer mode.
      * @param indeces - given CGU file indeces.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata composeIndecesMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indeces);
+    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<int> indeces);
 
     /**
      * Composes CGU file metadata struct with the given arguments.
      * @param convertion - given CGU file convertion type.
+     * @param optimal - given CGU file writer mode.
      * @param compounds - given CGU file compounds.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, std::vector<Uint8> compounds);
+    static IO::FileMetadata* composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<Uint8> compounds);
+
+    /**
+     * 
+    */
+    static std::string combineIndeces(std::vector<int> indeces);
+
+    /**
+     * 
+    */
+    static std::string combineCompounds(std::vector<Uint8> compounds);
 
     /**
      * Converts given file type to enum representation.
@@ -197,7 +254,7 @@ public:
     static IO::CONVERSION_TYPES getConversionType(std::string src);
 
     /**
-     * Reads a media JPEG file with the given path
+     * Reads media JPEG file with the given path
      * into managable surface canvas.
      * @param path - a location of the file to be read.
      * @return managable surface canvas.
@@ -205,7 +262,7 @@ public:
     static SDL_Surface* readFileJPEG(std::string path);
 
     /**
-     * Reads a media PNG file with the given path
+     * Reads media PNG file with the given path
      * into managable surface canvas.
      * @param path - a location of the file to be read.
      * @return managable surface canvas.
@@ -213,7 +270,7 @@ public:
     static SDL_Surface* readFilePNG(std::string path);
 
     /**
-     * Reads a media BMP file with the given path
+     * Reads media BMP file with the given path
      * into managable surface canvas.
      * @param path - a location of the file to be read.
      * @return managable surface canvas.
@@ -221,15 +278,23 @@ public:
     static SDL_Surface* readFileBMP(std::string path);
 
     /**
-     * Reads a media CGU file with the given path
+     * Reads media CGU file with the given path in the default way.
      * into managable surface canvas.
      * @param path - a location of the file to be read.
      * @return managable surface canvas.
     */
-    static SDL_Surface* readFileCGU(std::string path);
+    static SDL_Surface* readFileCGUDefault(std::string path);
 
     /**
-     * Writes a media JPEG file to the given path
+     * Reads media CGU file with the given path in the optimal way.
+     * into managable surface canvas.
+     * @param path - a location of the file to be read.
+     * @return managable surface canvas.
+    */
+    static SDL_Surface* readFileCGUOptimal(std::string path);
+
+    /**
+     * Writes media JPEG file to the given path
      * from the managable surface canvas.
      * @param path - a location of the fle to be written to.
      * @param surface - a modified managable surface canvas.
@@ -238,7 +303,7 @@ public:
     static int writeFileJPEG(std::string path, SDL_Surface* surface);
 
     /**
-     * Writes a media PNG file to the given path
+     * Writes media PNG file to the given path
      * from the managable surface canvas.
      * @param path - a location of the fle to be written to.
      * @param surface - a modified managable surface canvas.
@@ -247,7 +312,7 @@ public:
     static int writeFilePNG(std::string path, SDL_Surface* surface);
 
     /**
-     * Writes a media BMP file to the given path
+     * Writes media BMP file to the given path
      * from the managable surface canvas.
      * @param path - a location of the fle to be written to.
      * @param surface - a modified managable surface canvas.
@@ -256,32 +321,34 @@ public:
     static int writeFileBMP(std::string path, SDL_Surface* surface);
 
     /**
-     * Writes a media CGU file to the given path
+     * Writes media CGU file to the given path in the default way.
      * from the managable surface canvas.
      * @param path - a location of the file to be written to.
      * @param surface - a modified managable surface canvas.
      * @return operation result code.
     */
-    static int writeFileCGU(std::string path, FileMetadata metadata, SDL_Surface* surface);
+    static int writeFileCGUDefault(std::string path, FileMetadata* metadata, SDL_Surface* surface);
 
     /**
-     * Checks if the file at the given location is CGU compatible.
-     * @param path - a location of the file to be scanned.
-     * @return CGU compatibility check.
+     * Writes media CGU file to the given path in the optimal way.
+     * from the managable surface canvas.
+     * @param path - a location of the file to be written to.
+     * @param surface - a modified managable surface canvas.
+     * @return operation result code.
     */
-    static bool isFileCGUCompatible(std::string path);
+    static int writeFileCGUOptimal(std::string path, FileMetadata* metadata, SDL_Surface* surface);
 
     /**
      * Reads metadata from the given CGU file.
      * @param path - a location of the file to be read.
      * @return CGU file metadata.
     */
-    static IO::FileMetadata readMetadataFromFileCGU(std::string path);
+    static IO::FileMetadata* readMetadataFromFileCGU(std::string path);
 private:
     /**
      * Writes given metadata to the CGU file at the given location.
      * @param path - a location of the file, where metadata is intended to be set.
      * @param metadata - CGU file metadata.
     */
-    static void writeMetadataToFileCGU(std::string path, IO::FileMetadata metadata);
+    static void writeMetadataToFileCGU(std::string path, IO::FileMetadata* metadata);
 };

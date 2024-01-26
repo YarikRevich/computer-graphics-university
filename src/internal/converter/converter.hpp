@@ -81,13 +81,7 @@ public:
     */
     static int convertFromCGUNativeRGB(SDL_Surface* surface, std::vector<Uint8>& compounds);
 
-
-
-
-
-
-
-/**
+    /**
      * Converts given surface canvas from CGU media type in native BW mode including dithering.
      * back to the original, but with the some loss of quality.
      * @param surface - given surface to be converted.

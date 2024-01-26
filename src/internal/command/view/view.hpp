@@ -7,10 +7,14 @@
 #include "../../window/window.hpp"
 #include "../../io/io.hpp"
 
+/**
+ * 
+*/
 class View {
 private:
     args::Command* command = NULL;
     args::ValueFlag<std::string>* from = NULL;
+    args::ValueFlag<bool>* debug = NULL;
 
 public:
     View(args::ArgumentParser*);

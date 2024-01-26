@@ -41,6 +41,18 @@ void IO::FileMetadata::setCompatible(uint16_t value) {
     this->compatible = value;
 };
 
+size_t IO::FileMetadata::getDefaultSize() {
+    return defaultSize;
+}
+
+uint16_t IO::FileMetadata::getOptimal() {
+    return compatible;
+}
+
+void IO::FileMetadata::setOptimal(uint16_t value) {
+    this->compatible = value;
+};
+
 IO::CONVERSION_TYPES IO::FileMetadata::getConvertion() {
     return convertion;
 }
@@ -65,23 +77,38 @@ void IO::FileMetadata::setCompounds(std::vector<Uint8> compounds) {
     this->compounds = compounds;
 };
 
-IO::FileMetadata IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion) {
-    IO::FileMetadata result(convertion);
-
-    return result;
+IO::FileMetadata* IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion, bool optimal) {
+    return new IO::FileMetadata(convertion, optimal);
 }
 
-IO::FileMetadata IO::composeIndecesMetadata(IO::CONVERSION_TYPES convertion, std::vector<int> indeces) {
-    IO::FileMetadata result(convertion, indeces);
-
-    return result;
+IO::FileMetadata* IO::composeIndecesMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<int> indeces) {
+    return new IO::FileMetadata(convertion, optimal, indeces);
 }
 
-IO::FileMetadata IO::composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, std::vector<Uint8> compounds) {
-    IO::FileMetadata result(convertion, compounds);
-
-    return result;
+IO::FileMetadata* IO::composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<Uint8> compounds) {
+    return new IO::FileMetadata(convertion, optimal, compounds);
 }
+
+std::string IO::combineIndeces(std::vector<int> indeces) {
+    std::ostringstream imploded;
+
+    std::copy(indeces.begin(), indeces.end(),
+           std::ostream_iterator<int>(imploded, " "));
+
+    return imploded.str();
+};
+
+std::string IO::combineCompounds(std::vector<Uint8> compounds) {
+    std::ostringstream imploded;
+
+
+
+
+    std::copy(compounds.begin(), compounds.end(),
+           std::ostream_iterator<Uint8>(imploded, " "));
+
+    return imploded.str();
+};
 
 SDL_Surface* IO::readFileJPEG(std::string path) {
     if ((IMG_Init(IMG_INIT_JPG) & IMG_INIT_JPG) != IMG_INIT_JPG){
@@ -103,7 +130,11 @@ SDL_Surface* IO::readFileBMP(std::string path) {
     return SDL_LoadBMP(path.c_str());
 }
 
-SDL_Surface* IO::readFileCGU(std::string path) {
+SDL_Surface* IO::readFileCGUDefault(std::string path) {
+    return IMG_Load(path.c_str());
+};
+
+SDL_Surface* IO::readFileCGUOptimal(std::string path) {
     return IMG_Load(path.c_str());
 };
 
@@ -119,7 +150,7 @@ int IO::writeFileBMP(std::string path, SDL_Surface* surface) {
     return SDL_SaveBMP(surface, path.c_str());
 };
 
-int IO::writeFileCGU(std::string path, IO::FileMetadata metadata, SDL_Surface* surface){
+int IO::writeFileCGUDefault(std::string path, IO::FileMetadata* metadata, SDL_Surface* surface){
     if (SDL_SaveBMP(surface, path.c_str()) != EXIT_SUCCESS) {
         return EXIT_FAILURE;
     }
@@ -129,28 +160,35 @@ int IO::writeFileCGU(std::string path, IO::FileMetadata metadata, SDL_Surface* s
     return EXIT_SUCCESS;
 };
 
-bool IO::isFileCGUCompatible(std::string path) {
-    IO::FileMetadata metadata = readMetadataFromFileCGU(path);
+int IO::writeFileCGUOptimal(std::string path, IO::FileMetadata* metadata, SDL_Surface* surface){
+    // if (SDL_SaveBMP(surface, path.c_str()) != EXIT_SUCCESS) {
+    //     return EXIT_FAILURE;
+    // }
 
-    return metadata.getCompatible() == 1;
-}
+    writeMetadataToFileCGU(path, metadata);
 
-void IO::writeMetadataToFileCGU(std::string path, IO::FileMetadata metadata) {
+    return EXIT_SUCCESS;
+};
+
+void IO::writeMetadataToFileCGU(std::string path, IO::FileMetadata* metadata) {
     std::ofstream file(path, std::ios_base::app);
 
     file.seekp(0, std::ios::end);
-    file << metadata;
+    file << *metadata;
 
     file.close();
 }
 
-IO::FileMetadata IO::readMetadataFromFileCGU(std::string path) {
-    IO::FileMetadata result;
+IO::FileMetadata* IO::readMetadataFromFileCGU(std::string path) {
+    IO::FileMetadata* result = new FileMetadata();
 
     std::ifstream file(path);
+    if (!file.is_open()) {
+        return NULL;
+    }
 
     file.seekg(((int)file.tellg()) - (METADATA_FIELDS_NUM + 1), std::ios::end);
-    file >> result;
+    file >> *result;
 
     file.close();
 
