@@ -46,6 +46,7 @@ int View::handle() {
     if (optimal->Get()) {
         surface = IO::readFileCGUOptimal(from->Get(), metadata);
     } else {
+
         surface = IO::readFileCGUDefault(from->Get());
     }
      

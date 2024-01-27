@@ -63,8 +63,12 @@ int Decode::handle() {
 
     int result;
 
+    std::cout << metadata->getCompounds().size() << std::endl;
+
     switch (metadata->getConvertion()) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
+            
+
             // result = Converter::convertFromCGUNativeRGB(input);
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:

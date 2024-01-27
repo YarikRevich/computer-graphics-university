@@ -99,6 +99,18 @@ int Encode::handle() {
                 IO::composeIndecesMetadata(
                     IO::CONVERSION_TYPES::PALETTE_BW, input->w, input->h, State::getPaletteIndeces());
             break;
+        case IO::CONVERSION_TYPES::PALETTE_RGB_DITHERING:
+            result = Converter::convertToCGUPaletteRGBDithering(input);
+            metadata = 
+                IO::composeIndecesMetadata(
+                    IO::CONVERSION_TYPES::PALETTE_RGB_DITHERING, input->w, input->h, State::getPaletteIndeces());
+            break;
+        case IO::CONVERSION_TYPES::PALETTE_BW_DITHERING:
+            result = Converter::convertToCGUPaletteBWDithering(input);
+            metadata = 
+                IO::composeIndecesMetadata(
+                    IO::CONVERSION_TYPES::PALETTE_BW_DITHERING, input->w, input->h, State::getPaletteIndeces());
+            break;
         default:
             Validator::throwValueFlagInvalidException("conversion");
             return EXIT_FAILURE;

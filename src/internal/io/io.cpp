@@ -465,14 +465,12 @@ int IO::writeFileCGUOptimal(std::string path, IO::FileMetadata* metadata, SDL_Su
 };
 
 int IO::writeMetadataToFileCGUDefault(std::string path, IO::FileMetadata* metadata) {
-    std::ofstream file(path, std::ios_base::app | std::ios_base::binary);
+    std::ofstream file(path, std::ios_base::app);
     if (!file.is_open()) {
         return EXIT_FAILURE;
     }
 
-    file.seekp(1, std::ios::end);
-
-    metadata->writeToDefault(file);
+    metadata->writeToOptimal(file);
 
     file.close();
 
@@ -493,7 +491,7 @@ int IO::writeMetadataToFileCGUOptimal(std::string path, IO::FileMetadata* metada
 }
 
 IO::FileMetadata* IO::readMetadataFromFileCGUDefault(std::string path) {
-    std::ifstream file(path, std::ios_base::binary);
+    std::ifstream file(path, std::ios_base::in);
     if (!file.is_open()) {
         return NULL;
     }
@@ -501,7 +499,7 @@ IO::FileMetadata* IO::readMetadataFromFileCGUDefault(std::string path) {
     file.seekg(((int)file.tellg()) + 1, std::ios::end);
 
     IO::FileMetadata* result = new FileMetadata();
-    result->readFromDefault(file);
+    result->readFromOptimal(file);
 
     file.close();
 

@@ -50,11 +50,25 @@ public:
     static int convertToCGUPaletteRGB(SDL_Surface* surface);
 
     /**
+     * Converts given surface canvas to CGU media type in palette RGB mode.
+     * @param surface - given surface to be converted.
+     * @return result operation status code.
+    */
+    static int convertToCGUPaletteRGBDithering(SDL_Surface* surface);
+
+    /**
      * Converts given surface canvas to CGU media type in palette BW mode.
      * @param surface - given surface to be converted.
      * @return result operation status code.
     */
     static int convertToCGUPaletteBW(SDL_Surface* surface);
+
+    /**
+     * Converts given surface canvas to CGU media type in palette BW mode.
+     * @param surface - given surface to be converted.
+     * @return result operation status code.
+    */
+    static int convertToCGUPaletteBWDithering(SDL_Surface* surface);
 
     /**
      * Converts given surface canvas to CGU media type in palette Detected mode.

@@ -168,7 +168,43 @@ int Converter::convertToCGUPaletteRGB(SDL_Surface* surface) {
     return EXIT_SUCCESS;
 }
 
+int Converter::convertToCGUPaletteRGBDithering(SDL_Surface* surface) {
+    Tools::startIndefiniteSpinner();
+
+    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
+    if (colors.size() < BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
+        return EXIT_FAILURE;
+    }
+
+    std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
+
+    std::vector<Processor::PixelPoint> result =
+        Processor::generateColorBucketsRGB(surface, image);
+    Processor::setPixels(surface, result);
+
+    return EXIT_SUCCESS;
+}
+
 int Converter::convertToCGUPaletteBW(SDL_Surface* surface) {
+    Tools::startIndefiniteSpinner();
+
+    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
+    if (colors.size() < BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
+        return EXIT_FAILURE;
+    }
+
+    std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
+
+    std::vector<Processor::PixelPoint> result =
+        Processor::generateColorBucketsBW(surface, image);
+    Processor::setPixels(surface, result);
+
+    return EXIT_SUCCESS;
+}
+
+int Converter::convertToCGUPaletteBWDithering(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
@@ -193,7 +229,7 @@ int Converter::convertToCGUPaletteDetected(SDL_Surface* surface) {
 
     std::vector<Processor::PixelPoint> result =
         Processor::generateDedicatedPalette(surface, colors);
-        
+
     Processor::cleanSurface(surface);
     Processor::setPixels(surface, result);
 
@@ -243,11 +279,39 @@ int Converter::convertFromCGUNativeBW(SDL_Surface* surface, std::vector<Uint8>& 
 int Converter::convertFromCGUNativeRGBDithering(SDL_Surface* surface, std::vector<Uint8>& compounds) {
     Tools::startIndefiniteSpinner();
 
+    SDL_Color newColor;
+
+    int pointer = 0;
+
+    for (int y = 0; y < surface->h; y++){
+        for(int x = 0; x < surface->w; x++){
+            newColor = Processor::convert7BitRGBTo24BitRGB(compounds[pointer]);
+
+            Processor::setPixel(surface, x, y, newColor);
+
+            pointer++;
+        }
+    }
+
     return EXIT_SUCCESS;
 }
 
 int Converter::convertFromCGUNativeBWDithering(SDL_Surface* surface, std::vector<Uint8>& compounds) {
     Tools::startIndefiniteSpinner();
+
+    SDL_Color newColor;
+
+    int pointer = 0;
+
+    for (int y = 0; y < surface->h; y++){
+        for(int x = 0; x < surface->w; x++){
+            newColor = Processor::convert7BitGreyTo24BitRGB(compounds[pointer]);
+
+            Processor::setPixel(surface, x, y, newColor);
+
+            pointer++;
+        }
+    }
 
     return EXIT_SUCCESS;
 }

@@ -59,7 +59,7 @@ public:
     */
     class FileMetadata {
     private:
-        uint16_t compatible = 13;
+        uint16_t compatible;
 
         IO::CONVERSION_TYPES convertion;
 
@@ -79,11 +79,11 @@ public:
 
         FileMetadata() {};
 
-        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height) : convertion(convertion), width(width), height(height) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height) : compatible(COMPATIBLE_FLAG), convertion(convertion), width(width), height(height) {};
         
-        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<int> indeces) : convertion(convertion), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<int> indeces) : compatible(COMPATIBLE_FLAG), convertion(convertion), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
 
-        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<Uint8> compounds) : convertion(convertion), width(width), height(height), compoundsSize(compounds.size()), compounds(compounds) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<Uint8> compounds) : compatible(COMPATIBLE_FLAG), convertion(convertion), width(width), height(height), compoundsSize(compounds.size()), compounds(compounds) {};
 
         /**
          * Retrieves compatibility flag.
