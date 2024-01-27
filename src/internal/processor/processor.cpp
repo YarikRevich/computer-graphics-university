@@ -372,137 +372,33 @@ SDL_Color Processor::convert7BitGreyTo24BitRGB(Uint8 grey) {
     };
 }
 
-Uint8 Processor::convert8BitTo7Bit(Uint8 color) {
-    if(sizeof(input) != 8)
-        return -1;
-    if(sizeof(output) != 7)
-        return -1;
+std::vector<Uint8> Processor::convert8BitTo7Bit(std::vector<Uint8> input) {
+    std::vector<Uint8> output(7, 0);
 
-    memset(output, 0, 7);
+    output[0] = (input[0] << 1) | (input[1] >> 6);
+    output[1] = (input[1] << 2) | (input[2] >> 5);
+    output[2] = (input[2] << 3) | (input[3] >> 4);
+    output[3] = (input[3] << 4) | (input[4] >> 3);
+    output[4] = (input[4] << 5) | (input[5] >> 2);
+    output[5] = (input[5] << 6) | (input[6] >> 1);
+    output[6] = (input[6] << 7) | (input[7] >> 0);
 
-    Uint8 tmp;
-
-    // AAAAAAAB
-    input[0] = input[0] << 1;
-    tmp = input[1];
-    input[1] = input[1] >> 6;
-    output[0] = input[0] & input[1];
-
-    // BBBBBBCC
-    tmp = tmp << 2;
-    output[1] = tmp;
-    tmp = input[2];
-    input[2] = input[2] >> 5;
-    output[1] = output[1] & input[2];
-
-    // CCCCCDDD
-    tmp = tmp << 3;
-    output[2] = tmp;
-    tmp = input[3];
-    input[3] = input[3] >> 4;
-    output[2] = output[2] & input[3];
-
-    // DDDDEEEE
-    tmp = tmp << 4;
-    output[3] = tmp;
-    tmp = input[4];
-    input[4] = input[4] >> 3;
-    output[3] = output[3] & input[4];
-
-    // EEEFFFFF
-    tmp = tmp << 5;
-    output[4] = tmp;
-    tmp = input[5];
-    input[5] = input[5] >> 2;
-    output[4] = output[4] & input[5];
-
-    // FFGGGGGG
-    tmp = tmp << 6;
-    output[5] = tmp;
-    tmp = input[6];
-    input[6] = input[6] >> 1;
-    output[5] = output[5] & input[6];
-
-    // GHHHHHHH
-    tmp = tmp << 7;
-    output[6] = tmp;
-    tmp = input[7];
-    input[7] = input[7] >> 0;
-    output[6] = output[6] & input[7];
+    return output;
 };
 
-Uint8 Processor::convert7BitTo8BitRGB(Uint8 color) {
-    if(sizeof(input) != 7)
-        return -1;
-    if(sizeof(output) != 8)
-        return -1;
+std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
+    std::vector<Uint8> output(8, 0);
 
-    memset(output, 0, 8);
+    output[0] = (input[0] >> 1) | (input[0] << 7 >> 1);
+    output[1] = (input[0] << 6 >> 1) | (input[1] >> 2);
+    output[2] = (input[1] << 5 >> 1) | (input[2] >> 3);
+    output[3] = (input[2] << 4 >> 1) | (input[3] >> 4);
+    output[4] = (input[3] << 3 >> 1) | (input[4] >> 5);
+    output[5] = (input[4] << 2 >> 1) | (input[5] >> 6);
+    output[6] = (input[5] << 1 >> 1) | (input[6] >> 7);
+    output[7] = (input[6] << 0 >> 1) | (input[6] << 7 >> 1);
 
-    Uint8 tmp;
-
-    // AAAAAAAB
-    tmp = input[0];
-    tmp = tmp >> 1;
-    output[0] = tmp;
-    tmp = input[0];
-    tmp = tmp << 7;
-    tmp = tmp >> 1;
-    output[1] = output[1] & tmp;
-
-    // BBBBBBCC
-    tmp = input[1];
-    tmp = tmp >> 2;
-    output[1] = output[1] & tmp;
-    tmp = input[1];
-    tmp = tmp << 6;
-    tmp = tmp >> 1;
-    output[2] = output[2] & tmp;
-
-    // CCCCCDDD
-    tmp = input[2];
-    tmp = tmp >> 3;
-    output[2] = output[2] & tmp;
-    tmp = input[2];
-    tmp = tmp << 5;
-    tmp = tmp >> 1;
-    output[3] = output[3] & tmp;
-
-    // DDDDEEEE
-    tmp = input[3];
-    tmp = tmp >> 4;
-    output[3] = output[3] & tmp;
-    tmp = input[3];
-    tmp = tmp << 4;
-    tmp = tmp >> 1;
-    output[4] = output[4] & tmp;
-
-    // EEEFFFFF
-    tmp = input[4];
-    tmp = tmp >> 5;
-    output[4] = output[4] & tmp;
-    tmp = input[4];
-    tmp = tmp << 3;
-    tmp = tmp >> 1;
-    output[5] = output[5] & tmp;
-
-    // FFGGGGGG
-    tmp = input[5];
-    tmp = tmp >> 6;
-    output[5] = output[5] & tmp;
-    tmp = input[4];
-    tmp = tmp << 2;
-    tmp = tmp >> 1;
-    output[6] = output[6] & tmp;
-
-    // GHHHHHHH
-    tmp = input[6];
-    tmp = tmp >> 7;
-    output[6] = output[6] & tmp;
-    tmp = input[6];
-    tmp = tmp << 1;
-    tmp = tmp >> 1;
-    output[7] = output[7] & tmp;
+    return output;
 };
 
 Uint8 Processor::convertRGBToGreyUint8(SDL_Color color) {
@@ -547,6 +443,23 @@ SDL_Color Processor::getPixel(SDL_Surface* surface, int x, int y) {
 
     return result;
 }
+
+
+
+// SDL_Color Processor::getPixelRaw(Uint8* pixel) {
+//     SDL_Color result;
+//     Uint32 col = 0;
+
+//     SDL_Colour tempcol;
+// 	tempcol.a = 255;
+// 	tempcol.r = (colour >> 16) & 0xFF;
+// 	tempcol.g = (colour >> 8) & 0xFF;
+// 	tempcol.b = colour & 0xFF;
+
+//     return result;
+// }
+
+
 
 int Processor::getPixelAmount(SDL_Surface* surface) {
     return surface->w * surface->h;

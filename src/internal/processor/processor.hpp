@@ -99,17 +99,17 @@ public:
 
     /**
      * Converts 8 bit color to 7 bit color.
-     * @param color - given 8 bit color to be converted.
+     * @param input - given 8 bit color to be converted.
      * @return converted 7 bit color.
     */
-    static Uint8 convert8BitTo7Bit(Uint8 color);
+    static std::vector<Uint8> convert8BitTo7Bit(std::vector<Uint8> input);
 
     /**
      * Converts 7 bit RGB color to 8 bit RGB color.
-     * @param color - given 7 bit color to be converted.
+     * @param input - given 7 bit color to be converted.
      * @return converted 8 bit color.
     */
-    static Uint8 convert7BitTo8BitRGB(Uint8 color);
+    static std::vector<Uint8> convert7BitTo8Bit(std::vector<Uint8> input);
 
     /**
      * Converts given RGB color to its Grey representation.

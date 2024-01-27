@@ -308,6 +308,16 @@ public:
     static SDL_Surface* readFileCGUDefault(std::string path);
 
     /**
+     * 
+    */
+    static SDL_Surface* readFileCGUOptimalRGB(std::string path);
+
+    /**
+     * 
+    */
+    static SDL_Surface* readFileCGUOptimalBW(std::string path);
+
+    /**
      * Reads media CGU file with the given path in the optimal way.
      * into managable surface canvas.
      * @param path - a location of the file to be read.

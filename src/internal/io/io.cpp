@@ -32,14 +32,14 @@ IO::CONVERSION_TYPES IO::getConversionType(std::string src){
 }
 
 bool IO::isRGBConversion(IO::CONVERSION_TYPES value) {
-    return value == IO::CONVERSION_TYPES::NATIVE_RGB &&
-        value == IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING &&
+    return value == IO::CONVERSION_TYPES::NATIVE_RGB ||
+        value == IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING ||
         value == IO::CONVERSION_TYPES::PALETTE_RGB;
 }
 
 bool IO::isBWConversion(IO::CONVERSION_TYPES value) {
-    return value == IO::CONVERSION_TYPES::NATIVE_BW &&
-        value == IO::CONVERSION_TYPES::NATIVE_BW_DITHERING &&
+    return value == IO::CONVERSION_TYPES::NATIVE_BW ||
+        value == IO::CONVERSION_TYPES::NATIVE_BW_DITHERING ||
         value == IO::CONVERSION_TYPES::PALETTE_BW;
 }
 
@@ -144,16 +144,24 @@ SDL_Surface* IO::readFileCGUDefault(std::string path) {
     return IMG_Load(path.c_str());
 };
 
+SDL_Surface* IO::readFileCGUOptimalRGB(std::string path) {
+    return NULL;
+};
+
+SDL_Surface* IO::readFileCGUOptimalBW(std::string path) {
+    return NULL;
+};
+
 SDL_Surface* IO::readFileCGUOptimal(std::string path, IO::FileMetadata* metadata) {
     if (isRGBConversion(metadata->getConvertion())) {
-        
-    } else if (isBWConversion(metadata->getConvertion())) {
+        return readFileCGUOptimalRGB(path);
 
-    } else {
-        return NULL;
+    } else if (isBWConversion(metadata->getConvertion())) {
+        return readFileCGUOptimalBW(path);
+
     }
 
-    return IMG_Load(path.c_str());
+    return NULL;
 };
 
 int IO::writeFileJPEG(std::string path, SDL_Surface* surface){
@@ -180,40 +188,71 @@ int IO::writeFileCGUDefault(std::string path, IO::FileMetadata* metadata, SDL_Su
     return EXIT_SUCCESS;
 };
 
-
-
 int IO::writeFileCGUOptimalRGB(std::string path, SDL_Surface* surface) {
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
-    std::vector<Uint8*> buff;
+    std::vector<std::vector<Uint8>> buff;
+
+    std::vector<Uint8> assemble(8);
 
     for(int i = 0; i < (surface->w*surface->h); i+=8) {
-        for(int j = 0; j < 8; j++) {
-            buff.push_back(Processor::convert8BitTo7Bit(Processor::convert24BitRGBTo7BitRGB(image[i+j])));
-        }
-    }
-};
+        assemble.clear();
 
+        for(int j = 0; j < 8; j++) {
+            assemble.push_back(Processor::convert24BitRGBTo7BitRGB(image[i+j]));
+        }
+
+        buff.push_back(Processor::convert8BitTo7Bit(assemble));
+    }
+
+    std::ofstream file(path, std::ios_base::out | std::ios_base::binary);
+
+    for (std::vector<Uint8> &value : buff) {
+        file.write((char *)&value[0], value.size() * sizeof(Uint8));
+    }
+
+    file.close();
+
+    return EXIT_SUCCESS;
+};
 
 int IO::writeFileCGUOptimalBW(std::string path, SDL_Surface* surface) {
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
-    for(int i = 0; i < (surface->w*surface->h); i+=8) {
-        for(int j = 0; j < 8; j++) {
-            Processor::convert8BWBitTo7BitBW(Processor::convert24BitRGBTo7BitRGB(image[i+j]));
-            // buf[j] = 
-        }
-    }
-};
+    std::vector<std::vector<Uint8>> buff;
 
+    std::vector<Uint8> assemble(8);
+
+    for(int i = 0; i < (surface->w*surface->h); i+=8) {
+        assemble.clear();
+
+        for(int j = 0; j < 8; j++) {
+            assemble.push_back(Processor::convert24BitRGBTo7BitGrey(image[i+j]));
+        }
+
+        buff.push_back(Processor::convert8BitTo7Bit(assemble));
+    }
+
+    std::ofstream file(path, std::ios_base::out | std::ios_base::binary);
+
+    for (std::vector<Uint8> &value : buff) {
+        file.write((char *)&value[0], value.size() * sizeof(Uint8));
+    }
+
+    file.close();
+
+    return EXIT_SUCCESS;
+};
 
 int IO::writeFileCGUOptimal(std::string path, IO::FileMetadata* metadata, SDL_Surface* surface){
     int result;
 
     if (isRGBConversion(metadata->getConvertion())) {
         result = writeFileCGUOptimalRGB(path, surface);
+
     } else if (isBWConversion(metadata->getConvertion())) {
         result = writeFileCGUOptimalBW(path, surface);
+        
     } else {
         return EXIT_FAILURE;
     }
