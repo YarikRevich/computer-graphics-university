@@ -6,6 +6,7 @@
 #include "../validator/validator.hpp"
 #include "../../window/window.hpp"
 #include "../../io/io.hpp"
+#include "../../converter/converter.hpp"
 
 /**
  * 

@@ -24,6 +24,7 @@ int View::handle() {
 
     IO::FileMetadata* metadata = IO::readMetadataFromFileCGU(from->Get());
     if (metadata == NULL) {
+        Logger::SetError("error reading metadata");        
         return EXIT_FAILURE;
     }
 
@@ -35,13 +36,20 @@ int View::handle() {
     SDL_Surface* surface;
     
     if (metadata->getOptimal()) {
-        surface = IO::readFileCGUOptimal(from->Get());
+        std::cout << "here" << std::endl;
+        surface = IO::readFileCGUOptimal(from->Get(), metadata);
     } else {
         surface = IO::readFileCGUDefault(from->Get());
     }
      
     if (surface == NULL){
         return EXIT_FAILURE;
+    }
+
+    if (debug->Get()) {
+        if (Converter::convertToCGUPaletteDetected(surface) != EXIT_SUCCESS) {
+            return EXIT_FAILURE;
+        };
     }
 
     if (window->handle(surface) != EXIT_SUCCESS){

@@ -6,8 +6,8 @@ Encode::Encode(args::ArgumentParser* argumentParser) {
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the source media", {"type"});
-    this->conversion = new args::ValueFlag<std::string>(*group, "native_rgb|native_bw|palette_rgb|palette_bw|palette_detected", "Type of the media conversion", {"conversion"});
-    this->optimal = new args::ValueFlag<bool>(*group, "true|false(default)", "Enables optional mode of data saving", {"optimal"});;
+    this->conversion = new args::ValueFlag<std::string>(*group, "native_rgb|native_bw|palette_rgb|palette_bw", "Type of the media conversion", {"conversion"});
+    this->optimal = new args::Flag(*group, "true|false(default)", "Enables optional mode of data saving", {"optimal"});;
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -92,10 +92,6 @@ int Encode::handle() {
             result = Converter::convertToCGUPaletteBW(input);
             metadata = 
                 IO::composeIndecesMetadata(IO::CONVERSION_TYPES::PALETTE_BW, optimal->Get(), State::getPaletteIndeces());
-            break;
-        case IO::CONVERSION_TYPES::PALETTE_DETECTED:
-            result = Converter::convertToCGUPaletteDetected(input);
-            metadata = IO::composeNativeMetadata(IO::CONVERSION_TYPES::PALETTE_DETECTED, optimal->Get());
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");

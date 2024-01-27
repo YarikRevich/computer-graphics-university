@@ -26,18 +26,28 @@ IO::CONVERSION_TYPES IO::getConversionType(std::string src){
         return IO::CONVERSION_TYPES::PALETTE_RGB;
     } else if (src == "palette_bw") {
         return IO::CONVERSION_TYPES::PALETTE_BW;
-    } else if (src == "palette_detected") {
-        return IO::CONVERSION_TYPES::PALETTE_DETECTED;
     }
 
     return IO::CONVERSION_TYPES::NONE;
 }
 
-uint16_t IO::FileMetadata::getCompatible() {
+bool IO::isRGBConversion(IO::CONVERSION_TYPES value) {
+    return value == IO::CONVERSION_TYPES::NATIVE_RGB &&
+        value == IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING &&
+        value == IO::CONVERSION_TYPES::PALETTE_RGB;
+}
+
+bool IO::isBWConversion(IO::CONVERSION_TYPES value) {
+    return value == IO::CONVERSION_TYPES::NATIVE_BW &&
+        value == IO::CONVERSION_TYPES::NATIVE_BW_DITHERING &&
+        value == IO::CONVERSION_TYPES::PALETTE_BW;
+}
+
+bool IO::FileMetadata::getCompatible() {
     return compatible;
 }
 
-void IO::FileMetadata::setCompatible(uint16_t value) {
+void IO::FileMetadata::setCompatible(bool value) {
     this->compatible = value;
 };
 
@@ -45,11 +55,11 @@ size_t IO::FileMetadata::getDefaultSize() {
     return defaultSize;
 }
 
-uint16_t IO::FileMetadata::getOptimal() {
+bool IO::FileMetadata::getOptimal() {
     return compatible;
 }
 
-void IO::FileMetadata::setOptimal(uint16_t value) {
+void IO::FileMetadata::setOptimal(bool value) {
     this->compatible = value;
 };
 
@@ -134,7 +144,15 @@ SDL_Surface* IO::readFileCGUDefault(std::string path) {
     return IMG_Load(path.c_str());
 };
 
-SDL_Surface* IO::readFileCGUOptimal(std::string path) {
+SDL_Surface* IO::readFileCGUOptimal(std::string path, IO::FileMetadata* metadata) {
+    if (isRGBConversion(metadata->getConvertion())) {
+        
+    } else if (isBWConversion(metadata->getConvertion())) {
+
+    } else {
+        return NULL;
+    }
+
     return IMG_Load(path.c_str());
 };
 
@@ -155,34 +173,80 @@ int IO::writeFileCGUDefault(std::string path, IO::FileMetadata* metadata, SDL_Su
         return EXIT_FAILURE;
     }
 
-    writeMetadataToFileCGU(path, metadata);
+    if (writeMetadataToFileCGU(path, metadata) != EXIT_SUCCESS) {
+        return EXIT_FAILURE;
+    };
 
     return EXIT_SUCCESS;
 };
+
+
+
+int IO::writeFileCGUOptimalRGB(std::string path, SDL_Surface* surface) {
+    std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
+
+    std::vector<Uint8*> buff;
+
+    for(int i = 0; i < (surface->w*surface->h); i+=8) {
+        for(int j = 0; j < 8; j++) {
+            buff.push_back(Processor::convert8BitTo7Bit(Processor::convert24BitRGBTo7BitRGB(image[i+j])));
+        }
+    }
+};
+
+
+int IO::writeFileCGUOptimalBW(std::string path, SDL_Surface* surface) {
+    std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
+
+    for(int i = 0; i < (surface->w*surface->h); i+=8) {
+        for(int j = 0; j < 8; j++) {
+            Processor::convert8BWBitTo7BitBW(Processor::convert24BitRGBTo7BitRGB(image[i+j]));
+            // buf[j] = 
+        }
+    }
+};
+
 
 int IO::writeFileCGUOptimal(std::string path, IO::FileMetadata* metadata, SDL_Surface* surface){
-    // if (SDL_SaveBMP(surface, path.c_str()) != EXIT_SUCCESS) {
-    //     return EXIT_FAILURE;
-    // }
+    int result;
 
-    writeMetadataToFileCGU(path, metadata);
+    if (isRGBConversion(metadata->getConvertion())) {
+        result = writeFileCGUOptimalRGB(path, surface);
+    } else if (isBWConversion(metadata->getConvertion())) {
+        result = writeFileCGUOptimalBW(path, surface);
+    } else {
+        return EXIT_FAILURE;
+    }
+
+    if (result != EXIT_SUCCESS) {
+        return EXIT_FAILURE;
+    }
+
+    if (writeMetadataToFileCGU(path, metadata) != EXIT_SUCCESS) {
+        return EXIT_FAILURE;
+    };
 
     return EXIT_SUCCESS;
 };
 
-void IO::writeMetadataToFileCGU(std::string path, IO::FileMetadata* metadata) {
-    std::ofstream file(path, std::ios_base::app);
+int IO::writeMetadataToFileCGU(std::string path, IO::FileMetadata* metadata) {
+    std::ofstream file(path, std::ios_base::app | std::ios_base::binary);
+    if (!file.is_open()) {
+        return EXIT_FAILURE;
+    }
 
     file.seekp(0, std::ios::end);
     file << *metadata;
 
     file.close();
+
+    return EXIT_SUCCESS;
 }
 
 IO::FileMetadata* IO::readMetadataFromFileCGU(std::string path) {
     IO::FileMetadata* result = new FileMetadata();
 
-    std::ifstream file(path);
+    std::ifstream file(path, std::ios_base::binary);
     if (!file.is_open()) {
         return NULL;
     }

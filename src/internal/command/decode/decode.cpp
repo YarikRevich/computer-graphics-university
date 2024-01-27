@@ -42,7 +42,7 @@ int Decode::handle() {
     SDL_Surface* input;
     
     if (metadata->getOptimal()) {
-        input = IO::readFileCGUOptimal(from->Get());
+        input = IO::readFileCGUOptimal(from->Get(), metadata);
     } else {
         input = IO::readFileCGUDefault(from->Get());
     }

@@ -8,11 +8,15 @@
 #include <SDL2/SDL.h>
 #include <SDL2_image/SDL_image.h>
 
+#include "../processor/processor.hpp"
+
 /**
  * Contains operations used for IO management.
 */
 class IO {
 public:
+    long METADATA_FLAG = -9876543210;
+
     /**
      * Represents all image formats available
      * to be processed.
@@ -35,16 +39,25 @@ public:
         NATIVE_BW_DITHERING,
         PALETTE_RGB,
         PALETTE_BW,
-        PALETTE_DETECTED,
         NONE
     };
+
+    /**
+     * 
+    */
+    static bool isRGBConversion(IO::CONVERSION_TYPES value);
+
+    /**
+     * 
+    */
+    static bool isBWConversion(IO::CONVERSION_TYPES value);
 
     /**
      * Represents general CGU file oriented metadata configuration.
     */
     class FileMetadata {
     private:
-        uint16_t compatible = 1;
+        bool compatible = 1;
 
         size_t defaultSize = 0;
 
@@ -71,13 +84,13 @@ public:
          * Retrieves compatibility flag.
          * @return compatibility flag.
         */
-        uint16_t getCompatible();
+        bool getCompatible();
 
         /**
          * Sets given compatible type.
          * @param value - compatible flag value.
         */
-        void setCompatible(uint16_t value);
+        void setCompatible(bool value);
 
         /**
          * Retrieves default size flag.
@@ -89,13 +102,13 @@ public:
          * Retrieves optimal flag.
          * @return optimal flag.
         */
-        uint16_t getOptimal();
+        bool getOptimal();
 
         /**
          * Sets given optimal type.
          * @param value - optimal flag value.
         */
-        void setOptimal(uint16_t value);
+        void setOptimal(bool value);
 
         /**
          * Retrieves CGU file convertion type.
@@ -134,26 +147,32 @@ public:
         void setCompounds(std::vector<Uint8> compounds);
 
         friend std::ofstream & operator << (std::ofstream & ofs, IO::FileMetadata value) {
-            ofs << std::endl;
-            ofs << value.getCompatible();
-            ofs << std::endl;
-            ofs << static_cast<int>(value.getConvertion());
-            ofs << value.getOptimal();
-            ofs << std::endl;
+            bool compatible = value.getCompatible();
 
-            if (value.getIndeces().size() > 0) {
-                ofs << std::endl;
-                ofs << value.getIndeces().size();
-                ofs << std::endl;
-            } else if (value.getCompounds().size() > 0) {
-                ofs << std::endl;
-                ofs << value.getCompounds().size();
-                ofs << std::endl;
-                std::cout << IO::combineCompounds(value.getCompounds()) << std::endl;
-            } else {
-                ofs << std::endl;
-                ofs << value.getDefaultSize();
-            }
+            ofs << (char*)&compatible;
+
+            // ofs.write((char*)&(compatible), sizeof(bool));
+
+            // ofs << std::endl;
+            // ofs << value.getCompatible();
+            // ofs << std::endl;
+            // ofs << static_cast<int>(value.getConvertion());
+            // ofs << std::endl;
+            // ofs << value.getOptimal();
+
+            // if (value.getIndeces().size() > 0) {
+            //     ofs << std::endl;
+            //     ofs << value.getIndeces().size();
+            //     ofs << std::endl;
+            // } else if (value.getCompounds().size() > 0) {
+            //     ofs << std::endl;
+            //     ofs << value.getCompounds().size();
+            //     ofs << std::endl;
+            //     // std::cout << IO::combineCompounds(value.getCompounds()) << std::endl;
+            // } else {
+            //     ofs << std::endl;
+            //     ofs << value.getDefaultSize();
+            // }
 
             
 
@@ -171,19 +190,22 @@ public:
         };
 
         friend std::ifstream & operator >> (std::ifstream & ifs, IO::FileMetadata & value) {
-            uint16_t compatible;
-            int convertion;
-            bool optimal;
-            size_t data_size;
+            bool compatible;
+            // int convertion;
+            // bool optimal;
+            // size_t data_size;
             // int index;
             // std::vector<int> indeces;
             // Uint8 compound;
             // std::vector<Uint8> compounds;
+            ifs.read((char*)&compatible, sizeof(bool));
 
-            ifs >> compatible;
-            ifs >> convertion;
-            ifs >> optimal;
-            ifs >> data_size;
+            // ifs >> (char *)&compatible;
+
+            // ifs >> compatible;
+            // ifs >> convertion;
+            // ifs >> optimal;
+            // ifs >> data_size;
 
             // if (data_size > 0) {
             //     std::cout << compatible << std::endl;
@@ -192,12 +214,12 @@ public:
             // }
 
             std::cout << compatible << std::endl;
-            std::cout << convertion << std::endl;
-            std::cout << optimal << std::endl;
-            std::cout << data_size << std::endl;
+            // std::cout << convertion << std::endl;
+            // std::cout << optimal << std::endl;
+            // std::cout << data_size << std::endl;
 
             value.setCompatible(compatible);
-            value.setConvertion((IO::CONVERSION_TYPES)convertion);
+            // value.setConvertion((IO::CONVERSION_TYPES)convertion);
 
             return ifs;
         };
@@ -289,9 +311,10 @@ public:
      * Reads media CGU file with the given path in the optimal way.
      * into managable surface canvas.
      * @param path - a location of the file to be read.
+     * @param metadata - CGU file metadata.
      * @return managable surface canvas.
     */
-    static SDL_Surface* readFileCGUOptimal(std::string path);
+    static SDL_Surface* readFileCGUOptimal(std::string path, IO::FileMetadata* metadata);
 
     /**
      * Writes media JPEG file to the given path
@@ -330,6 +353,16 @@ public:
     static int writeFileCGUDefault(std::string path, FileMetadata* metadata, SDL_Surface* surface);
 
     /**
+     * 
+    */
+    static int writeFileCGUOptimalRGB(std::string path, SDL_Surface* surface);
+
+    /**
+     * 
+    */
+    static int writeFileCGUOptimalBW(std::string path, SDL_Surface* surface);
+
+    /**
      * Writes media CGU file to the given path in the optimal way.
      * from the managable surface canvas.
      * @param path - a location of the file to be written to.
@@ -349,6 +382,7 @@ private:
      * Writes given metadata to the CGU file at the given location.
      * @param path - a location of the file, where metadata is intended to be set.
      * @param metadata - CGU file metadata.
+     * @return status of the operation.
     */
-    static void writeMetadataToFileCGU(std::string path, IO::FileMetadata* metadata);
+    static int writeMetadataToFileCGU(std::string path, IO::FileMetadata* metadata);
 };
