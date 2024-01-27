@@ -287,55 +287,31 @@ std::vector<Processor::PixelPoint> Processor::generateColorBucketsRGB(SDL_Surfac
 std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surface* surface, std::vector<SDL_Color>& image) {
     std::vector<Processor::PixelPoint> result;
 
-    
+    int y = 0;
+    int x = 0;
 
-    // TODO: you initial size and than after each
-    // calculation try to minimize it to make the window look correctly
+    int ySize = sqrt(surface->h);
+    int xSize = sqrt(surface->w);
 
-    // while (true) {
-    //     int x, y;
+    for (int k = 0; k < image.size(); k++) {
+        if ((x + xSize) > surface->w) {
+            x = 0;
+            y += ySize;
+        }   
 
-    //     for (;x < surface->w; ) {
-    //         if ()
-    //         x += 20;
-    //     }
-        
-    // }
+        for (int xx = 0; xx < xSize; xx++)  {
+            for (int yy = 0; yy < ySize; yy++) {
+                result.push_back(PixelPoint(x + xx, y + yy, image[k]));
+            }
+        }
 
-
-    // for (int x = 0; x < surface->w; x++) {
-    //     for (int y = 0; y < surface->h; y++) {
-
-    //     }
-    // }
-
-
-    // for (int k = 0; k < BIT_NUM_MAX; k++) {
-    //     y = k / 8;
-    //     x = k - y / 8;
-
-    //     std::cout << "X: " << x << " Y: " << y << std::endl;
-        // for (int xx = 0; xx < 40; xx++)  {
-        //     for (int yy = 0; yy < 50; yy++) {
-        //         std::cout << "X: " << x + 40 + xx << " Y: " << y + 50 + yy << std::endl;
-        //         result.push_back(PixelPoint(x + 40 + xx, y + 50 + yy, image[k]));
-        //     }
-        // }
-    // }
-
-// void narysujPalete(SDL_Color paleta5[]){
-//     int x, y;
-//     for(int k=0; k<32; k++) {
-//         y = k / 8;
-//         x = k - y * 8;
-//         for (int xx=0; xx < 40; xx++) {
-//             for(int yy=0; yy < 50; yy++) {
-//                 setPixel(x * 40 + xx, y * 50 + yy, paleta5[k].r, paleta5[k].g, paleta5[k].b);
-//             }
-//         }
-//     }
-
-// }
+        if (x >= surface->w) { 
+            x = 0;
+            y += ySize;
+        } else {
+            x += xSize;
+        }
+    }
 
     return result;
 }

@@ -15,7 +15,7 @@ class View {
 private:
     args::Command* command = NULL;
     args::ValueFlag<std::string>* from = NULL;
-    args::ValueFlag<bool>* debug = NULL;
+    args::Flag* debug = NULL;
 
 public:
     View(args::ArgumentParser*);
