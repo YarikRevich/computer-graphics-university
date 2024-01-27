@@ -238,128 +238,27 @@ SDL_Surface* IO::readFileCGUOptimalRGB(std::string path, IO::FileMetadata* metad
     SDL_Surface *surface = 
         SDL_CreateRGBSurface(0, metadata->getWidth(), metadata->getHeight(), 32, 0, 0, 0, 0);
 
-    // for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()); i += 8) {
-    //     for (int j = 0; j < 8; j++) {
-    //         Processor::setPixel(surface, i, j, image[i + j]);
-    //     }
-    // }
-
-    // for (int x = )
-
-
-    // for(int x = xStart; x < xStart + szerokoscObrazka; x+=8)
-    //     {
-    //         for(int z = y; z < y+8; z++){
-    //             for(int a = x; a<x+8; a++){
-    //                 //std::cout << a%8 << ". Pozycja x: " << a << " pozycja y: " << z << std::endl;
-    //                 dane[k] = getPixel(a,z);
-    //                 k++;
-    //             }
-    //         }
-    //     }
-
     int x = 0;
     int y = 0;
-
-    // for(int i = 0; i < metadata->getWidth() * metadata->getHeight(); i+=8) {
-    //     if (x >= surface->w) { 
-    //         x = 0;
-    //         y += 1;
-    //     } else {
-    //         x += 1;
-    //     }
-
-    //     for(int j = 0; j < 8; j++) {
-    //         // std::cout << (uint)image[i+j].r << " " << (uint)image[i+j].g << " " << (uint)image[i+j].b << std::endl;
-
-    //         Processor::setPixel(surface, x, y, image[i+j]);
-    //     }
-    // }
-
-    // for(int i = 0; i < Processor::getPixelAmount(surface); i+=8) {
-    //     for(int j = 0; j < 8; j++) {
-    //         if (y == surface->h) { 
-    //             x += 1;
-    //             y = 0;
-    //         } else {
-    //             y += 1;
-    //         }
-
-
-    //         Processor::setPixel(surface, x, y, image[i + j]);
-
-            
-    //     }
-    // }
 
     for (int k = 0; k < image.size(); k++) {
         if (y == surface->h) { 
             x += 1;
             y = 0;
+        } 
+        
+        if (x == surface->w) {
+            y += 1;
+            x = 0;            
         } else {
             y += 1;
         }
-        // std::cout << x << " " << y << std::endl;
 
         Processor::setPixel(surface, x, y, image[k]);
     }
 
-
-
-
-    // for (int x = 0; x < metadata->getWidth(); x++) {
-    //     for (int y = 0; y < metadata->getHeight(); y++) {
-
-    //         Processor::setPixel(surface, x, y, image[x + y]);
-    //     }
-    // }
-
-    std::cout << (uint)image[2].r << " " << (uint)image[2].g << " " << (uint)image[2].b << std::endl;
-
-    // for(int i = 0; i < Processor::getPixelAmount(surface); i+=8) {
-    //     assemble.clear();
-
-    //     for(int j = 0; j < 8; j++) {
-    //         assemble.push_back(Processor::convert24BitRGBTo7BitRGB(image[i+j]));
-    //     }
-
-    //     buff.push_back(Processor::convert8BitTo7Bit(assemble));
-    // }
     return surface;
 };
-
-
-
-
-
-// void zczytajDane(int xStart, int yStart)
-// {
-//     std::cout << "DUPA" << std::endl;
-//     int k = 0;
-//     for(int y = yStart; y < yStart + wysokoscObrazka; y+=8)
-//     {
-
-//         for(int x = xStart; x < xStart + szerokoscObrazka; x+=8)
-//         {
-//             for(int z = y; z < y+8; z++){
-//                 for(int a = x; a<x+8; a++){
-//                     //std::cout << a%8 << ". Pozycja x: " << a << " pozycja y: " << z << std::endl;
-//                     dane[k] = getPixel(a,z);
-//                     k++;
-//                 }
-//             }
-//         }
-//     }
-// }
-
-
-
-
-
-
-
-
-
 
 SDL_Surface* IO::readFileCGUOptimalBW(std::string path, IO::FileMetadata* metadata) {
     return NULL;

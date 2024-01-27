@@ -31,7 +31,7 @@ std::vector<SDL_Color> Processor::getCompleteBitColorMap(SDL_Surface* surface) {
 };
 
 bool Processor::isColorEqual(SDL_Color color1, SDL_Color color2) {
-    return color1.r == color2.r || color1.g == color2.g || color1.b == color2.b;
+    return color1.r == color2.r && color1.g == color2.g && color1.b == color2.b;
 };
 
 bool Processor::isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& color){
