@@ -353,56 +353,46 @@ std::vector<Uint8> Processor::convert8BitTo7Bit(std::vector<Uint8> input) {
 
     Uint8 tmp;
 
-
-    // AAAAAAAB
     input[0] = input[0] << 1;
     tmp = input[1];
     input[1] = input[1] >> 6;
     output[0] = input[0] | input[1];
 
-    // BBBBBBCC
     tmp = tmp << 2;
     output[1] = tmp;
     tmp = input[2];
     input[2] = input[2] >> 5;
     output[1] = output[1] | input[2];
 
-    // CCCCCDDD
     tmp = tmp << 3;
     output[2] = tmp;
     tmp = input[3];
     input[3] = input[3] >> 4;
     output[2] = output[2] | input[3];
 
-    // DDDDEEEE
     tmp = tmp << 4;
     output[3] = tmp;
     tmp = input[4];
     input[4] = input[4] >> 3;
     output[3] = output[3] | input[4];
 
-    // EEEFFFFF
     tmp = tmp << 5;
     output[4] = tmp;
     tmp = input[5];
     input[5] = input[5] >> 2;
     output[4] = output[4] | input[5];
 
-    // FFGGGGGG
     tmp = tmp << 6;
     output[5] = tmp;
     tmp = input[6];
     input[6] = input[6] >> 1;
     output[5] = output[5] | input[6];
 
-    // GHHHHHHH
     tmp = tmp << 7;
     output[6] = tmp;
     tmp = input[7];
     input[7] = input[7] >> 0;
     output[6] = output[6] | input[7];
-
-
 
     return output;
 };
@@ -412,7 +402,6 @@ std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
 
     Uint8 tmp;
 
-     // AAAAAAAB
     tmp = input[0];
     tmp = tmp >> 1;
     output[0] = tmp;
@@ -421,7 +410,6 @@ std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
     tmp = tmp >> 1;
     output[1] = output[1] | tmp;
 
-    // BBBBBBCC
     tmp = input[1];
     tmp = tmp >> 2;
     output[1] = output[1] | tmp;
@@ -430,7 +418,6 @@ std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
     tmp = tmp >> 1;
     output[2] = output[2] | tmp;
 
-    // CCCCCDDD
     tmp = input[2];
     tmp = tmp >> 3;
     output[2] = output[2] | tmp;
@@ -439,7 +426,6 @@ std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
     tmp = tmp >> 1;
     output[3] = output[3] | tmp;
 
-    // DDDDEEEE
     tmp = input[3];
     tmp = tmp >> 4;
     output[3] = output[3] | tmp;
@@ -448,7 +434,6 @@ std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
     tmp = tmp >> 1;
     output[4] = output[4] | tmp;
 
-    // EEEFFFFF
     tmp = input[4];
     tmp = tmp >> 5;
     output[4] = output[4] | tmp;
@@ -457,7 +442,6 @@ std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
     tmp = tmp >> 1;
     output[5] = output[5] | tmp;
 
-    // FFGGGGGG
     tmp = input[5];
     tmp = tmp >> 6;
     output[5] = output[5] | tmp;
@@ -466,7 +450,6 @@ std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
     tmp = tmp >> 1;
     output[6] = output[6] | tmp;
 
-    // GHHHHHHH
     tmp = input[6];
     tmp = tmp >> 7;
     output[6] = output[6] | tmp;

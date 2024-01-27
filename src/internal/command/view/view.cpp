@@ -36,9 +36,9 @@ int View::handle() {
         return EXIT_FAILURE;
     }
 
-    if (!metadata->getCompatible()) {
-        // Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
-        // return EXIT_FAILURE;
+    if (metadata->getCompatible() != IO::FileMetadata::COMPATIBLE_FLAG) {
+        Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
+        return EXIT_FAILURE;
     }
 
     SDL_Surface* surface;
@@ -53,11 +53,11 @@ int View::handle() {
         return EXIT_FAILURE;
     }
 
-    // if (debug->Get()) {
-    //     if (Converter::convertToCGUPaletteDetected(surface) != EXIT_SUCCESS) {
-    //         return EXIT_FAILURE;
-    //     };
-    // }
+    if (debug->Get()) {
+        if (Converter::convertToCGUPaletteDetected(surface) != EXIT_SUCCESS) {
+            return EXIT_FAILURE;
+        };
+    }
 
     if (window->handle(surface) != EXIT_SUCCESS){
         return EXIT_FAILURE;

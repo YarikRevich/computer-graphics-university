@@ -15,7 +15,7 @@
 */
 class IO {
 public:
-    long METADATA_FLAG = -9876543210;
+    static const long METADATA_FLAG = -9876543210;
 
     /**
      * Represents all image formats available
@@ -71,6 +71,8 @@ public:
 
         std::vector<Uint8> compounds;
     public:
+        static const int COMPATIBLE_FLAG = 13;
+
         FileMetadata() {};
 
         FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height) : convertion(convertion), width(width), height(height) {};

@@ -276,16 +276,29 @@ SDL_Surface* IO::readFileCGUOptimalRGB(std::string path, IO::FileMetadata* metad
     //     }
     // }
 
+    // for(int i = 0; i < Processor::getPixelAmount(surface); i+=8) {
+    //     for(int j = 0; j < 8; j++) {
+    //         if (y == surface->h) { 
+    //             x += 1;
+    //             y = 0;
+    //         } else {
+    //             y += 1;
+    //         }
 
+
+    //         Processor::setPixel(surface, x, y, image[i + j]);
+
+            
+    //     }
+    // }
 
     for (int k = 0; k < image.size(); k++) {
-        if (x >= surface->w) { 
-            x = 0;
-            y += 1;
-        } else {
+        if (y == surface->h) { 
             x += 1;
-        } 
-
+            y = 0;
+        } else {
+            y += 1;
+        }
         // std::cout << x << " " << y << std::endl;
 
         Processor::setPixel(surface, x, y, image[k]);
