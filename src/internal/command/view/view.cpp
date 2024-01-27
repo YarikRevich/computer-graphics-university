@@ -4,6 +4,7 @@ View::View(args::ArgumentParser* argumentParser) {
     this->command = new args::Command(*argumentParser, "view", "Opens viewport for a specified media");
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
+    this->optimal = new args::Flag(*group, "true|false(default)", "Enables optional mode of metadata parsing", {"optimal"});;
     this->debug = new args::Flag(*group, "true|false(default)", "Enables debug view mode", {"debug"});;
 }
 
@@ -22,9 +23,16 @@ int View::handle() {
         return EXIT_FAILURE;
     }
 
-    IO::FileMetadata* metadata = IO::readMetadataFromFileCGU(from->Get());
+    IO::FileMetadata* metadata;
+
+    if (optimal->Get()) {
+        metadata = IO::readMetadataFromFileCGUOptimal(from->Get());
+    } else {
+        metadata = IO::readMetadataFromFileCGUDefault(from->Get());
+    }
+    
     if (metadata == NULL) {
-        Logger::SetError("error reading metadata");        
+        Logger::SetError(METADATA_RETRIEVAL_EXCEPTION);        
         return EXIT_FAILURE;
     }
 
@@ -35,7 +43,7 @@ int View::handle() {
 
     SDL_Surface* surface;
     
-    if (metadata->getOptimal()) {
+    if (optimal->Get()) {
         surface = IO::readFileCGUOptimal(from->Get(), metadata);
     } else {
         surface = IO::readFileCGUDefault(from->Get());
@@ -45,11 +53,11 @@ int View::handle() {
         return EXIT_FAILURE;
     }
 
-    if (debug->Get()) {
-        if (Converter::convertToCGUPaletteDetected(surface) != EXIT_SUCCESS) {
-            return EXIT_FAILURE;
-        };
-    }
+    // if (debug->Get()) {
+    //     if (Converter::convertToCGUPaletteDetected(surface) != EXIT_SUCCESS) {
+    //         return EXIT_FAILURE;
+    //     };
+    // }
 
     if (window->handle(surface) != EXIT_SUCCESS){
         return EXIT_FAILURE;

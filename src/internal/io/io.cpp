@@ -43,11 +43,11 @@ bool IO::isBWConversion(IO::CONVERSION_TYPES value) {
         value == IO::CONVERSION_TYPES::PALETTE_BW;
 }
 
-bool IO::FileMetadata::getCompatible() {
+uint16_t IO::FileMetadata::getCompatible() {
     return compatible;
 }
 
-void IO::FileMetadata::setCompatible(bool value) {
+void IO::FileMetadata::setCompatible(uint16_t value) {
     this->compatible = value;
 };
 
@@ -55,20 +55,28 @@ size_t IO::FileMetadata::getDefaultSize() {
     return defaultSize;
 }
 
-bool IO::FileMetadata::getOptimal() {
-    return compatible;
-}
-
-void IO::FileMetadata::setOptimal(bool value) {
-    this->compatible = value;
-};
-
 IO::CONVERSION_TYPES IO::FileMetadata::getConvertion() {
     return convertion;
 }
 
 void IO::FileMetadata::setConvertion(IO::CONVERSION_TYPES value) {
     this->convertion = value;
+};
+
+int IO::FileMetadata::getWidth() {
+    return width;
+};
+
+void IO::FileMetadata::setWidth(int value) {
+    this->width = value;
+};
+
+int IO::FileMetadata::getHeight() {
+    return height;
+};
+
+void IO::FileMetadata::setHeight(int value) {
+    this->height = value;
 };
 
 std::vector<int> IO::FileMetadata::getIndeces() {
@@ -87,16 +95,72 @@ void IO::FileMetadata::setCompounds(std::vector<Uint8> compounds) {
     this->compounds = compounds;
 };
 
-IO::FileMetadata* IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion, bool optimal) {
-    return new IO::FileMetadata(convertion, optimal);
+void IO::FileMetadata::writeToDefault(std::ofstream& ofs) {
+    uint16_t compatibleTemp = getCompatible();
+
+    ofs << (char*)&compatibleTemp;
+};
+
+void IO::FileMetadata::writeToOptimal(std::ofstream& ofs) {
+    uint16_t compatibleTemp = getCompatible();
+    int conversion = (int)getConvertion();
+    int width = getWidth();
+    int height = getHeight();
+
+    ofs.write((char*)&compatibleTemp, sizeof(uint16_t));
+    ofs.write((char*)&conversion, sizeof(int));
+    ofs.write((char*)&width, sizeof(int));
+    ofs.write((char*)&height, sizeof(int));
+};
+
+void IO::FileMetadata::readFromDefault(std::ifstream& ifs) {
+    // uint16_t compatibleTemp;
+    // int conversion;
+    // int width;
+    // int height;
+
+    // ifs.read((char*)&compatibleTemp, sizeof(uint16_t));
+    // ifs.read((char*)&conversion, sizeof(int));
+    // ifs.read((char*)&width, sizeof(int));
+    // ifs.read((char*)&height, sizeof(int));
+
+    // setCompatible(compatibleTemp);
+    // setConvertion((IO::CONVERSION_TYPES)conversion);
+    // setWidth(width);
+    // setHeight(height);
+};
+
+void IO::FileMetadata::readFromOptimal(std::ifstream& ifs) {
+    uint16_t compatibleTemp;
+    int conversion;
+    int width;
+    int height;
+
+    ifs.read((char*)&compatibleTemp, sizeof(uint16_t));
+    ifs.read((char*)&conversion, sizeof(int));
+    ifs.read((char*)&width, sizeof(int));
+    ifs.read((char*)&height, sizeof(int));
+
+    setCompatible(compatibleTemp);
+    setConvertion((IO::CONVERSION_TYPES)conversion);
+    setWidth(width);
+    setHeight(height);
+};
+
+int IO::FileMetadata::getSize() {
+    return (sizeof(int) * 3) + sizeof(uint16_t) + (indeces.size() * sizeof(int)) + (compounds.size() * sizeof(Uint8));
+};
+
+IO::FileMetadata* IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion, int width, int height) {
+    return new IO::FileMetadata(convertion, width, height);
 }
 
-IO::FileMetadata* IO::composeIndecesMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<int> indeces) {
-    return new IO::FileMetadata(convertion, optimal, indeces);
+IO::FileMetadata* IO::composeIndecesMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<int> indeces) {
+    return new IO::FileMetadata(convertion, width, height, indeces);
 }
 
-IO::FileMetadata* IO::composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<Uint8> compounds) {
-    return new IO::FileMetadata(convertion, optimal, compounds);
+IO::FileMetadata* IO::composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<Uint8> compounds) {
+    return new IO::FileMetadata(convertion, width, height, compounds);
 }
 
 std::string IO::combineIndeces(std::vector<int> indeces) {
@@ -110,9 +174,6 @@ std::string IO::combineIndeces(std::vector<int> indeces) {
 
 std::string IO::combineCompounds(std::vector<Uint8> compounds) {
     std::ostringstream imploded;
-
-
-
 
     std::copy(compounds.begin(), compounds.end(),
            std::ostream_iterator<Uint8>(imploded, " "));
@@ -144,20 +205,159 @@ SDL_Surface* IO::readFileCGUDefault(std::string path) {
     return IMG_Load(path.c_str());
 };
 
-SDL_Surface* IO::readFileCGUOptimalRGB(std::string path) {
-    return NULL;
+SDL_Surface* IO::readFileCGUOptimalRGB(std::string path, IO::FileMetadata* metadata) {
+    std::ifstream file(path, std::ios_base::in | std::ios_base::binary);
+    if (!file.is_open()) {
+        return NULL;
+    }
+
+    file.seekg(metadata->getSize());
+
+    std::vector<std::vector<Uint8>> buff;
+
+    std::vector<Uint8> input(7, 0);
+    for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / 8); i++) {
+        file.read((char *)(input.data()), 7 * sizeof(Uint8));
+
+        buff.push_back(input);
+    }
+
+    file.close();
+
+    std::vector<SDL_Color> image;
+
+    std::vector<Uint8> assemble(8, 0);
+    for (auto &value : buff) {
+        assemble = Processor::convert7BitTo8Bit(value);
+
+        for (auto &compound : assemble) {
+            image.push_back(Processor::convert7BitRGBTo24BitRGB(compound));
+        }
+    }
+
+    SDL_Surface *surface = 
+        SDL_CreateRGBSurface(0, metadata->getWidth(), metadata->getHeight(), 32, 0, 0, 0, 0);
+
+    // for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()); i += 8) {
+    //     for (int j = 0; j < 8; j++) {
+    //         Processor::setPixel(surface, i, j, image[i + j]);
+    //     }
+    // }
+
+    // for (int x = )
+
+
+    // for(int x = xStart; x < xStart + szerokoscObrazka; x+=8)
+    //     {
+    //         for(int z = y; z < y+8; z++){
+    //             for(int a = x; a<x+8; a++){
+    //                 //std::cout << a%8 << ". Pozycja x: " << a << " pozycja y: " << z << std::endl;
+    //                 dane[k] = getPixel(a,z);
+    //                 k++;
+    //             }
+    //         }
+    //     }
+
+    int x = 0;
+    int y = 0;
+
+    // for(int i = 0; i < metadata->getWidth() * metadata->getHeight(); i+=8) {
+    //     if (x >= surface->w) { 
+    //         x = 0;
+    //         y += 1;
+    //     } else {
+    //         x += 1;
+    //     }
+
+    //     for(int j = 0; j < 8; j++) {
+    //         // std::cout << (uint)image[i+j].r << " " << (uint)image[i+j].g << " " << (uint)image[i+j].b << std::endl;
+
+    //         Processor::setPixel(surface, x, y, image[i+j]);
+    //     }
+    // }
+
+
+
+    for (int k = 0; k < image.size(); k++) {
+        if (x >= surface->w) { 
+            x = 0;
+            y += 1;
+        } else {
+            x += 1;
+        } 
+
+        // std::cout << x << " " << y << std::endl;
+
+        Processor::setPixel(surface, x, y, image[k]);
+    }
+
+
+
+
+    // for (int x = 0; x < metadata->getWidth(); x++) {
+    //     for (int y = 0; y < metadata->getHeight(); y++) {
+
+    //         Processor::setPixel(surface, x, y, image[x + y]);
+    //     }
+    // }
+
+    std::cout << (uint)image[2].r << " " << (uint)image[2].g << " " << (uint)image[2].b << std::endl;
+
+    // for(int i = 0; i < Processor::getPixelAmount(surface); i+=8) {
+    //     assemble.clear();
+
+    //     for(int j = 0; j < 8; j++) {
+    //         assemble.push_back(Processor::convert24BitRGBTo7BitRGB(image[i+j]));
+    //     }
+
+    //     buff.push_back(Processor::convert8BitTo7Bit(assemble));
+    // }
+    return surface;
 };
 
-SDL_Surface* IO::readFileCGUOptimalBW(std::string path) {
+
+
+
+
+// void zczytajDane(int xStart, int yStart)
+// {
+//     std::cout << "DUPA" << std::endl;
+//     int k = 0;
+//     for(int y = yStart; y < yStart + wysokoscObrazka; y+=8)
+//     {
+
+//         for(int x = xStart; x < xStart + szerokoscObrazka; x+=8)
+//         {
+//             for(int z = y; z < y+8; z++){
+//                 for(int a = x; a<x+8; a++){
+//                     //std::cout << a%8 << ". Pozycja x: " << a << " pozycja y: " << z << std::endl;
+//                     dane[k] = getPixel(a,z);
+//                     k++;
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
+
+
+
+
+
+
+
+
+SDL_Surface* IO::readFileCGUOptimalBW(std::string path, IO::FileMetadata* metadata) {
     return NULL;
 };
 
 SDL_Surface* IO::readFileCGUOptimal(std::string path, IO::FileMetadata* metadata) {
     if (isRGBConversion(metadata->getConvertion())) {
-        return readFileCGUOptimalRGB(path);
+        return readFileCGUOptimalRGB(path, metadata);
 
     } else if (isBWConversion(metadata->getConvertion())) {
-        return readFileCGUOptimalBW(path);
+        return readFileCGUOptimalBW(path, metadata);
 
     }
 
@@ -181,7 +381,7 @@ int IO::writeFileCGUDefault(std::string path, IO::FileMetadata* metadata, SDL_Su
         return EXIT_FAILURE;
     }
 
-    if (writeMetadataToFileCGU(path, metadata) != EXIT_SUCCESS) {
+    if (writeMetadataToFileCGUDefault(path, metadata) != EXIT_SUCCESS) {
         return EXIT_FAILURE;
     };
 
@@ -191,24 +391,44 @@ int IO::writeFileCGUDefault(std::string path, IO::FileMetadata* metadata, SDL_Su
 int IO::writeFileCGUOptimalRGB(std::string path, SDL_Surface* surface) {
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
+    std::cout << (uint)image[2].r << " " << (uint)image[2].g << " " << (uint)image[2].b << std::endl;
+
     std::vector<std::vector<Uint8>> buff;
 
     std::vector<Uint8> assemble(8);
 
-    for(int i = 0; i < (surface->w*surface->h); i+=8) {
+    for(int i = 0; i < Processor::getPixelAmount(surface); i+=8) {
         assemble.clear();
 
+        // std::cout << "before" << std::endl;
+        // std::cout << std::endl;
+
         for(int j = 0; j < 8; j++) {
+            // std::cout << (uint)image[i+j].r << " " << (uint)image[i+j].g << " " << (uint)image[i+j].b << std::endl;
+
             assemble.push_back(Processor::convert24BitRGBTo7BitRGB(image[i+j]));
+
+            // std::cout << (uint)(Processor::convert24BitRGBTo7BitRGB(image[i + j])) << std::endl;
         }
 
+        // std::cout << std::endl;
+
         buff.push_back(Processor::convert8BitTo7Bit(assemble));
+
+        for (auto &value : Processor::convert7BitTo8Bit(Processor::convert8BitTo7Bit(assemble))) {
+            SDL_Color color = Processor::convert7BitRGBTo24BitRGB(value);
+
+            // std::cout << (uint)value << std::endl;
+            // std::cout << (uint)color.r << " " << (uint)color.g << " " << (uint)color.b << std::endl;
+        }
+        
+        // std::cout << std::endl;
     }
 
-    std::ofstream file(path, std::ios_base::out | std::ios_base::binary);
+    std::ofstream file(path, std::ios_base::app | std::ios_base::binary);
 
-    for (std::vector<Uint8> &value : buff) {
-        file.write((char *)&value[0], value.size() * sizeof(Uint8));
+    for (std::vector<Uint8> &value : buff) {        
+        file.write((char *)(value.data()), value.size() * sizeof(Uint8));
     }
 
     file.close();
@@ -223,7 +443,7 @@ int IO::writeFileCGUOptimalBW(std::string path, SDL_Surface* surface) {
 
     std::vector<Uint8> assemble(8);
 
-    for(int i = 0; i < (surface->w*surface->h); i+=8) {
+    for(int i = 0; i < Processor::getPixelAmount(surface); i+=8) {
         assemble.clear();
 
         for(int j = 0; j < 8; j++) {
@@ -233,10 +453,10 @@ int IO::writeFileCGUOptimalBW(std::string path, SDL_Surface* surface) {
         buff.push_back(Processor::convert8BitTo7Bit(assemble));
     }
 
-    std::ofstream file(path, std::ios_base::out | std::ios_base::binary);
+    std::ofstream file(path, std::ios_base::app | std::ios_base::binary);
 
     for (std::vector<Uint8> &value : buff) {
-        file.write((char *)&value[0], value.size() * sizeof(Uint8));
+        file.write((char *)(value.data()), value.size() * sizeof(Uint8));
     }
 
     file.close();
@@ -245,44 +465,49 @@ int IO::writeFileCGUOptimalBW(std::string path, SDL_Surface* surface) {
 };
 
 int IO::writeFileCGUOptimal(std::string path, IO::FileMetadata* metadata, SDL_Surface* surface){
-    int result;
-
-    if (isRGBConversion(metadata->getConvertion())) {
-        result = writeFileCGUOptimalRGB(path, surface);
-
-    } else if (isBWConversion(metadata->getConvertion())) {
-        result = writeFileCGUOptimalBW(path, surface);
-        
-    } else {
-        return EXIT_FAILURE;
-    }
-
-    if (result != EXIT_SUCCESS) {
-        return EXIT_FAILURE;
-    }
-
-    if (writeMetadataToFileCGU(path, metadata) != EXIT_SUCCESS) {
+    if (writeMetadataToFileCGUOptimal(path, metadata) != EXIT_SUCCESS) {
         return EXIT_FAILURE;
     };
 
-    return EXIT_SUCCESS;
+    if (isRGBConversion(metadata->getConvertion())) {
+        return writeFileCGUOptimalRGB(path, surface);
+
+    } else if (isBWConversion(metadata->getConvertion())) {
+        return writeFileCGUOptimalBW(path, surface);
+    }
+    
+    return EXIT_FAILURE;
 };
 
-int IO::writeMetadataToFileCGU(std::string path, IO::FileMetadata* metadata) {
+int IO::writeMetadataToFileCGUDefault(std::string path, IO::FileMetadata* metadata) {
     std::ofstream file(path, std::ios_base::app | std::ios_base::binary);
     if (!file.is_open()) {
         return EXIT_FAILURE;
     }
 
     file.seekp(0, std::ios::end);
-    file << *metadata;
+
+    metadata->writeToDefault(file);
 
     file.close();
 
     return EXIT_SUCCESS;
 }
 
-IO::FileMetadata* IO::readMetadataFromFileCGU(std::string path) {
+int IO::writeMetadataToFileCGUOptimal(std::string path, IO::FileMetadata* metadata) {
+    std::ofstream file(path, std::ios_base::out | std::ios_base::binary);
+    if (!file.is_open()) {
+        return EXIT_FAILURE;
+    }
+
+    metadata->writeToOptimal(file);
+
+    file.close();
+
+    return EXIT_SUCCESS;
+}
+
+IO::FileMetadata* IO::readMetadataFromFileCGUDefault(std::string path) {
     IO::FileMetadata* result = new FileMetadata();
 
     std::ifstream file(path, std::ios_base::binary);
@@ -291,7 +516,26 @@ IO::FileMetadata* IO::readMetadataFromFileCGU(std::string path) {
     }
 
     file.seekg(((int)file.tellg()) - (METADATA_FIELDS_NUM + 1), std::ios::end);
-    file >> *result;
+    
+    result->readFromDefault(file);
+
+    file.close();
+
+    return result;
+}
+
+IO::FileMetadata* IO::readMetadataFromFileCGUOptimal(std::string path) {
+    IO::FileMetadata* result = new FileMetadata();
+
+    std::ifstream file(path, std::ios_base::binary);
+    if (!file.is_open()) {
+        return NULL;
+    }
+
+    // file.seekg(((int)file.tellg()) - (METADATA_FIELDS_NUM + 1), std::ios::end);
+    // file.seekg(0, std::ios_base::beg);
+    
+    result->readFromOptimal(file);
 
     file.close();
 

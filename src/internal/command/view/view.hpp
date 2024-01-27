@@ -15,6 +15,7 @@ class View {
 private:
     args::Command* command = NULL;
     args::ValueFlag<std::string>* from = NULL;
+    args::Flag* optimal = NULL;
     args::Flag* debug = NULL;
 
 public:

@@ -14,6 +14,8 @@ add_compile_definitions(BIT_NUM_MAX=128)
 add_compile_definitions(NATIVE_SHIFT=1)
 add_compile_definitions(MEDIAN_CUT_BATCH=7)
 
+add_compile_definitions(BIT_NUM_PER_PIXEL=8)
+
 # Describes CGU metadata properties.
 add_compile_definitions(METADATA_FIELDS_NUM=4)
 
@@ -21,6 +23,7 @@ add_compile_definitions(METADATA_FIELDS_NUM=4)
 add_compile_definitions(BIT_SIZE_MAX_EXCEPTION="Given image has too much unique color bits")
 add_compile_definitions(BIT_SIZE_MIN_EXCEPTION="Given image has too small amount of unique color bits. Please use another conversion type")
 add_compile_definitions(FILE_NOT_COMPATIBLE_EXCEPTION="Given file is not compatible with CGU codec.")
+add_compile_definitions(METADATA_RETRIEVAL_EXCEPTION="Error happened during metadata retrieval. Please try to switch 'optimal' flag")
 
 include_directories(
 	"include/"

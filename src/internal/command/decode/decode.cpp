@@ -6,6 +6,7 @@ Decode::Decode(args::ArgumentParser* argumentParser) {
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the output media", {"type"});
+    this->optimal = new args::Flag(*group, "true|false(default)", "Enables optional mode of data saving", {"optimal"});;
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -29,8 +30,16 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
-    IO::FileMetadata* metadata = IO::readMetadataFromFileCGU(from->Get());
+    IO::FileMetadata* metadata;
+
+    if (optimal->Get()) {
+        metadata = IO::readMetadataFromFileCGUOptimal(from->Get());
+    } else {
+        metadata = IO::readMetadataFromFileCGUDefault(from->Get());
+    }
+    
     if (metadata == NULL) {
+        Logger::SetError(METADATA_RETRIEVAL_EXCEPTION);        
         return EXIT_FAILURE;
     }
 
@@ -41,7 +50,7 @@ int Decode::handle() {
 
     SDL_Surface* input;
     
-    if (metadata->getOptimal()) {
+    if (optimal->Get()) {
         input = IO::readFileCGUOptimal(from->Get(), metadata);
     } else {
         input = IO::readFileCGUDefault(from->Get());

@@ -190,13 +190,11 @@ int Converter::convertToCGUPaletteDetected(SDL_Surface* surface) {
     Tools::startIndefiniteSpinner();
 
     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    std::cout << "here" << " " << colors.size() << std::endl;
 
     std::vector<Processor::PixelPoint> result =
         Processor::generateDedicatedPalette(surface, colors);
-
+        
     Processor::cleanSurface(surface);
-
     Processor::setPixels(surface, result);
 
     return EXIT_SUCCESS;

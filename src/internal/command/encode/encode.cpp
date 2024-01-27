@@ -66,32 +66,38 @@ int Encode::handle() {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
             result = Converter::convertToCGUNativeRGB(input);
             metadata = 
-                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_RGB, optimal->Get(), State::getImageCompounds());
+                IO::composeCompoundsMetadata(
+                    IO::CONVERSION_TYPES::NATIVE_RGB, input->w, input->h, State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
             result = Converter::convertToCGUNativeBW(input);
             metadata = 
-                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_BW, optimal->Get(), State::getImageCompounds());
+                IO::composeCompoundsMetadata(
+                    IO::CONVERSION_TYPES::NATIVE_BW, input->w, input->h, State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING:
             result = Converter::convertToCGUNativeRGBDithering(input);
             metadata = 
-                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING, optimal->Get(), State::getImageCompounds());
+                IO::composeCompoundsMetadata(
+                IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING, input->w, input->h, State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW_DITHERING:
             result = Converter::convertToCGUNativeBWDithering(input);
             metadata = 
-                IO::composeCompoundsMetadata(IO::CONVERSION_TYPES::NATIVE_BW_DITHERING, optimal->Get(), State::getImageCompounds());
+                IO::composeCompoundsMetadata(
+                    IO::CONVERSION_TYPES::NATIVE_BW_DITHERING, input->w, input->h, State::getImageCompounds());
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
             result = Converter::convertToCGUPaletteRGB(input);
             metadata = 
-                IO::composeIndecesMetadata(IO::CONVERSION_TYPES::PALETTE_RGB, optimal->Get(), State::getPaletteIndeces());
+                IO::composeIndecesMetadata(
+                    IO::CONVERSION_TYPES::PALETTE_RGB, input->w, input->h, State::getPaletteIndeces());
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
             result = Converter::convertToCGUPaletteBW(input);
             metadata = 
-                IO::composeIndecesMetadata(IO::CONVERSION_TYPES::PALETTE_BW, optimal->Get(), State::getPaletteIndeces());
+                IO::composeIndecesMetadata(
+                    IO::CONVERSION_TYPES::PALETTE_BW, input->w, input->h, State::getPaletteIndeces());
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");

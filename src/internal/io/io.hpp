@@ -57,16 +57,15 @@ public:
     */
     class FileMetadata {
     private:
-        bool compatible = 1;
+        uint16_t compatible = 13;
 
         size_t defaultSize = 0;
 
-        /**
-         * 
-        */
-        bool optimal;
-
         IO::CONVERSION_TYPES convertion;
+
+        int height;
+
+        int width;
 
         std::vector<int> indeces;
 
@@ -74,41 +73,29 @@ public:
     public:
         FileMetadata() {};
 
-        FileMetadata(IO::CONVERSION_TYPES convertion, bool optimal) : convertion(convertion), optimal(optimal) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height) : convertion(convertion), width(width), height(height) {};
         
-        FileMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<int> indeces) : convertion(convertion), optimal(optimal), indeces(indeces) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<int> indeces) : convertion(convertion), width(width), height(height), indeces(indeces) {};
 
-        FileMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<Uint8> compounds) : convertion(convertion), optimal(optimal), compounds(compounds) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<Uint8> compounds) : convertion(convertion), width(width), height(height), compounds(compounds) {};
 
         /**
          * Retrieves compatibility flag.
          * @return compatibility flag.
         */
-        bool getCompatible();
+        uint16_t getCompatible();
 
         /**
          * Sets given compatible type.
          * @param value - compatible flag value.
         */
-        void setCompatible(bool value);
+        void setCompatible(uint16_t value);
 
         /**
          * Retrieves default size flag.
          * @return default size.
         */
         size_t getDefaultSize();
-
-        /**
-         * Retrieves optimal flag.
-         * @return optimal flag.
-        */
-        bool getOptimal();
-
-        /**
-         * Sets given optimal type.
-         * @param value - optimal flag value.
-        */
-        void setOptimal(bool value);
 
         /**
          * Retrieves CGU file convertion type.
@@ -121,6 +108,28 @@ public:
          * @param value - given CGU file convertion type.
         */
         void setConvertion(IO::CONVERSION_TYPES value);
+
+        /**
+         * Retrieves CGU file width.
+         * @return CGU file width.
+        */
+        int getWidth();
+
+        /**
+         * 
+        */
+        void setWidth(int value);
+
+        /**
+         * Retrieves CGU file height.
+         * @return CGU file height.
+        */
+        int getHeight();
+
+        /**
+         * 
+        */
+        void setHeight(int value);
 
         /**
          * Retrieves indeces for the image convertion.
@@ -146,83 +155,30 @@ public:
         */
         void setCompounds(std::vector<Uint8> compounds);
 
-        friend std::ofstream & operator << (std::ofstream & ofs, IO::FileMetadata value) {
-            bool compatible = value.getCompatible();
+        /**
+         * 
+        */
+        void writeToDefault(std::ofstream& ofs);
 
-            ofs << (char*)&compatible;
+        /**
+         * 
+        */
+        void writeToOptimal(std::ofstream& ofs);
 
-            // ofs.write((char*)&(compatible), sizeof(bool));
+        /**
+         * 
+        */
+        void readFromDefault(std::ifstream& ifs);
 
-            // ofs << std::endl;
-            // ofs << value.getCompatible();
-            // ofs << std::endl;
-            // ofs << static_cast<int>(value.getConvertion());
-            // ofs << std::endl;
-            // ofs << value.getOptimal();
+        /**
+         * 
+        */
+        void readFromOptimal(std::ifstream& ifs);
 
-            // if (value.getIndeces().size() > 0) {
-            //     ofs << std::endl;
-            //     ofs << value.getIndeces().size();
-            //     ofs << std::endl;
-            // } else if (value.getCompounds().size() > 0) {
-            //     ofs << std::endl;
-            //     ofs << value.getCompounds().size();
-            //     ofs << std::endl;
-            //     // std::cout << IO::combineCompounds(value.getCompounds()) << std::endl;
-            // } else {
-            //     ofs << std::endl;
-            //     ofs << value.getDefaultSize();
-            // }
-
-            
-
-            // for (int index : value.getIndeces()) {
-            //     ofs << index;
-            //     ofs << std::endl;
-            // }
-
-            // for (Uint8 compound : value.getCompounds()) {
-            //     ofs << static_cast<int>(compound);
-            //     ofs << std::endl;
-            // }
-
-            return ofs;
-        };
-
-        friend std::ifstream & operator >> (std::ifstream & ifs, IO::FileMetadata & value) {
-            bool compatible;
-            // int convertion;
-            // bool optimal;
-            // size_t data_size;
-            // int index;
-            // std::vector<int> indeces;
-            // Uint8 compound;
-            // std::vector<Uint8> compounds;
-            ifs.read((char*)&compatible, sizeof(bool));
-
-            // ifs >> (char *)&compatible;
-
-            // ifs >> compatible;
-            // ifs >> convertion;
-            // ifs >> optimal;
-            // ifs >> data_size;
-
-            // if (data_size > 0) {
-            //     std::cout << compatible << std::endl;
-            //     std::cout << convertion << std::endl;
-            //     std::cout << data_size << std::endl;
-            // }
-
-            std::cout << compatible << std::endl;
-            // std::cout << convertion << std::endl;
-            // std::cout << optimal << std::endl;
-            // std::cout << data_size << std::endl;
-
-            value.setCompatible(compatible);
-            // value.setConvertion((IO::CONVERSION_TYPES)convertion);
-
-            return ifs;
-        };
+        /**
+         * 
+        */
+        int getSize();
     };
 
     /**
@@ -231,7 +187,7 @@ public:
      * @param optimal - given CGU file writer mode.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata* composeNativeMetadata(IO::CONVERSION_TYPES convertion, bool optimal);
+    static IO::FileMetadata* composeNativeMetadata(IO::CONVERSION_TYPES convertion, int width, int height);
 
     /**
      * Composes CGU file metadata struct with the given arguments.
@@ -240,7 +196,7 @@ public:
      * @param indeces - given CGU file indeces.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<int> indeces);
+    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<int> indeces);
 
     /**
      * Composes CGU file metadata struct with the given arguments.
@@ -249,7 +205,7 @@ public:
      * @param compounds - given CGU file compounds.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata* composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, bool optimal, std::vector<Uint8> compounds);
+    static IO::FileMetadata* composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<Uint8> compounds);
 
     /**
      * 
@@ -310,12 +266,12 @@ public:
     /**
      * 
     */
-    static SDL_Surface* readFileCGUOptimalRGB(std::string path);
+    static SDL_Surface* readFileCGUOptimalRGB(std::string path, IO::FileMetadata* metadata);
 
     /**
      * 
     */
-    static SDL_Surface* readFileCGUOptimalBW(std::string path);
+    static SDL_Surface* readFileCGUOptimalBW(std::string path, IO::FileMetadata* metadata);
 
     /**
      * Reads media CGU file with the given path in the optimal way.
@@ -382,17 +338,32 @@ public:
     static int writeFileCGUOptimal(std::string path, FileMetadata* metadata, SDL_Surface* surface);
 
     /**
-     * Reads metadata from the given CGU file.
+     * Reads metadata from the given CGU file with default mode.
      * @param path - a location of the file to be read.
      * @return CGU file metadata.
     */
-    static IO::FileMetadata* readMetadataFromFileCGU(std::string path);
+    static IO::FileMetadata* readMetadataFromFileCGUDefault(std::string path);
+
+    /**
+     * Reads metadata from the given CGU file with optimal mode.
+     * @param path - a location of the file to be read.
+     * @return CGU file metadata.
+    */
+    static IO::FileMetadata* readMetadataFromFileCGUOptimal(std::string path);
 private:
     /**
-     * Writes given metadata to the CGU file at the given location.
+     * Writes given metadata to the CGU file at the given location with default mode.
      * @param path - a location of the file, where metadata is intended to be set.
      * @param metadata - CGU file metadata.
      * @return status of the operation.
     */
-    static int writeMetadataToFileCGU(std::string path, IO::FileMetadata* metadata);
+    static int writeMetadataToFileCGUDefault(std::string path, IO::FileMetadata* metadata);
+
+    /**
+     * Writes given metadata to the CGU file at the given location with optimal mode.
+     * @param path - a location of the file, where metadata is intended to be set.
+     * @param metadata - CGU file metadata.
+     * @return status of the operation.
+    */
+    static int writeMetadataToFileCGUOptimal(std::string path, IO::FileMetadata* metadata);
 };
