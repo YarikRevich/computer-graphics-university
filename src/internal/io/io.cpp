@@ -26,6 +26,10 @@ IO::CONVERSION_TYPES IO::getConversionType(std::string src){
         return IO::CONVERSION_TYPES::PALETTE_RGB;
     } else if (src == "palette_bw") {
         return IO::CONVERSION_TYPES::PALETTE_BW;
+    } else if (src == "palette_rgb_dithering") {
+        return IO::CONVERSION_TYPES::PALETTE_RGB_DITHERING;
+    } else if (src == "palette_bw_dithering") {
+        return IO::CONVERSION_TYPES::PALETTE_BW_DITHERING;
     }
 
     return IO::CONVERSION_TYPES::NONE;
@@ -51,10 +55,6 @@ void IO::FileMetadata::setCompatible(uint16_t value) {
     this->compatible = value;
 };
 
-size_t IO::FileMetadata::getDefaultSize() {
-    return defaultSize;
-}
-
 IO::CONVERSION_TYPES IO::FileMetadata::getConvertion() {
     return convertion;
 }
@@ -79,12 +79,28 @@ void IO::FileMetadata::setHeight(int value) {
     this->height = value;
 };
 
+int IO::FileMetadata::getIndecesSize() {
+    return indecesSize;
+};
+
+void IO::FileMetadata::setIndecesSize(int value) {
+    this->indecesSize = value;
+};
+
 std::vector<int> IO::FileMetadata::getIndeces() {
     return indeces;
 };
 
 void IO::FileMetadata::setIndeces(std::vector<int> indeces) {
     this->indeces = indeces;
+};
+
+int IO::FileMetadata::getCompoundsSize() {
+    return compoundsSize;
+};
+
+void IO::FileMetadata::setCompoundsSize(int value) {
+    this->compoundsSize = value;
 };
 
 std::vector<Uint8> IO::FileMetadata::getCompounds() {
@@ -106,11 +122,19 @@ void IO::FileMetadata::writeToOptimal(std::ofstream& ofs) {
     int conversion = (int)getConvertion();
     int width = getWidth();
     int height = getHeight();
+    int indecesSize = getIndecesSize();
+    std::vector<int> indeces = getIndeces();
+    int compoundsSize = getCompoundsSize();
+    std::vector<Uint8> compounds = getCompounds();
 
     ofs.write((char*)&compatibleTemp, sizeof(uint16_t));
     ofs.write((char*)&conversion, sizeof(int));
     ofs.write((char*)&width, sizeof(int));
     ofs.write((char*)&height, sizeof(int));
+    ofs.write((char*)&indecesSize, sizeof(int));
+    ofs.write((char*)(indeces.data()), indecesSize * sizeof(int));
+    ofs.write((char*)&compoundsSize, sizeof(int));
+    ofs.write((char*)(compounds.data()), compoundsSize * sizeof(Uint8));
 };
 
 void IO::FileMetadata::readFromDefault(std::ifstream& ifs) {
@@ -135,20 +159,35 @@ void IO::FileMetadata::readFromOptimal(std::ifstream& ifs) {
     int conversion;
     int width;
     int height;
+    int indecesSize;
+    int compoundsSize;
 
     ifs.read((char*)&compatibleTemp, sizeof(uint16_t));
     ifs.read((char*)&conversion, sizeof(int));
     ifs.read((char*)&width, sizeof(int));
     ifs.read((char*)&height, sizeof(int));
+    ifs.read((char*)&indecesSize, sizeof(int));
+
+    std::vector<int> indeces(indecesSize, 0);
+    ifs.read((char*)(indeces.data()), indecesSize * sizeof(int));
+
+    ifs.read((char*)&compoundsSize, sizeof(int));
+
+    std::vector<Uint8> compounds(compoundsSize, 0);
+    ifs.read((char*)(compounds.data()), compoundsSize * sizeof(Uint8));
 
     setCompatible(compatibleTemp);
     setConvertion((IO::CONVERSION_TYPES)conversion);
     setWidth(width);
     setHeight(height);
+    setIndecesSize(indecesSize);
+    setIndeces(indeces);
+    setCompoundsSize(compoundsSize);
+    setCompounds(compounds);
 };
 
 int IO::FileMetadata::getSize() {
-    return (sizeof(int) * 3) + sizeof(uint16_t) + (indeces.size() * sizeof(int)) + (compounds.size() * sizeof(Uint8));
+    return (sizeof(int) * 5) + sizeof(uint16_t) + (indeces.size() * sizeof(int)) + (compounds.size() * sizeof(Uint8));
 };
 
 IO::FileMetadata* IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion, int width, int height) {
@@ -163,6 +202,7 @@ IO::FileMetadata* IO::composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, 
     return new IO::FileMetadata(convertion, width, height, compounds);
 }
 
+// TODO: REMOVE
 std::string IO::combineIndeces(std::vector<int> indeces) {
     std::ostringstream imploded;
 
@@ -172,6 +212,8 @@ std::string IO::combineIndeces(std::vector<int> indeces) {
     return imploded.str();
 };
 
+
+// TODO: REMOVE
 std::string IO::combineCompounds(std::vector<Uint8> compounds) {
     std::ostringstream imploded;
 
@@ -261,7 +303,58 @@ SDL_Surface* IO::readFileCGUOptimalRGB(std::string path, IO::FileMetadata* metad
 };
 
 SDL_Surface* IO::readFileCGUOptimalBW(std::string path, IO::FileMetadata* metadata) {
-    return NULL;
+    std::ifstream file(path, std::ios_base::in | std::ios_base::binary);
+    if (!file.is_open()) {
+        return NULL;
+    }
+
+    file.seekg(metadata->getSize());
+
+    std::vector<std::vector<Uint8>> buff;
+
+    std::vector<Uint8> input(7, 0);
+    for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / 8); i++) {
+        file.read((char *)(input.data()), 7 * sizeof(Uint8));
+
+        buff.push_back(input);
+    }
+
+    file.close();
+
+    std::vector<SDL_Color> image;
+
+    std::vector<Uint8> assemble(8, 0);
+    for (auto &value : buff) {
+        assemble = Processor::convert7BitTo8Bit(value);
+
+        for (auto &compound : assemble) {
+            image.push_back(Processor::convert7BitGreyTo24BitRGB(compound));
+        }
+    }
+
+    SDL_Surface *surface = 
+        SDL_CreateRGBSurface(0, metadata->getWidth(), metadata->getHeight(), 32, 0, 0, 0, 0);
+
+    int x = 0;
+    int y = 0;
+
+    for (int k = 0; k < image.size(); k++) {
+        if (y == surface->h) { 
+            x += 1;
+            y = 0;
+        } 
+
+        Processor::setPixel(surface, x, y, image[k]);
+        
+        if (x == surface->w) {
+            y += 1;
+            x = 0;            
+        } else {
+            y += 1;
+        }
+    }
+
+    return surface;
 };
 
 SDL_Surface* IO::readFileCGUOptimal(std::string path, IO::FileMetadata* metadata) {
@@ -377,7 +470,7 @@ int IO::writeMetadataToFileCGUDefault(std::string path, IO::FileMetadata* metada
         return EXIT_FAILURE;
     }
 
-    file.seekp(0, std::ios::end);
+    file.seekp(1, std::ios::end);
 
     metadata->writeToDefault(file);
 
@@ -400,15 +493,14 @@ int IO::writeMetadataToFileCGUOptimal(std::string path, IO::FileMetadata* metada
 }
 
 IO::FileMetadata* IO::readMetadataFromFileCGUDefault(std::string path) {
-    IO::FileMetadata* result = new FileMetadata();
-
     std::ifstream file(path, std::ios_base::binary);
     if (!file.is_open()) {
         return NULL;
     }
 
-    file.seekg(((int)file.tellg()) - (METADATA_FIELDS_NUM + 1), std::ios::end);
-    
+    file.seekg(((int)file.tellg()) + 1, std::ios::end);
+
+    IO::FileMetadata* result = new FileMetadata();
     result->readFromDefault(file);
 
     file.close();
@@ -417,13 +509,12 @@ IO::FileMetadata* IO::readMetadataFromFileCGUDefault(std::string path) {
 }
 
 IO::FileMetadata* IO::readMetadataFromFileCGUOptimal(std::string path) {
-    IO::FileMetadata* result = new FileMetadata();
-
     std::ifstream file(path, std::ios_base::binary);
     if (!file.is_open()) {
         return NULL;
     }
 
+    IO::FileMetadata* result = new FileMetadata();
     result->readFromOptimal(file);
 
     file.close();

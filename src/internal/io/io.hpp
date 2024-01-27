@@ -39,6 +39,8 @@ public:
         NATIVE_BW_DITHERING,
         PALETTE_RGB,
         PALETTE_BW,
+        PALETTE_RGB_DITHERING,
+        PALETTE_BW_DITHERING,
         NONE
     };
 
@@ -59,15 +61,17 @@ public:
     private:
         uint16_t compatible = 13;
 
-        size_t defaultSize = 0;
-
         IO::CONVERSION_TYPES convertion;
 
         int height;
 
         int width;
 
+        int indecesSize = 0;
+
         std::vector<int> indeces;
+
+        int compoundsSize = 0;
 
         std::vector<Uint8> compounds;
     public:
@@ -77,9 +81,9 @@ public:
 
         FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height) : convertion(convertion), width(width), height(height) {};
         
-        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<int> indeces) : convertion(convertion), width(width), height(height), indeces(indeces) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<int> indeces) : convertion(convertion), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
 
-        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<Uint8> compounds) : convertion(convertion), width(width), height(height), compounds(compounds) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<Uint8> compounds) : convertion(convertion), width(width), height(height), compoundsSize(compounds.size()), compounds(compounds) {};
 
         /**
          * Retrieves compatibility flag.
@@ -92,12 +96,6 @@ public:
          * @param value - compatible flag value.
         */
         void setCompatible(uint16_t value);
-
-        /**
-         * Retrieves default size flag.
-         * @return default size.
-        */
-        size_t getDefaultSize();
 
         /**
          * Retrieves CGU file convertion type.
@@ -133,6 +131,16 @@ public:
         */
         void setHeight(int value);
 
+        /** 
+         * 
+        */
+        void setIndecesSize(int value);
+
+        /** 
+         * 
+        */
+        int getIndecesSize();
+
         /**
          * Retrieves indeces for the image convertion.
          * @return CGU file indeces.
@@ -143,7 +151,17 @@ public:
          * Sets indeces for the image convertion.
          * @param indexes - given CGU file convertion indeces.
         */
-        void setIndeces(std::vector<int> indeces);
+        void setIndeces(std::vector<int> value);
+
+        /** 
+         * 
+        */
+        void setCompoundsSize(int value);
+
+        /** 
+         * 
+        */
+        int getCompoundsSize();
 
         /**
          * Retrieves compounds for the image convertion.
@@ -155,7 +173,7 @@ public:
          * Sets compounds for the image convertion.
          * @param indexes - given CGU file convertion compounds.
         */
-        void setCompounds(std::vector<Uint8> compounds);
+        void setCompounds(std::vector<Uint8> value);
 
         /**
          * 
