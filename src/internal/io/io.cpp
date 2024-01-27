@@ -246,6 +246,8 @@ SDL_Surface* IO::readFileCGUOptimalRGB(std::string path, IO::FileMetadata* metad
             x += 1;
             y = 0;
         } 
+
+        Processor::setPixel(surface, x, y, image[k]);
         
         if (x == surface->w) {
             y += 1;
@@ -253,8 +255,6 @@ SDL_Surface* IO::readFileCGUOptimalRGB(std::string path, IO::FileMetadata* metad
         } else {
             y += 1;
         }
-
-        Processor::setPixel(surface, x, y, image[k]);
     }
 
     return surface;
@@ -303,8 +303,6 @@ int IO::writeFileCGUDefault(std::string path, IO::FileMetadata* metadata, SDL_Su
 int IO::writeFileCGUOptimalRGB(std::string path, SDL_Surface* surface) {
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
-    std::cout << (uint)image[2].r << " " << (uint)image[2].g << " " << (uint)image[2].b << std::endl;
-
     std::vector<std::vector<Uint8>> buff;
 
     std::vector<Uint8> assemble(8);
@@ -312,29 +310,11 @@ int IO::writeFileCGUOptimalRGB(std::string path, SDL_Surface* surface) {
     for(int i = 0; i < Processor::getPixelAmount(surface); i+=8) {
         assemble.clear();
 
-        // std::cout << "before" << std::endl;
-        // std::cout << std::endl;
-
         for(int j = 0; j < 8; j++) {
-            // std::cout << (uint)image[i+j].r << " " << (uint)image[i+j].g << " " << (uint)image[i+j].b << std::endl;
-
             assemble.push_back(Processor::convert24BitRGBTo7BitRGB(image[i+j]));
-
-            // std::cout << (uint)(Processor::convert24BitRGBTo7BitRGB(image[i + j])) << std::endl;
         }
-
-        // std::cout << std::endl;
 
         buff.push_back(Processor::convert8BitTo7Bit(assemble));
-
-        for (auto &value : Processor::convert7BitTo8Bit(Processor::convert8BitTo7Bit(assemble))) {
-            SDL_Color color = Processor::convert7BitRGBTo24BitRGB(value);
-
-            // std::cout << (uint)value << std::endl;
-            // std::cout << (uint)color.r << " " << (uint)color.g << " " << (uint)color.b << std::endl;
-        }
-        
-        // std::cout << std::endl;
     }
 
     std::ofstream file(path, std::ios_base::app | std::ios_base::binary);
@@ -444,9 +424,6 @@ IO::FileMetadata* IO::readMetadataFromFileCGUOptimal(std::string path) {
         return NULL;
     }
 
-    // file.seekg(((int)file.tellg()) - (METADATA_FIELDS_NUM + 1), std::ios::end);
-    // file.seekg(0, std::ios_base::beg);
-    
     result->readFromOptimal(file);
 
     file.close();
