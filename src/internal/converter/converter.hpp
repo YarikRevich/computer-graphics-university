@@ -79,6 +79,15 @@ public:
     static int convertToCGUPaletteDetected(SDL_Surface* surface);
 
     /**
+     * Converts given surface canvas from CGU media type in native RGB mode.
+     * back to the original, but with the some loss of quality.
+     * @param surface - given surface to be converted.
+     * @param compounds - given origin compounds.
+     * @return result operation status code.
+    */
+    static SDL_Surface* convertFromCGUNativeRGB(std::ifstream& inputStream, IO::FileMetadata* metadata);
+
+    /**
      * Converts given surface canvas from CGU media type in native BW mode.
      * back to the original, but with the some loss of quality.
      * @param surface - given surface to be converted.
@@ -88,11 +97,12 @@ public:
     static SDL_Surface* convertFromCGUNativeBW(std::ifstream& inputStream, IO::FileMetadata* metadata);
 
     /**
-     * Converts given surface canvas from CGU media type in native RGB mode.
-     * back to the original, but with the some loss of quality.
-     * @param surface - given surface to be converted.
-     * @param compounds - given origin compounds.
-     * @return result operation status code.
+     *  
     */
-    static SDL_Surface* convertFromCGUNativeRGB(std::ifstream& inputStream, IO::FileMetadata* metadata);
+    static SDL_Surface* convertFromCGUPaletteRGB(std::ifstream& inputStream, IO::FileMetadata* metadata);
+
+    /**
+     *  
+    */
+    static SDL_Surface* convertFromCGUPaletteBW(std::ifstream& inputStream, IO::FileMetadata* metadata);
 };

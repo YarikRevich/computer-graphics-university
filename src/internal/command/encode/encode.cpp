@@ -64,18 +64,10 @@ int Encode::handle() {
         return EXIT_FAILURE;
     }
 
-    IO::FileMetadata* metadata;
-
     int result;
 
     switch (IO::getConversionType(conversion->Get())) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
-            metadata = 
-                IO::composeNativeMetadata(
-                    IO::CONVERSION_TYPES::NATIVE_RGB, dithering->Get(), input->w, input->h);
-
-            metadata->writeTo(outputStream);
-
             if (dithering->Get()) {
                 result = Converter::convertToCGUNativeRGBDithering(input, outputStream);
             } else {
@@ -84,12 +76,6 @@ int Encode::handle() {
 
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
-            metadata = 
-                IO::composeNativeMetadata(
-                    IO::CONVERSION_TYPES::NATIVE_BW, dithering->Get(), input->w, input->h);
-
-            metadata->writeTo(outputStream);
-
             if (dithering->Get()) {
                 result = Converter::convertToCGUNativeBWDithering(input, outputStream);
             } else {
@@ -97,12 +83,6 @@ int Encode::handle() {
             }
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
-            metadata = 
-                IO::composeIndecesMetadata(
-                    IO::CONVERSION_TYPES::PALETTE_RGB, dithering->Get(), input->w, input->h, State::getPaletteIndeces());
-
-            metadata->writeTo(outputStream);
-
             if (dithering->Get()) {
                 result = Converter::convertToCGUPaletteRGBDithering(input, outputStream);
             } else {
@@ -110,12 +90,6 @@ int Encode::handle() {
             }
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
-            metadata = 
-                IO::composeIndecesMetadata(
-                    IO::CONVERSION_TYPES::PALETTE_BW, dithering->Get(), input->w, input->h, State::getPaletteIndeces());
-
-            metadata->writeTo(outputStream);
-
             if (dithering->Get()) {
                 result = Converter::convertToCGUPaletteBWDithering(input, outputStream);
             } else {

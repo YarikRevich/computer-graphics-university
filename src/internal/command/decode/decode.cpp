@@ -36,7 +36,6 @@ int Decode::handle() {
     }
 
     IO::FileMetadata* metadata = new IO::FileMetadata(inputStream);
-
     if (!metadata->getCompatible()) {
         Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
         return EXIT_FAILURE;

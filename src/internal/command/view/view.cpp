@@ -29,7 +29,6 @@ int View::handle() {
     }
 
     IO::FileMetadata* metadata = new IO::FileMetadata(inputStream);
-
     if (!metadata->getCompatible()) {
         Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
         return EXIT_FAILURE;
@@ -45,8 +44,10 @@ int View::handle() {
             input = Converter::convertFromCGUNativeBW(inputStream, metadata);
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
+            input = Converter::convertFromCGUPaletteRGB(inputStream, metadata);
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
+            input = Converter::convertFromCGUPaletteBW(inputStream, metadata);
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");
@@ -57,28 +58,7 @@ int View::handle() {
         return EXIT_FAILURE;
     }
 
-    // IO::FileMetadata* metadata = IO::readMetadataFromFileCGU(from->Get());;
-    
-    // if (metadata == NULL) {
-    //     Logger::SetError(METADATA_RETRIEVAL_EXCEPTION);        
-    //     return EXIT_FAILURE;
-    // }
-
-    // if (metadata->getCompatible() != IO::FileMetadata::COMPATIBLE_FLAG) {
-    //     Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
-    //     return EXIT_FAILURE;
-    // }
-
-    // SDL_Surface* surface = IO::readFileCGU(from->Get(), metadata);
-    // if (surface == NULL){
-    //     return EXIT_FAILURE;
-    // }
-
-    // if (debug->Get()) {
-    //     if (Converter::convertToCGUPaletteDetected(surface) != EXIT_SUCCESS) {
-    //         return EXIT_FAILURE;
-    //     };
-    // }
+    inputStream.close();
 
     if (window->handle(input) != EXIT_SUCCESS){
         return EXIT_FAILURE;

@@ -54,8 +54,8 @@ IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
     inputStream.read((char*)&dithering, sizeof(int));
     inputStream.read((char*)&indecesSize, sizeof(int));
 
-    std::vector<Uint8> indeces(indecesSize, 0);
-    inputStream.read((char*)(indeces.data()), indecesSize * sizeof(int));
+    std::vector<Uint32> indeces(indecesSize, 0);
+    inputStream.read((char*)(indeces.data()), indecesSize * sizeof(Uint32));
 
     setCompatible(compatibleTemp);
     setConvertion((IO::CONVERSION_TYPES)conversion);
@@ -115,11 +115,11 @@ void IO::FileMetadata::setIndecesSize(int value) {
     this->indecesSize = value;
 };
 
-std::vector<Uint8> IO::FileMetadata::getIndeces() {
+std::vector<Uint32> IO::FileMetadata::getIndeces() {
     return indeces;
 };
 
-void IO::FileMetadata::setIndeces(std::vector<Uint8> value) {
+void IO::FileMetadata::setIndeces(std::vector<Uint32> value) {
     this->indeces = value;
 };
 
@@ -130,7 +130,7 @@ void IO::FileMetadata::writeTo(std::ofstream& ofs) {
     int height = getHeight();
     int dithering = getDithering();
     int indecesSize = getIndecesSize();
-    std::vector<Uint8> indeces = getIndeces();
+    std::vector<Uint32> indeces = getIndeces();
 
     ofs.write((char*)&compatibleTemp, sizeof(uint16_t));
     ofs.write((char*)&conversion, sizeof(int));
@@ -138,18 +138,18 @@ void IO::FileMetadata::writeTo(std::ofstream& ofs) {
     ofs.write((char*)&height, sizeof(int));
     ofs.write((char*)&dithering, sizeof(int));
     ofs.write((char*)&indecesSize, sizeof(int));
-    ofs.write((char*)(indeces.data()), indecesSize * sizeof(int));
+    ofs.write((char*)(indeces.data()), indecesSize * sizeof(Uint32));
 };
 
 int IO::FileMetadata::getSize() {
-    return (sizeof(int) * 5) + sizeof(uint16_t) + (indeces.size() * sizeof(int));
+    return (sizeof(int) * 5) + sizeof(uint16_t) + (indeces.size() * sizeof(Uint32));
 };
 
 IO::FileMetadata* IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height) {
     return new IO::FileMetadata(convertion, dithering, width, height);
 }
 
-IO::FileMetadata* IO::composeIndecesMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint8> indeces) {
+IO::FileMetadata* IO::composeIndecesMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint32> indeces) {
     return new IO::FileMetadata(convertion, dithering, width, height, indeces);
 }
 
@@ -338,31 +338,31 @@ int IO::writeFileCGUOptimalRGB(std::string path, SDL_Surface* surface) {
 };
 
 int IO::writeFileCGUOptimalBW(std::string path, SDL_Surface* surface) {
-    std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
+    // std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
-    std::vector<std::vector<Uint8>> buff;
+    // std::vector<std::vector<Uint8>> buff;
 
-    std::vector<Uint8> assemble(8);
+    // std::vector<Uint8> assemble(8);
 
-    for(int i = 0; i < Processor::getPixelAmount(surface); i += 8) {
-        assemble.clear();
+    // for(int i = 0; i < Processor::getPixelAmount(surface); i += 8) {
+    //     assemble.clear();
 
-        for(int j = 0; j < 8; j++) {
-            assemble.push_back(Processor::convert24BitRGBTo7BitGrey(image[i+j]));
-        }
+    //     for(int j = 0; j < 8; j++) {
+    //         assemble.push_back(Processor::convert24BitRGBTo7BitGrey(image[i+j]));
+    //     }
 
-        buff.push_back(Processor::convert8BitTo7Bit(assemble));
-    }
+    //     buff.push_back(Processor::convert8BitTo7Bit(assemble));
+    // }
 
-    std::ofstream file(path, std::ios_base::app | std::ios_base::binary);
+    // std::ofstream file(path, std::ios_base::app | std::ios_base::binary);
 
-    for (std::vector<Uint8> &value : buff) {
-        file.write((char *)(value.data()), value.size() * sizeof(Uint8));
-    }
+    // for (std::vector<Uint8> &value : buff) {
+    //     file.write((char *)(value.data()), value.size() * sizeof(Uint8));
+    // }
 
-    file.close();
+    // file.close();
 
-    return EXIT_SUCCESS;
+    // return EXIT_SUCCESS;
 };
 
 // int IO::writeFileCGUOptimal(std::string path, IO::FileMetadata* metadata, SDL_Surface* surface){

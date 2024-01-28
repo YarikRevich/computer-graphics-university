@@ -68,7 +68,7 @@ public:
 
         int indecesSize = 0;
 
-        std::vector<Uint8> indeces;
+        std::vector<Uint32> indeces;
     public:
         static const int COMPATIBLE_FLAG = 13;
 
@@ -76,7 +76,7 @@ public:
 
         FileMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height) {};
         
-        FileMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint8> indeces) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint32> indeces) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
 
         /**
          * Retrieves compatibility flag.
@@ -148,13 +148,13 @@ public:
          * Retrieves indeces for the image convertion.
          * @return CGU file indeces.
         */
-        std::vector<Uint8> getIndeces();
+        std::vector<Uint32> getIndeces();
 
         /**
          * Sets indeces for the image convertion.
          * @param indexes - given CGU file convertion indeces.
         */
-        void setIndeces(std::vector<Uint8> value);
+        void setIndeces(std::vector<Uint32> value);
 
         /**
          * 
@@ -182,7 +182,7 @@ public:
      * @param indeces - given CGU file indeces.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint8> indeces);
+    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint32> indeces);
 
     /**
      * Converts given file type to enum representation.

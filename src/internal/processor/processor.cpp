@@ -18,6 +18,18 @@ std::vector<SDL_Color> Processor::getReducedBitColorMap(SDL_Surface* surface){
     return result;
 }
 
+std::vector<SDL_Color> Processor::getReducedBitColorMap(std::vector<SDL_Color> colors){
+    std::vector<SDL_Color> result;
+
+    for (auto &value : colors) {
+        if (!isColorPresent(result, value)){
+            result.push_back(value);
+        }
+    }
+
+    return result;
+}
+
 std::vector<SDL_Color> Processor::getCompleteBitColorMap(SDL_Surface* surface) {
     std::vector<SDL_Color> result;
 
@@ -79,6 +91,17 @@ SDL_Color Processor::getNearestColorRGB(std::vector<SDL_Color> colors, SDL_Color
     }
 
     return result;
+};
+
+int Processor::getColorIndex(std::vector<SDL_Color> colors, SDL_Color src) {
+    for (int i = 0; i < colors.size(); i++) {
+        // std::cout << (uint)colors[i].r << " " << (uint)colors[i].g << " " << (uint)colors[i].b << " : " << (uint)src.r << " " << (uint)src.g << " " << (uint)src.b << std::endl;
+        if (isColorEqual(colors[i], src)) {
+            return i;
+        }
+    }
+
+    return -1;
 };
 
 void Processor::sortColorMapBW(std::vector<SDL_Color>& colors, int begin, int end) {
@@ -249,39 +272,50 @@ std::vector<SDL_Color> Processor::generateMedianCutBWSelection(std::vector<SDL_C
     return result;
 };
 
-std::vector<Processor::PixelPoint> Processor::generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image) {
-    std::vector<Processor::PixelPoint> result;
+std::vector<SDL_Color> Processor::BucketResult::getColors() {
+    return colors;
+}
+
+std::vector<int> Processor::BucketResult::getIndeces() {
+    return indeces;
+}
+
+Processor::BucketResult* Processor::generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image, std::vector<SDL_Color>& reducer) {
+    std::vector<int> result;
 
     std::vector<SDL_Color> colors = generateMedianCutBWSelection(image, getPixelAmount(surface));
 
-    SDL_Color color;
-    for (int y = 0; y < surface->h; y++) {
-        for (int x = 0; x < surface->w; x++) {
+    SDL_Color color, nearestColor;
+    for (int x = 0; x < surface->w; x++) {
+        for (int y = 0; y < surface->h; y++) {
             color = getPixel(surface, x, y);
 
-            result.push_back(PixelPoint(x, y, getNearestColorBW(colors, 0.299*color.r+0.587*color.g+0.114*color.b)));
+            nearestColor = getNearestColorBW(colors, 0.299*color.r+0.587*color.g+0.114*color.b);
+
+            result.push_back(getColorIndex(reducer, nearestColor));
         }
     }
 
-    return result;
+    return new BucketResult(colors, result);
 };
 
-std::vector<Processor::PixelPoint> Processor::generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image) {
-    std::vector<Processor::PixelPoint> result;
+Processor::BucketResult* Processor::generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image, std::vector<SDL_Color>& reducer) {
+    std::vector<int> result;
 
     std::vector<SDL_Color> colors = generateMedianCutRGBSelection(image, getPixelAmount(surface));
 
-    SDL_Color color;
-    for (int y = 0; y < surface->h; y++) {
-        for (int x = 0; x < surface->w; x++) {
+    SDL_Color color, nearestColor;
+    for (int x = 0; x < surface->w; x++) {
+        for (int y = 0; y < surface->h; y++) {
             color = getPixel(surface, x, y);
-            // ADD COLOR TO METADATA
 
-            result.push_back(PixelPoint(x, y, getNearestColorRGB(colors, color)));
+            nearestColor = getNearestColorRGB(colors, color);
+
+            result.push_back(getColorIndex(colors, nearestColor));
         }
     }
 
-    return result;
+    return new BucketResult(colors, result);
 };
 
 std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surface* surface, std::vector<SDL_Color>& image) {
@@ -556,6 +590,21 @@ std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
     output[7] = output[7] | tmp;
 
     return output;
+};
+
+Uint32 Processor::convertColorToUint32(SDL_Color color) {
+    return (Uint32)((color.r << 16) + (color.g << 8) + (color.b << 0));
+};
+
+SDL_Color Processor::convertUint32ToColor(Uint32 color) {
+    SDL_Color result;
+
+	result.a = 255;
+	result.r = (color >> 16) & 0xFF;
+	result.g = (color >> 8) & 0xFF;
+	result.b = color & 0xFF;
+
+    return result;
 };
 
 Uint8 Processor::convertRGBToGreyUint8(SDL_Color color) {
