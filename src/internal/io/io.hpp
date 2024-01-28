@@ -43,41 +43,41 @@ public:
     */
     class FileMetadata {
     private:
-        uint16_t compatible;
+        uint8_t compatible;
 
         IO::CONVERSION_TYPES convertion;
 
-        int dithering;
+        uint8_t dithering;
 
-        int height;
+        uint16_t height;
 
-        int width;
+        uint16_t width;
 
         int indecesSize = 0;
 
         std::vector<Uint32> indeces;
     public:
-        static const int COMPATIBLE_FLAG = 13;
+        static const uint8_t COMPATIBLE_FLAG = 13;
 
-        static const int DITHERING_FLAG = 14;
+        static const uint8_t DITHERING_FLAG = 14;
 
         FileMetadata(std::ifstream& inputStream);
 
-        FileMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height) {};
         
-        FileMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint32> indeces) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height, std::vector<Uint32> indeces) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
 
         /**
          * Retrieves compatibility flag.
          * @return compatibility flag.
         */
-        uint16_t getCompatible();
+        uint8_t getCompatible();
 
         /**
          * Sets given compatible type.
          * @param value - compatible flag value.
         */
-        void setCompatible(uint16_t value);
+        void setCompatible(uint8_t value);
 
         /**
          * Retrieves CGU file convertion type.
@@ -95,37 +95,37 @@ public:
          * Retrives status of the dithering mode.
          * @return retrieved status of the dithering mode.
         */
-        int getDithering();
+        uint8_t getDithering();
 
         /**
          * Sets dithering mode.
          * @param value - dithering mode to be set.
         */
-        void setDithering(int value);
+        void setDithering(uint8_t value);
 
         /**
          * Retrieves CGU file width.
          * @return CGU file width.
         */
-        int getWidth();
+        uint16_t getWidth();
 
         /**
          * Sets width of the image.
          * @param value - given image width.
         */
-        void setWidth(int value);
+        void setWidth(uint16_t value);
 
         /**
          * Retrieves CGU file height.
          * @return CGU file height.
         */
-        int getHeight();
+        uint16_t getHeight();
 
         /**
          * Sets height of the image.
          * @param value - given image height.
         */
-        void setHeight(int value);
+        void setHeight(uint16_t value);
 
         /** 
          * Retrieves indeces array size.
@@ -167,19 +167,23 @@ public:
     /**
      * Composes CGU file metadata struct with the given arguments.
      * @param convertion - given CGU file convertion type.
-     * @param optimal - given CGU file writer mode.
+     * @param dithering - CGU file dithering mode switch.
+     * @param width - given CGU file width.
+     * @param height - given CGU file height.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata* composeNativeMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height);
+    static IO::FileMetadata* composeNativeMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height);
 
     /**
      * Composes CGU file metadata struct with the given arguments.
      * @param convertion - given CGU file convertion type.
-     * @param optimal - given CGU file writer mode.
-     * @param indeces - given CGU file indeces.
+     * @param dithering - CGU file dithering mode switch.
+     * @param width - given CGU file width.
+     * @param height - given CGU file height.
+     * @param indeces - given CGU file color palette.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint32> indeces);
+    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height, std::vector<Uint32> indeces);
 
     /**
      * Converts given file type to enum representation.
