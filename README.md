@@ -34,24 +34,50 @@ interpretation and its further usage as parameters for different kind of operati
 
 All the available **metadata** flags:
 
-| Name      | Size | Description | Mandatory |
-| ----------- | ----------- | ----------- | ----------- |
-| Compatibility      |  2 byte  |       Compatibility flag, which is required to be present, <br />so CGU can perform decode operation   |    <center>true</center>     |
-| Conversion   |  4 byte  |      Describes conversion type used for image encoding       |   <center>true</center>    |
-| Data size   |    4 byte     |    Represents size of the given data(**indeces** or **compounds**)          |   <center>false</center>   | 
-| Indeces   |  4 byte * N        |    Represents indeces generated for palette conversions          |   <center>false</center>   | 
-| Compounds   | 1 byte * N        |     Represents compounds generated for native conversions        |   <center>false</center>   | 
+| Name      | Offset | Size | Description | Mandatory |
+| ----------- | ----------- | ----------- | ----------- | ----------- |
+| Compatibility      | 1 |  1 byte  |       Compatibility flag, which is required to be present, <br />so CGU can perform decode operation   |    <center>true</center>     |
+| Conversion   | 2 | 1 byte  |      Describes conversion type used for image encoding       |   <center>true</center>    |
+| Width   | 4 | 2 bytes  |      Describes image width       |   <center>true</center>    |
+| Height   | 6 | 2 bytes  |      Describes image height       |   <center>true</center>    |
+| Dithering   | 7 | 1 bytes  |      Describes if dithering is enabled for the image encoding       |   <center>true</center>    |
+| Indeces size   | 11 |   4 bytes     |    Represents size of the given color indeces    |   <center>false</center>   | 
+| Indeces   | 11 + (4 * N) | 4 bytes * N        |    Represents color indeces generated for palette conversions          |   <center>false</center>   | 
 
 ### Native conversion
 
 Every pixel has **7-bit** color. That color consists of the following compounds:
-* 
+* 4 states for **RED** color.
+* 8 states for **GREEN** color.
+* 4 states for **BLUE** color.
+
+The general color is equal to **RRGGGBB**.
 
 > ### RGB
 
+The values of **RED** and **BLUE** compounds look like this:
+* 0 - 0
+* 1 - 85
+* 2 - 170
+* 3 - 255
+
+The values of **GREEN** compound look like this:
+* 0 - 0
+* 1 - 36
+* 2 - 73
+* 3 - 109
+* 4 - 146
+* 5 - 182
+* 6 - 218
+* 7 - 255
+
+![1](./docs/examples/1.png)
+
 > ### BW
 
-Grey scale 
+All the values are interpreted as an intensity of a grey scale, where **0** means the color is **black** and **255** means that the color is **white**.
+
+![2](./docs/examples/2.png)
 
 > ### Dithering
 
@@ -60,26 +86,81 @@ Both RGB and BW support additional feature, which is called **dithering**.
 > Dithering - an intentionally applied form of noise used to randomize quantization error, preventing large-scale patterns such as color banding in images
 
 In the case of native conversion there are the next possible options of dithering algorithm to be used:
-* Floyd-Steinberg
+* **Floyd-Steinberg**
+
+![3](./docs/examples/3.png)
 
 ### Palette conversion
 
 In order to perform color conversion it's required to have generated reduced bit color map of the colors
-of the given image.
+of the source image. It should not exceed **128** colors. 
 
 > ### Detected palette conversion
 
-Detected palette conversion uses previously generate reduced bit color map, but, first of all, it checks the number of unique colors. It should not exceed **128** colors. 
+Detected palette conversion uses previously generated bit color map, but renders only palette colors themselves. Each color is placed in a rectangle, which are evenly spaced in the whole image surface.
 
-The next step is detected palette rendering. Each color will be placed in a rectangle, which are evenly spaced in the whole image surface.
+![4](./docs/examples/4.png)
 
-// TODO: place the example photo here.
+![4](./docs/examples/5.png)
 
 > ### MedianCut
 
-**MedianCut** is the algorithm used for the color quantization operation. With the help of the generated **7-bit** color palette it can process the given image and return the generated one.
+**MedianCut** is the algorithm used for the color quantization operation. With the help of the generated **7-bit** color palette saved in the metadata header and indeces placed as data image, it can process the given image and return the generated one.
 
-// TODO: place the example photo here. 
+> **MedianCut** algorithm has a restriction. It works only if the given image has at least **128** unique colors.
+
+> ### RGB
+
+![6](./docs/examples/6.png)
+
+> ### BW
+
+![7](./docs/examples/7.png)
+
+### Image data
+
+Image data is placed under the metadata header, after the offset(11 + (4 * N)). All the data is written in the HEX notation, but can be converted to usual **RGB**.
+
+**RGB** color chunk for **Native RGB** looks in the following way.
+```
+RGB(0, 36, 85)
+RGB(0, 0, 85)
+RGB(0, 36, 0)
+RGB(0, 0, 85)
+RGB(0, 0, 85)
+RGB(0, 36, 85)
+RGB(0, 0, 85)
+RGB(0, 36, 85)
+```
+
+**RGB** color chunk for **Native BW**(grey scale) looks in the following way.
+```
+RGB(0, 36, 85)
+RGB(0, 0, 85)
+RGB(0, 36, 0)
+RGB(0, 0, 85)
+RGB(0, 0, 85)
+RGB(0, 36, 85)
+RGB(0, 0, 85)
+RGB(0, 36, 85)
+```
+
+### Data collection
+
+Image data consists of chunks. Each chunk has 8 pixels. The whole chunk size of **7 byte**. The sequence of retrieved raw data chunks looks like this:
+```
+(0, 8), (8, 15), (15, 23), ...
+```
+
+Each chunk is written in the new line. Output structure looks like this:
+```
+(1, 8)
+(2, 8)
+(3, 8)
+...
+```
+
+During the decoding process the chunk column is decerialized into row based one, which was known during the encoding process.
 
 ## Use cases
 
@@ -88,6 +169,7 @@ The next step is detected palette rendering. Each color will be placed in a rect
 In order to encode input image, it should be of the supported extension type:
 * **jpeg**
 * **jpg**
+* **png**
 * **bmp**
 
 Codec obliges to select **conversion** mode during encoding operation:
@@ -96,10 +178,20 @@ Codec obliges to select **conversion** mode during encoding operation:
 * **palette_rgb**
 * **palette_bw**
 
-The encoding for **bmp-to-cgu** with **palette_rgb** command looks like this:
+Also, there is an option to enable **dithering** mode during the encoding operation. This mode will enable the usage of **Floyd-Steinberg** dithering algorithm. To enable it, it's required to add **--dithering** flag.
+
+> ### Examples
+
+The encoding for **BMP** to **CGU** with **palette_rgb** command looks like this:
 
 ```shell
-./bin/cgu encode --from=<input>.bmp --type=bmp --conversion=palette_rgb --to=<output>.cgu
+./bin/cgu encode --from="./examples/1.bmp" --type=bmp --conversion=palette_rgb --to="1.cgu"
+```
+
+The encoding for **BMP** to **CGU** with **native_rgb** command looks like this:
+
+```shell
+./bin/cgu encode --from="./examples/2.bmp" --type=bmp --conversion=native_rgb --dithering --to="2.cgu"
 ```
 
 ### Decoding
@@ -109,6 +201,7 @@ In order to decode input image, it should be of **CGU** extension.
 Output image can be one of the following extensions:
 * **jpeg**
 * **jpg**
+* **png**
 * **bmp**
 
 Codec obliges to select **conversion** mode during decoding operation:
@@ -117,22 +210,39 @@ Codec obliges to select **conversion** mode during decoding operation:
 * **palette_rgb**
 * **palette_bw**
 
-The encoding for **bmp-to-cgu** with **palette_rgb** command looks like this:
+Also, there is an option to enable **debug** mode during the encoding operation. This mode will enable **dedicated palette** overlay. 
+To enable it, it's required to add **--dithering** flag.
+
+The decoding for **BMP** to **CGU** with **palette_rgb** command looks like this:
 
 ```shell
-./bin/cgu decode --from=<input>.cgu --type=bmp --conversion=palette_rgb --to=<output>.bmp
+./bin/cgu decode --from="./1.cgu" --type=bmp --to="1.bmp"
+```
+
+The decoding for **BMP** to **CGU** with **native_rgb** command looks like this:
+
+```shell
+./bin/cgu decode --from="./2.bmp" --type=bmp --to="2.bmp"
+```
+
+The decoding for **BMP** to **CGU** with **native_rgb** command and **--debug** flag looks like this:
+
+```shell
+./bin/cgu decode --from="./2.bmp" --type=bmp --to="2.bmp" --debug
 ```
 
 ### Viewer
 
-Viewer mode should be used in order to open **CGU** encoded images. Also it can be used for 
-the view of the following image extensions:
-* **jpeg**
-* **jpg**
-* **bmp**
+Viewer mode enables user to preview **CGU** encoded images. 
 
-The viewer command for CGU encoded image looks like this:
+The viewer command for **CGU** encoded image looks like this:
 
 ```shell
-./bin/cgu view --from=<input>.cgu
+./bin/cgu view --from="1.cgu"
+```
+
+The viewer command for **CGU** encoded image with **--debug** flag looks like this:
+
+```shell
+./bin/cgu view --from="1.cgu" --debug
 ```

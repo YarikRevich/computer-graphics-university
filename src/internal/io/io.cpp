@@ -28,18 +28,18 @@ IO::CONVERSION_TYPES IO::getConversionType(std::string src){
 }
 
 IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
-    uint16_t compatibleTemp;
-    int conversion;
-    int width;
-    int height;
-    int dithering;
+    uint8_t compatibleTemp;
+    uint8_t conversion;
+    uint16_t width;
+    uint16_t height;
+    uint8_t dithering;
     int indecesSize;
 
-    inputStream.read((char*)&compatibleTemp, sizeof(uint16_t));
-    inputStream.read((char*)&conversion, sizeof(int));
-    inputStream.read((char*)&width, sizeof(int));
-    inputStream.read((char*)&height, sizeof(int));
-    inputStream.read((char*)&dithering, sizeof(int));
+    inputStream.read((char*)&compatibleTemp, sizeof(uint8_t));
+    inputStream.read((char*)&conversion, sizeof(uint8_t));
+    inputStream.read((char*)&width, sizeof(uint16_t));
+    inputStream.read((char*)&height, sizeof(uint16_t));
+    inputStream.read((char*)&dithering, sizeof(uint8_t));
     inputStream.read((char*)&indecesSize, sizeof(int));
 
     std::vector<Uint32> indeces(indecesSize, 0);
@@ -54,11 +54,11 @@ IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
     setIndeces(indeces);
 };
 
-uint16_t IO::FileMetadata::getCompatible() {
+uint8_t IO::FileMetadata::getCompatible() {
     return compatible;
 }
 
-void IO::FileMetadata::setCompatible(uint16_t value) {
+void IO::FileMetadata::setCompatible(uint8_t value) {
     this->compatible = value;
 };
 
@@ -70,28 +70,28 @@ void IO::FileMetadata::setConvertion(IO::CONVERSION_TYPES value) {
     this->convertion = value;
 };
 
-int IO::FileMetadata::getWidth() {
+uint16_t IO::FileMetadata::getWidth() {
     return width;
 };
 
-void IO::FileMetadata::setWidth(int value) {
+void IO::FileMetadata::setWidth(uint16_t value) {
     this->width = value;
 };
 
-int IO::FileMetadata::getHeight() {
+uint16_t IO::FileMetadata::getHeight() {
     return height;
 };
 
-void IO::FileMetadata::setHeight(int value) {
+void IO::FileMetadata::setHeight(uint16_t value) {
     this->height = value;
 };
 
 
-int IO::FileMetadata::getDithering() {
+uint8_t IO::FileMetadata::getDithering() {
     return dithering;
 }
 
-void IO::FileMetadata::setDithering(int value) {
+void IO::FileMetadata::setDithering(uint8_t value) {
     this->dithering = value;
 };
 
@@ -112,32 +112,32 @@ void IO::FileMetadata::setIndeces(std::vector<Uint32> value) {
 };
 
 void IO::FileMetadata::writeTo(std::ofstream& ofs) {
-    uint16_t compatibleTemp = getCompatible();
-    int conversion = (int)getConvertion();
-    int width = getWidth();
-    int height = getHeight();
-    int dithering = getDithering();
+    uint8_t compatibleTemp = getCompatible();
+    uint8_t conversion = (uint8_t)getConvertion();
+    uint16_t width = getWidth();
+    uint16_t height = getHeight();
+    uint8_t dithering = getDithering();
     int indecesSize = getIndecesSize();
     std::vector<Uint32> indeces = getIndeces();
 
-    ofs.write((char*)&compatibleTemp, sizeof(uint16_t));
-    ofs.write((char*)&conversion, sizeof(int));
-    ofs.write((char*)&width, sizeof(int));
-    ofs.write((char*)&height, sizeof(int));
-    ofs.write((char*)&dithering, sizeof(int));
+    ofs.write((char*)&compatibleTemp, sizeof(uint8_t));
+    ofs.write((char*)&conversion, sizeof(uint8_t));
+    ofs.write((char*)&width, sizeof(uint16_t));
+    ofs.write((char*)&height, sizeof(uint16_t));
+    ofs.write((char*)&dithering, sizeof(uint8_t));
     ofs.write((char*)&indecesSize, sizeof(int));
     ofs.write((char*)(indeces.data()), indecesSize * sizeof(Uint32));
 };
 
 int IO::FileMetadata::getSize() {
-    return (sizeof(int) * 5) + sizeof(uint16_t) + (indeces.size() * sizeof(Uint32));
+    return sizeof(int) + (sizeof(uint16_t) * 2) + (sizeof(uint8_t) * 3) + (indeces.size() * sizeof(Uint32));
 };
 
-IO::FileMetadata* IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height) {
+IO::FileMetadata* IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height) {
     return new IO::FileMetadata(convertion, dithering, width, height);
 }
 
-IO::FileMetadata* IO::composeIndecesMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint32> indeces) {
+IO::FileMetadata* IO::composeIndecesMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height, std::vector<Uint32> indeces) {
     return new IO::FileMetadata(convertion, dithering, width, height, indeces);
 }
 

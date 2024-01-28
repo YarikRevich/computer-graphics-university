@@ -129,8 +129,8 @@ int Converter::convertToCGUNativeBWDithering(SDL_Surface* surface, std::ofstream
 
 int Converter::convertToCGUPaletteRGB(SDL_Surface* surface, std::ofstream& outputStream) {
     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    if (colors.size() > BIT_NUM_MAX) {
-        Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
+    if (colors.size() < BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
         return EXIT_FAILURE;
     }
 
@@ -158,10 +158,11 @@ int Converter::convertToCGUPaletteRGB(SDL_Surface* surface, std::ofstream& outpu
 
 int Converter::convertToCGUPaletteRGBDithering(SDL_Surface* surface, std::ofstream& outputStream) {
     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    if (colors.size() > BIT_NUM_MAX) {
-        Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
+    if (colors.size() < BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
         return EXIT_FAILURE;
     }
+
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
     Processor::BucketResult* result = 
@@ -186,8 +187,8 @@ int Converter::convertToCGUPaletteRGBDithering(SDL_Surface* surface, std::ofstre
 
 int Converter::convertToCGUPaletteBW(SDL_Surface* surface, std::ofstream& outputStream) {
     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    if (colors.size() > BIT_NUM_MAX) {
-        Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
+    if (colors.size() < BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
         return EXIT_FAILURE;
     }
 
@@ -215,8 +216,8 @@ int Converter::convertToCGUPaletteBW(SDL_Surface* surface, std::ofstream& output
 
 int Converter::convertToCGUPaletteBWDithering(SDL_Surface* surface, std::ofstream& outputStream) {
     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-    if (colors.size() > BIT_NUM_MAX) {
-        Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
+    if (colors.size() < BIT_NUM_MAX) {
+        Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
         return EXIT_FAILURE;
     }
 
