@@ -8,6 +8,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2_image/SDL_image.h>
 
+#include "../state/state.hpp"
 #include "../processor/processor.hpp"
 
 /**
@@ -35,24 +36,20 @@ public:
     enum class CONVERSION_TYPES {
         NATIVE_RGB,
         NATIVE_BW,
-        NATIVE_RGB_DITHERING,
-        NATIVE_BW_DITHERING,
         PALETTE_RGB,
         PALETTE_BW,
-        PALETTE_RGB_DITHERING,
-        PALETTE_BW_DITHERING,
         NONE
     };
 
-    /**
-     * 
-    */
-    static bool isRGBConversion(IO::CONVERSION_TYPES value);
+    // /**
+    //  * 
+    // */
+    // static bool isRGBConversion(IO::CONVERSION_TYPES value);
 
-    /**
-     * 
-    */
-    static bool isBWConversion(IO::CONVERSION_TYPES value);
+    // /**
+    //  * 
+    // */
+    // static bool isBWConversion(IO::CONVERSION_TYPES value);
 
     /**
      * Represents general CGU file oriented metadata configuration.
@@ -63,27 +60,23 @@ public:
 
         IO::CONVERSION_TYPES convertion;
 
+        int dithering;
+
         int height;
 
         int width;
 
         int indecesSize = 0;
 
-        std::vector<int> indeces;
-
-        int compoundsSize = 0;
-
-        std::vector<Uint8> compounds;
+        std::vector<Uint8> indeces;
     public:
         static const int COMPATIBLE_FLAG = 13;
 
-        FileMetadata() {};
+        FileMetadata(std::ifstream& inputStream);
 
-        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height) : compatible(COMPATIBLE_FLAG), convertion(convertion), width(width), height(height) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height) {};
         
-        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<int> indeces) : compatible(COMPATIBLE_FLAG), convertion(convertion), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
-
-        FileMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<Uint8> compounds) : compatible(COMPATIBLE_FLAG), convertion(convertion), width(width), height(height), compoundsSize(compounds.size()), compounds(compounds) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint8> indeces) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
 
         /**
          * Retrieves compatibility flag.
@@ -108,6 +101,16 @@ public:
          * @param value - given CGU file convertion type.
         */
         void setConvertion(IO::CONVERSION_TYPES value);
+
+        /**
+         * 
+        */
+        int getDithering();
+
+        /**
+         * 
+        */
+        void setDithering(int value);
 
         /**
          * Retrieves CGU file width.
@@ -145,55 +148,18 @@ public:
          * Retrieves indeces for the image convertion.
          * @return CGU file indeces.
         */
-        std::vector<int> getIndeces();
+        std::vector<Uint8> getIndeces();
 
         /**
          * Sets indeces for the image convertion.
          * @param indexes - given CGU file convertion indeces.
         */
-        void setIndeces(std::vector<int> value);
-
-        /** 
-         * 
-        */
-        void setCompoundsSize(int value);
-
-        /** 
-         * 
-        */
-        int getCompoundsSize();
-
-        /**
-         * Retrieves compounds for the image convertion.
-         * @return CGU file compounds.
-        */
-        std::vector<Uint8> getCompounds();
-
-        /**
-         * Sets compounds for the image convertion.
-         * @param indexes - given CGU file convertion compounds.
-        */
-        void setCompounds(std::vector<Uint8> value);
+        void setIndeces(std::vector<Uint8> value);
 
         /**
          * 
         */
-        void writeToDefault(std::ofstream& ofs);
-
-        /**
-         * 
-        */
-        void writeToOptimal(std::ofstream& ofs);
-
-        /**
-         * 
-        */
-        void readFromDefault(std::ifstream& ifs);
-
-        /**
-         * 
-        */
-        void readFromOptimal(std::ifstream& ifs);
+        void writeTo(std::ofstream& ofs);
 
         /**
          * 
@@ -207,7 +173,7 @@ public:
      * @param optimal - given CGU file writer mode.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata* composeNativeMetadata(IO::CONVERSION_TYPES convertion, int width, int height);
+    static IO::FileMetadata* composeNativeMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height);
 
     /**
      * Composes CGU file metadata struct with the given arguments.
@@ -216,26 +182,7 @@ public:
      * @param indeces - given CGU file indeces.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<int> indeces);
-
-    /**
-     * Composes CGU file metadata struct with the given arguments.
-     * @param convertion - given CGU file convertion type.
-     * @param optimal - given CGU file writer mode.
-     * @param compounds - given CGU file compounds.
-     * @return composed CGU file metadata.
-    */
-    static IO::FileMetadata* composeCompoundsMetadata(IO::CONVERSION_TYPES convertion, int width, int height, std::vector<Uint8> compounds);
-
-    /**
-     * 
-    */
-    static std::string combineIndeces(std::vector<int> indeces);
-
-    /**
-     * 
-    */
-    static std::string combineCompounds(std::vector<Uint8> compounds);
+    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, int dithering, int width, int height, std::vector<Uint8> indeces);
 
     /**
      * Converts given file type to enum representation.
@@ -274,14 +221,6 @@ public:
      * @return managable surface canvas.
     */
     static SDL_Surface* readFileBMP(std::string path);
-
-    /**
-     * Reads media CGU file with the given path in the default way.
-     * into managable surface canvas.
-     * @param path - a location of the file to be read.
-     * @return managable surface canvas.
-    */
-    static SDL_Surface* readFileCGUDefault(std::string path);
 
     /**
      * 
@@ -329,14 +268,14 @@ public:
     */
     static int writeFileBMP(std::string path, SDL_Surface* surface);
 
-    /**
-     * Writes media CGU file to the given path in the default way.
-     * from the managable surface canvas.
-     * @param path - a location of the file to be written to.
-     * @param surface - a modified managable surface canvas.
-     * @return operation result code.
-    */
-    static int writeFileCGUDefault(std::string path, FileMetadata* metadata, SDL_Surface* surface);
+    // /**
+    //  * Writes media CGU file to the given path in the default way.
+    //  * from the managable surface canvas.
+    //  * @param path - a location of the file to be written to.
+    //  * @param surface - a modified managable surface canvas.
+    //  * @return operation result code.
+    // */
+    // static int writeFileCGU(std::string path, FileMetadata* metadata, SDL_Surface* surface);
 
     /**
      * 
@@ -348,42 +287,44 @@ public:
     */
     static int writeFileCGUOptimalBW(std::string path, SDL_Surface* surface);
 
-    /**
-     * Writes media CGU file to the given path in the optimal way.
-     * from the managable surface canvas.
-     * @param path - a location of the file to be written to.
-     * @param surface - a modified managable surface canvas.
-     * @return operation result code.
-    */
-    static int writeFileCGUOptimal(std::string path, FileMetadata* metadata, SDL_Surface* surface);
+    // /**
+    //  * Writes media CGU file to the given path in the optimal way.
+    //  * from the managable surface canvas.
+    //  * @param path - a location of the file to be written to.
+    //  * @param surface - a modified managable surface canvas.
+    //  * @return operation result code.
+    // */
+    // static int writeFileCGU(std::string path, FileMetadata* metadata, SDL_Surface* surface);
 
-    /**
-     * Reads metadata from the given CGU file with default mode.
-     * @param path - a location of the file to be read.
-     * @return CGU file metadata.
-    */
-    static IO::FileMetadata* readMetadataFromFileCGUDefault(std::string path);
+    // /**
+    //  * Reads metadata from the given CGU file with optimal mode.
+    //  * @param path - a location of the file to be read.
+    //  * @return CGU file metadata.
+    // */
+    // static IO::FileMetadata* readMetadataFromFileCGU(std::string path);
 
-    /**
-     * Reads metadata from the given CGU file with optimal mode.
-     * @param path - a location of the file to be read.
-     * @return CGU file metadata.
-    */
-    static IO::FileMetadata* readMetadataFromFileCGUOptimal(std::string path);
+
+    // /**
+    //  * 
+    // */
+    // static std::ofstream& openWriteFileCGU(std::string path);
+
+
+    // /**
+    //  * 
+    // */
+    // static std::ifstream& openReadFileCGU(std::string path);
+
+
+    // static int saveWriteFileCGU(std::ofstream& stream);
+
+    // static int closeReadFileCGU(std::ifstream& stream);
 private:
-    /**
-     * Writes given metadata to the CGU file at the given location with default mode.
-     * @param path - a location of the file, where metadata is intended to be set.
-     * @param metadata - CGU file metadata.
-     * @return status of the operation.
-    */
-    static int writeMetadataToFileCGUDefault(std::string path, IO::FileMetadata* metadata);
-
-    /**
-     * Writes given metadata to the CGU file at the given location with optimal mode.
-     * @param path - a location of the file, where metadata is intended to be set.
-     * @param metadata - CGU file metadata.
-     * @return status of the operation.
-    */
-    static int writeMetadataToFileCGUOptimal(std::string path, IO::FileMetadata* metadata);
+    // /**
+    //  * Writes given metadata to the CGU file at the given location with optimal mode.
+    //  * @param path - a location of the file, where metadata is intended to be set.
+    //  * @param metadata - CGU file metadata.
+    //  * @return status of the operation.
+    // */
+    // static int writeMetadataToFileCGU(std::string path, IO::FileMetadata* metadata);
 };

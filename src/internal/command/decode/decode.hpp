@@ -12,7 +12,6 @@ private:
     args::Command* command = NULL;
     args::ValueFlag<std::string>* from = NULL;
     args::ValueFlag<std::string>* type = NULL;
-    args::Flag* optimal = NULL;
     args::ValueFlag<std::string>* to = NULL;
 
 public:

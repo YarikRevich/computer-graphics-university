@@ -69,6 +69,12 @@ public:
     */
     static std::vector<Processor::PixelPoint> generateDedicatedPalette(SDL_Surface* surface, std::vector<SDL_Color>& image);
 
+
+    static std::vector<Processor::PixelPoint> generateFloydSteinbergDitheringRGB(SDL_Surface* surface);
+
+    static std::vector<Processor::PixelPoint> generateFloydSteinbergDitheringBW(SDL_Surface* surface);
+
+
     /**
      * Converts given 24 bit RGB color to 7 bit RGB single.
      * @param color - given 24 bit RGB color to be converted.

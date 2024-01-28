@@ -18,7 +18,7 @@ private:
     args::ValueFlag<std::string>* from = NULL;
     args::ValueFlag<std::string>* type = NULL;
     args::ValueFlag<std::string>* conversion = NULL;
-    args::Flag* optimal = NULL;
+    args::Flag* dithering = NULL;
     args::ValueFlag<std::string>* to = NULL;
 
 public:

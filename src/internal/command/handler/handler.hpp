@@ -6,6 +6,7 @@
 #include "../view/view.hpp"
 #include "../help/help.hpp"
 #include "../validator/validator.hpp"
+#include "../../tools/tools.hpp"
 
 using namespace std;
 

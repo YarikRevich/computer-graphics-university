@@ -1,7 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <fstream>
 #include <SDL2/SDL.h>
+
+#include "../io/io.hpp"
 
 /**
  * Represents internal processing state. Contains data from the
@@ -12,34 +15,18 @@ private:
     /**
      * Represents generated palette indeces.
     */
-    static std::vector<int> paletteIndeces;
+    static std::vector<Uint8> paletteIndeces;
 
-    /**
-     * Represents generated image 7-bit compounds.
-    */
-    static std::vector<Uint8> imageCompounds;
 public:
     /**
      * Retrieves palette indices.
      * @return retrieved palette indices.
     */
-    static std::vector<int> getPaletteIndeces();
-
-    /**
-     * Retrieves image compounds indices.
-     * @return retrieved image compounds.
-    */
-    static std::vector<Uint8> getImageCompounds();
+    static std::vector<Uint8> getPaletteIndeces();
 
     /**
      * Sets palette indices.
      * @param value - palette indices to be saved.
     */
-    static void setPaletteIndeces(std::vector<int> value);
-
-    /**
-     * Sets palette indices.
-     * @param value - image compounds to be saved.
-    */
-    static void setImageCompounds(std::vector<Uint8> value);
+    static void setPaletteIndeces(std::vector<Uint8> value);
 };

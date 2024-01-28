@@ -6,7 +6,6 @@ Decode::Decode(args::ArgumentParser* argumentParser) {
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the output media", {"type"});
-    this->optimal = new args::Flag(*group, "true|false(default)", "Enables optional mode of data saving", {"optimal"});;
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -30,18 +29,13 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
-    IO::FileMetadata* metadata;
-
-    if (optimal->Get()) {
-        metadata = IO::readMetadataFromFileCGUOptimal(from->Get());
-    } else {
-        metadata = IO::readMetadataFromFileCGUDefault(from->Get());
-    }
-    
-    if (metadata == NULL) {
-        Logger::SetError(METADATA_RETRIEVAL_EXCEPTION);        
+    std::ifstream inputStream(from->Get(), std::ios_base::binary);
+    if (!inputStream.is_open()) {
+        Validator::throwValueFlagInvalidException("from");
         return EXIT_FAILURE;
     }
+
+    IO::FileMetadata* metadata = new IO::FileMetadata(inputStream);
 
     if (!metadata->getCompatible()) {
         Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
@@ -49,34 +43,13 @@ int Decode::handle() {
     }
 
     SDL_Surface* input;
-    
-    if (optimal->Get()) {
-        input = IO::readFileCGUOptimal(from->Get(), metadata);
-    } else {
-        input = IO::readFileCGUDefault(from->Get());
-    }
-     
-    if (input == NULL){
-        Validator::throwValueFlagInvalidException("from");
-        return EXIT_FAILURE;
-    }
-
-    int result;
-
-    std::cout << metadata->getCompounds().size() << std::endl;
 
     switch (metadata->getConvertion()) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
-            
-
-            // result = Converter::convertFromCGUNativeRGB(input);
+            input = Converter::convertFromCGUNativeRGB(inputStream, metadata);
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
-            // result = Converter::convertFromCGUNativeBW(input);
-            break;
-        case IO::CONVERSION_TYPES::NATIVE_RGB_DITHERING:
-            break;
-        case IO::CONVERSION_TYPES::NATIVE_BW_DITHERING:
+            input = Converter::convertFromCGUNativeBW(inputStream, metadata);
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
             break;
@@ -87,9 +60,9 @@ int Decode::handle() {
             return EXIT_FAILURE;
     }
 
-    if (result != EXIT_SUCCESS){
+    if (input == NULL) {
         return EXIT_FAILURE;
-    };
+    }
 
     switch (IO::getFileType(type->Get())) {
         case IO::FILE_TYPES::JPG:
@@ -111,6 +84,8 @@ int Decode::handle() {
             Validator::throwValueFlagInvalidException("type");
             return EXIT_FAILURE;
     }
+
+    inputStream.close();
 
     return EXIT_SUCCESS;
 };
