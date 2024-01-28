@@ -7,6 +7,9 @@
 #include "../../converter/converter.hpp"
 #include "../../io/io.hpp"
 
+/**
+ * Represents command used to decode given CGU file to the request format.
+*/
 class Decode {
 private:
     args::Command* command = NULL;
@@ -20,10 +23,13 @@ public:
 
     /**
      * Checks if the current command is called.
-     * 
      * @return result of the check if the current command is called.
     */
     bool isCalled();
 
+    /**
+     * Handles command activation operation.
+     * @return result of decode command.
+    */
     int handle();
 };

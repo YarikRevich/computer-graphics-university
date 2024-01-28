@@ -9,7 +9,7 @@
 #include "../../converter/converter.hpp"
 
 /**
- * 
+ * Represents command used to open viewport for the given CGU file.
 */
 class View {
 private:
@@ -22,12 +22,12 @@ public:
 
     /**
      * Checks if the current command is called.
-     * 
      * @return result of the check if the current command is called.
     */
     bool isCalled();
 
     /**
+     * Handles command activation operation.
      * @return result of view command.
     */
     int handle();

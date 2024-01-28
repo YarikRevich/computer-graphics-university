@@ -83,7 +83,6 @@ SDL_Color Processor::getNearestColorRGB(std::vector<SDL_Color> colors, SDL_Color
 
 int Processor::getColorIndex(std::vector<SDL_Color> colors, SDL_Color src) {
     for (int i = 0; i < colors.size(); i++) {
-        // std::cout << (uint)colors[i].r << " " << (uint)colors[i].g << " " << (uint)colors[i].b << " : " << (uint)src.r << " " << (uint)src.g << " " << (uint)src.b << std::endl;
         if (isColorEqual(colors[i], src)) {
             return i;
         }
@@ -268,7 +267,7 @@ std::vector<int> Processor::BucketResult::getIndeces() {
     return indeces;
 }
 
-Processor::BucketResult* Processor::generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image, std::vector<SDL_Color>& reducer) {
+Processor::BucketResult* Processor::generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image) {
     std::vector<int> result;
 
     std::vector<SDL_Color> colors = generateMedianCutBWSelection(image, getPixelAmount(surface));
@@ -287,7 +286,7 @@ Processor::BucketResult* Processor::generateColorBucketsBW(SDL_Surface* surface,
     return new BucketResult(colors, result);
 };
 
-Processor::BucketResult* Processor::generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image, std::vector<SDL_Color>& reducer) {
+Processor::BucketResult* Processor::generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image) {
     std::vector<int> result;
 
     std::vector<SDL_Color> colors = generateMedianCutRGBSelection(image, getPixelAmount(surface));

@@ -19,7 +19,7 @@ int Converter::convertToCGUNativeRGB(SDL_Surface* surface, std::ofstream& output
 
     IO::FileMetadata* metadata = 
         IO::composeNativeMetadata(
-            IO::CONVERSION_TYPES::NATIVE_RGB, false, surface->w, surface->h);
+            IO::CONVERSION_TYPES::NATIVE_RGB, 0, surface->w, surface->h);
 
     metadata->writeTo(outputStream);
 
@@ -53,7 +53,7 @@ int Converter::convertToCGUNativeRGBDithering(SDL_Surface* surface, std::ofstrea
 
     IO::FileMetadata* metadata = 
         IO::composeNativeMetadata(
-            IO::CONVERSION_TYPES::NATIVE_RGB, true, surface->w, surface->h);
+            IO::CONVERSION_TYPES::NATIVE_RGB, IO::FileMetadata::DITHERING_FLAG, surface->w, surface->h);
 
     metadata->writeTo(outputStream);
 
@@ -82,7 +82,7 @@ int Converter::convertToCGUNativeBW(SDL_Surface* surface, std::ofstream& outputS
 
     IO::FileMetadata* metadata = 
         IO::composeNativeMetadata(
-            IO::CONVERSION_TYPES::NATIVE_BW, false, surface->w, surface->h);
+            IO::CONVERSION_TYPES::NATIVE_BW, 0, surface->w, surface->h);
 
     metadata->writeTo(outputStream);
 
@@ -116,7 +116,7 @@ int Converter::convertToCGUNativeBWDithering(SDL_Surface* surface, std::ofstream
 
     IO::FileMetadata* metadata = 
         IO::composeNativeMetadata(
-            IO::CONVERSION_TYPES::NATIVE_BW, true, surface->w, surface->h);
+            IO::CONVERSION_TYPES::NATIVE_BW, IO::FileMetadata::DITHERING_FLAG, surface->w, surface->h);
 
     metadata->writeTo(outputStream);
 
@@ -137,7 +137,7 @@ int Converter::convertToCGUPaletteRGB(SDL_Surface* surface, std::ofstream& outpu
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
     Processor::BucketResult* result =
-        Processor::generateColorBucketsRGB(surface, image, colors);
+        Processor::generateColorBucketsRGB(surface, image);
 
     std::vector<Uint32> indeces;
 
@@ -147,7 +147,7 @@ int Converter::convertToCGUPaletteRGB(SDL_Surface* surface, std::ofstream& outpu
 
     IO::FileMetadata* metadata = 
         IO::composeIndecesMetadata(
-            IO::CONVERSION_TYPES::PALETTE_RGB, false, surface->w, surface->h, indeces);
+            IO::CONVERSION_TYPES::PALETTE_RGB, 0, surface->w, surface->h, indeces);
 
     metadata->writeTo(outputStream);
 
@@ -165,7 +165,7 @@ int Converter::convertToCGUPaletteRGBDithering(SDL_Surface* surface, std::ofstre
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
     Processor::BucketResult* result = 
-        Processor::generateColorBucketsRGB(surface, image, colors);
+        Processor::generateColorBucketsRGB(surface, image);
 
     std::vector<Uint32> indeces;
 
@@ -175,7 +175,7 @@ int Converter::convertToCGUPaletteRGBDithering(SDL_Surface* surface, std::ofstre
 
     IO::FileMetadata* metadata = 
         IO::composeIndecesMetadata(
-            IO::CONVERSION_TYPES::PALETTE_RGB, true, surface->w, surface->h, indeces);
+            IO::CONVERSION_TYPES::PALETTE_RGB, IO::FileMetadata::DITHERING_FLAG, surface->w, surface->h, indeces);
 
     metadata->writeTo(outputStream);
 
@@ -194,7 +194,7 @@ int Converter::convertToCGUPaletteBW(SDL_Surface* surface, std::ofstream& output
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
     Processor::BucketResult* result =
-        Processor::generateColorBucketsBW(surface, image, colors);
+        Processor::generateColorBucketsBW(surface, image);
 
     std::vector<Uint32> indeces;
 
@@ -204,7 +204,7 @@ int Converter::convertToCGUPaletteBW(SDL_Surface* surface, std::ofstream& output
     
     IO::FileMetadata* metadata = 
         IO::composeIndecesMetadata(
-            IO::CONVERSION_TYPES::PALETTE_BW, false, surface->w, surface->h, indeces);
+            IO::CONVERSION_TYPES::PALETTE_BW, 0, surface->w, surface->h, indeces);
 
     metadata->writeTo(outputStream);
 
@@ -223,7 +223,7 @@ int Converter::convertToCGUPaletteBWDithering(SDL_Surface* surface, std::ofstrea
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
     Processor::BucketResult* result = 
-        Processor::generateColorBucketsBW(surface, image, colors);
+        Processor::generateColorBucketsBW(surface, image);
 
     std::vector<Uint32> indeces;
 
@@ -233,7 +233,7 @@ int Converter::convertToCGUPaletteBWDithering(SDL_Surface* surface, std::ofstrea
 
     IO::FileMetadata* metadata = 
         IO::composeIndecesMetadata(
-            IO::CONVERSION_TYPES::PALETTE_BW, true, surface->w, surface->h, indeces);
+            IO::CONVERSION_TYPES::PALETTE_BW, IO::FileMetadata::DITHERING_FLAG, surface->w, surface->h, indeces);
 
     metadata->writeTo(outputStream);
 
@@ -389,7 +389,7 @@ SDL_Surface* Converter::convertFromCGUPaletteRGB(std::ifstream& inputStream, IO:
         }
     }
 
-    if (metadata->getDithering()) {
+    if (metadata->getDithering() == IO::FileMetadata::DITHERING_FLAG) {
         std::vector<Processor::PixelPoint> dithered = 
         Processor::generateFloydSteinbergDitheringRGB(surface);
 
@@ -426,9 +426,7 @@ SDL_Surface* Converter::convertFromCGUPaletteBW(std::ifstream& inputStream, IO::
          if (y == surface->h) { 
             x += 1;
             y = 0;
-        } 
-
-        std::cout << (uint)image[k].r << " " << (uint)image[k].g << " " << (uint)image[k].b << std::endl;
+        }
 
         Processor::setPixel(surface, x, y, image[k]);
 
@@ -440,7 +438,7 @@ SDL_Surface* Converter::convertFromCGUPaletteBW(std::ifstream& inputStream, IO::
         }
     }
 
-    if (metadata->getDithering()) {
+    if (metadata->getDithering() == IO::FileMetadata::DITHERING_FLAG) {
         std::vector<Processor::PixelPoint> dithered = 
         Processor::generateFloydSteinbergDitheringBW(surface);
 

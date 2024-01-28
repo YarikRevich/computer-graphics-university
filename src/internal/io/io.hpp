@@ -8,7 +8,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2_image/SDL_image.h>
 
-#include "../state/state.hpp"
 #include "../processor/processor.hpp"
 
 /**
@@ -16,8 +15,6 @@
 */
 class IO {
 public:
-    static const long METADATA_FLAG = -9876543210;
-
     /**
      * Represents all image formats available
      * to be processed.
@@ -41,16 +38,6 @@ public:
         NONE
     };
 
-    // /**
-    //  * 
-    // */
-    // static bool isRGBConversion(IO::CONVERSION_TYPES value);
-
-    // /**
-    //  * 
-    // */
-    // static bool isBWConversion(IO::CONVERSION_TYPES value);
-
     /**
      * Represents general CGU file oriented metadata configuration.
     */
@@ -71,6 +58,8 @@ public:
         std::vector<Uint32> indeces;
     public:
         static const int COMPATIBLE_FLAG = 13;
+
+        static const int DITHERING_FLAG = 14;
 
         FileMetadata(std::ifstream& inputStream);
 
@@ -103,12 +92,14 @@ public:
         void setConvertion(IO::CONVERSION_TYPES value);
 
         /**
-         * 
+         * Retrives status of the dithering mode.
+         * @return retrieved status of the dithering mode.
         */
         int getDithering();
 
         /**
-         * 
+         * Sets dithering mode.
+         * @param value - dithering mode to be set.
         */
         void setDithering(int value);
 
@@ -119,7 +110,8 @@ public:
         int getWidth();
 
         /**
-         * 
+         * Sets width of the image.
+         * @param value - given image width.
         */
         void setWidth(int value);
 
@@ -130,19 +122,22 @@ public:
         int getHeight();
 
         /**
-         * 
+         * Sets height of the image.
+         * @param value - given image height.
         */
         void setHeight(int value);
 
         /** 
-         * 
-        */
-        void setIndecesSize(int value);
-
-        /** 
-         * 
+         * Retrieves indeces array size.
+         * @return retrieved indeces array size.
         */
         int getIndecesSize();
+
+        /** 
+         * Sets indeces array size.
+         * @param value - given indeces array size.
+        */
+        void setIndecesSize(int value);
 
         /**
          * Retrieves indeces for the image convertion.
@@ -157,12 +152,14 @@ public:
         void setIndeces(std::vector<Uint32> value);
 
         /**
-         * 
+         * Writes metadata content to the given stream.
+         * @param ofs - given output stream.
         */
         void writeTo(std::ofstream& ofs);
 
         /**
-         * 
+         * Retrieves metadata size.
+         * @return retrieved metadata size.
         */
         int getSize();
     };
@@ -223,25 +220,6 @@ public:
     static SDL_Surface* readFileBMP(std::string path);
 
     /**
-     * 
-    */
-    static SDL_Surface* readFileCGUOptimalRGB(std::string path, IO::FileMetadata* metadata);
-
-    /**
-     * 
-    */
-    static SDL_Surface* readFileCGUOptimalBW(std::string path, IO::FileMetadata* metadata);
-
-    /**
-     * Reads media CGU file with the given path in the optimal way.
-     * into managable surface canvas.
-     * @param path - a location of the file to be read.
-     * @param metadata - CGU file metadata.
-     * @return managable surface canvas.
-    */
-    static SDL_Surface* readFileCGUOptimal(std::string path, IO::FileMetadata* metadata);
-
-    /**
      * Writes media JPEG file to the given path
      * from the managable surface canvas.
      * @param path - a location of the fle to be written to.
@@ -267,64 +245,4 @@ public:
      * @return operation result code.
     */
     static int writeFileBMP(std::string path, SDL_Surface* surface);
-
-    // /**
-    //  * Writes media CGU file to the given path in the default way.
-    //  * from the managable surface canvas.
-    //  * @param path - a location of the file to be written to.
-    //  * @param surface - a modified managable surface canvas.
-    //  * @return operation result code.
-    // */
-    // static int writeFileCGU(std::string path, FileMetadata* metadata, SDL_Surface* surface);
-
-    /**
-     * 
-    */
-    static int writeFileCGUOptimalRGB(std::string path, SDL_Surface* surface);
-
-    /**
-     * 
-    */
-    static int writeFileCGUOptimalBW(std::string path, SDL_Surface* surface);
-
-    // /**
-    //  * Writes media CGU file to the given path in the optimal way.
-    //  * from the managable surface canvas.
-    //  * @param path - a location of the file to be written to.
-    //  * @param surface - a modified managable surface canvas.
-    //  * @return operation result code.
-    // */
-    // static int writeFileCGU(std::string path, FileMetadata* metadata, SDL_Surface* surface);
-
-    // /**
-    //  * Reads metadata from the given CGU file with optimal mode.
-    //  * @param path - a location of the file to be read.
-    //  * @return CGU file metadata.
-    // */
-    // static IO::FileMetadata* readMetadataFromFileCGU(std::string path);
-
-
-    // /**
-    //  * 
-    // */
-    // static std::ofstream& openWriteFileCGU(std::string path);
-
-
-    // /**
-    //  * 
-    // */
-    // static std::ifstream& openReadFileCGU(std::string path);
-
-
-    // static int saveWriteFileCGU(std::ofstream& stream);
-
-    // static int closeReadFileCGU(std::ifstream& stream);
-private:
-    // /**
-    //  * Writes given metadata to the CGU file at the given location with optimal mode.
-    //  * @param path - a location of the file, where metadata is intended to be set.
-    //  * @param metadata - CGU file metadata.
-    //  * @return status of the operation.
-    // */
-    // static int writeMetadataToFileCGU(std::string path, IO::FileMetadata* metadata);
 };
