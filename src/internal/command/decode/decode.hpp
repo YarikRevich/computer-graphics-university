@@ -12,6 +12,7 @@ private:
     args::Command* command = NULL;
     args::ValueFlag<std::string>* from = NULL;
     args::ValueFlag<std::string>* type = NULL;
+    args::Flag* debug = NULL;
     args::ValueFlag<std::string>* to = NULL;
 
 public:

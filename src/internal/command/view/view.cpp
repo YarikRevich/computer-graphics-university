@@ -4,7 +4,7 @@ View::View(args::ArgumentParser* argumentParser) {
     this->command = new args::Command(*argumentParser, "view", "Opens viewport for a specified media");
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
-    this->debug = new args::Flag(*group, "true|false(default)", "Enables debug view mode", {"debug"});;
+    this->debug = new args::Flag(*group, "true|false(default)", "Enables debug mode", {"debug"});;
 }
 
 bool View::isCalled() {
@@ -56,6 +56,12 @@ int View::handle() {
 
     if (input == NULL) {
         return EXIT_FAILURE;
+    }
+
+    if (debug->Get()) {
+        if (Converter::convertToCGUPaletteDetected(input) != EXIT_SUCCESS) {
+            return EXIT_FAILURE;
+        };
     }
 
     inputStream.close();

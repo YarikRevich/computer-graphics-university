@@ -6,6 +6,7 @@ Decode::Decode(args::ArgumentParser* argumentParser) {
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the output media", {"type"});
+    this->debug = new args::Flag(*group, "true|false(default)", "Enables debug mode", {"debug"});;
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -63,6 +64,12 @@ int Decode::handle() {
 
     if (input == NULL) {
         return EXIT_FAILURE;
+    }
+
+    if (debug->Get()) {
+        if (Converter::convertToCGUPaletteDetected(input) != EXIT_SUCCESS) {
+            return EXIT_FAILURE;
+        };
     }
 
     switch (IO::getFileType(type->Get())) {
