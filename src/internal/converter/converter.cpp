@@ -162,22 +162,16 @@ int Converter::convertToCGUPaletteRGBDithering(SDL_Surface* surface, std::ofstre
         Logger::SetError(BIT_SIZE_MAX_EXCEPTION);
         return EXIT_FAILURE;
     }
-
-    std::vector<Uint32> indeces;
-
-    for (auto &value : colors) {
-        indeces.push_back(Processor::convertColorToUint32(value));
-    }
-
-    std::vector<Processor::PixelPoint> dithered = 
-        Processor::generateFloydSteinbergDitheringRGB(surface);
-
-    Processor::setPixels(surface, dithered);
-
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
     Processor::BucketResult* result = 
         Processor::generateColorBucketsRGB(surface, image, colors);
+
+    std::vector<Uint32> indeces;
+
+    for (auto &value : result->getColors()) {
+        indeces.push_back(Processor::convertColorToUint32(value));
+    }
 
     IO::FileMetadata* metadata = 
         IO::composeIndecesMetadata(
@@ -197,16 +191,16 @@ int Converter::convertToCGUPaletteBW(SDL_Surface* surface, std::ofstream& output
         return EXIT_FAILURE;
     }
 
-    std::vector<Uint32> indeces;
-
-    for (auto &value : colors) {
-        indeces.push_back(Processor::convertColorToUint32(value));
-    }
-
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
     Processor::BucketResult* result =
         Processor::generateColorBucketsBW(surface, image, colors);
+
+    std::vector<Uint32> indeces;
+
+    for (auto &value : result->getColors()) {
+        indeces.push_back(Processor::convertColorToUint32(value));
+    }
     
     IO::FileMetadata* metadata = 
         IO::composeIndecesMetadata(
@@ -226,21 +220,16 @@ int Converter::convertToCGUPaletteBWDithering(SDL_Surface* surface, std::ofstrea
         return EXIT_FAILURE;
     }
 
-    std::vector<Uint32> indeces;
-
-    for (auto &value : colors) {
-        indeces.push_back(Processor::convertColorToUint32(value));
-    }
-
-    std::vector<Processor::PixelPoint> dithered = 
-        Processor::generateFloydSteinbergDitheringBW(surface);
-
-    Processor::setPixels(surface, dithered);
-
     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
 
     Processor::BucketResult* result = 
         Processor::generateColorBucketsBW(surface, image, colors);
+
+    std::vector<Uint32> indeces;
+
+    for (auto &value : result->getColors()) {
+        indeces.push_back(Processor::convertColorToUint32(value));
+    }
 
     IO::FileMetadata* metadata = 
         IO::composeIndecesMetadata(
@@ -400,9 +389,63 @@ SDL_Surface* Converter::convertFromCGUPaletteRGB(std::ifstream& inputStream, IO:
         }
     }
 
+    if (metadata->getDithering()) {
+        std::vector<Processor::PixelPoint> dithered = 
+        Processor::generateFloydSteinbergDitheringRGB(surface);
+
+        Processor::setPixels(surface, dithered);
+    }
+
     return surface;
 };
 
 SDL_Surface* Converter::convertFromCGUPaletteBW(std::ifstream& inputStream, IO::FileMetadata* metadata) {
-    return convertFromCGUPaletteRGB(inputStream, metadata);
+    inputStream.seekg(metadata->getSize());
+
+    std::vector<SDL_Color> colors;
+
+    for (auto &value : metadata->getIndeces()) {
+        colors.push_back(Processor::convertUint32ToColor(value));
+    }
+
+    std::vector<int> input(metadata->getWidth() * metadata->getHeight(), 0);
+    inputStream.read((char *)(input.data()), input.size() * sizeof(int));
+
+    std::vector<SDL_Color> image;
+    for (auto &value : input) {
+        image.push_back(colors[value]);
+    }
+
+    SDL_Surface *surface = 
+        SDL_CreateRGBSurface(0, metadata->getWidth(), metadata->getHeight(), 32, 0, 0, 0, 0);
+
+    int x = 0;
+    int y = 0;
+
+    for (int k = 0; k < image.size(); k++) {
+         if (y == surface->h) { 
+            x += 1;
+            y = 0;
+        } 
+
+        std::cout << (uint)image[k].r << " " << (uint)image[k].g << " " << (uint)image[k].b << std::endl;
+
+        Processor::setPixel(surface, x, y, image[k]);
+
+        if (x == surface->w) {
+            y += 1;
+            x = 0;            
+        } else {
+            y += 1;
+        }
+    }
+
+    if (metadata->getDithering()) {
+        std::vector<Processor::PixelPoint> dithered = 
+        Processor::generateFloydSteinbergDitheringBW(surface);
+
+        Processor::setPixels(surface, dithered);
+    }
+
+    return surface;
 };
