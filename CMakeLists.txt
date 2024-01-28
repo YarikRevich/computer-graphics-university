@@ -47,7 +47,6 @@ add_executable(
 
 	src/internal/command/handler/handler.cpp
 
-	src/internal/state/state.cpp
 	src/internal/tools/tools.cpp
 	src/internal/logger/logger.cpp
 	src/internal/converter/converter.cpp

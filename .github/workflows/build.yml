@@ -5,26 +5,16 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-linux:
-    runs-on: ubuntu-latest
-        
+  build-macos:
+    runs-on: macos-latest
+      
     steps:
     - uses: actions/checkout@v3
-        
+      
     - name: "Install prerequisites"
       run: |
-        mkdir $HOME/glibc/ && cd $HOME/glibc
-        curl -O http://ftp.gnu.org/gnu/libc/glibc-2.38.tar.gz
-        tar -xvzf glibc-2.38.tar.gz
-        mkdir deps 
-        mkdir glibc-2.38-install
-        cd deps
-        ~/glibc/glibc-2.38/configure --prefix=$HOME/glibc/glibc-2.38-install
-        make
-        make install
-
         sudo make prepare
-        
+      
     - name: "Build"
       run: |
         sudo make build
