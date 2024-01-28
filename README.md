@@ -135,14 +135,14 @@ RGB(0, 36, 85)
 
 **RGB** color chunk for **Native BW**(grey scale) looks in the following way.
 ```
-RGB(0, 36, 85)
-RGB(0, 0, 85)
-RGB(0, 36, 0)
-RGB(0, 0, 85)
-RGB(0, 0, 85)
-RGB(0, 36, 85)
-RGB(0, 0, 85)
-RGB(0, 36, 85)
+RGB(7, 7, 7)
+RGB(12, 12, 12)
+RGB(40, 40, 40)
+RGB(78, 78, 78)
+RGB(153, 153, 153)
+RGB(172, 172, 172)
+RGB(78, 78, 78)
+RGB(136, 136, 136)
 ```
 
 ### Data collection
