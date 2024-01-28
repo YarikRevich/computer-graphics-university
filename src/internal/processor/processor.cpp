@@ -31,7 +31,7 @@ std::vector<SDL_Color> Processor::getCompleteBitColorMap(SDL_Surface* surface) {
 };
 
 bool Processor::isColorEqual(SDL_Color color1, SDL_Color color2) {
-    return color1.r == color2.r || color1.g == color2.g || color1.b == color2.b;
+    return color1.r == color2.r && color1.g == color2.g && color1.b == color2.b;
 };
 
 bool Processor::isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& color){
@@ -79,22 +79,16 @@ SDL_Color Processor::getNearestColorRGB(std::vector<SDL_Color> colors, SDL_Color
     }
 
     return result;
+};
 
+int Processor::getColorIndex(std::vector<SDL_Color> colors, SDL_Color src) {
+    for (int i = 0; i < colors.size(); i++) {
+        if (isColorEqual(colors[i], src)) {
+            return i;
+        }
+    }
 
-
-    // int minimum=999;
-    // int indexMinimum;
-    // SDL_Color kolorPaleta;
-    // int odleglosc;
-    // for(int i=0; i<128; i++){
-    //     kolorPaleta=paleta[i];
-    //     odleglosc=abs(kolor.r-kolorPaleta.r)+abs(kolor.g-kolorPaleta.g)+abs(kolor.b-kolorPaleta.b);
-    //     if(odleglosc < minimum){
-    //         indexMinimum=i;
-    //         minimum=odleglosc;
-    //     }
-    // }
-    // return indexMinimum;
+    return -1;
 };
 
 void Processor::sortColorMapBW(std::vector<SDL_Color>& colors, int begin, int end) {
@@ -265,34 +259,175 @@ std::vector<SDL_Color> Processor::generateMedianCutBWSelection(std::vector<SDL_C
     return result;
 };
 
-std::vector<Processor::PixelPoint> Processor::generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image) {
-    std::vector<Processor::PixelPoint> result;
+std::vector<SDL_Color> Processor::BucketResult::getColors() {
+    return colors;
+}
+
+std::vector<int> Processor::BucketResult::getIndeces() {
+    return indeces;
+}
+
+Processor::BucketResult* Processor::generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image) {
+    std::vector<int> result;
 
     std::vector<SDL_Color> colors = generateMedianCutBWSelection(image, getPixelAmount(surface));
 
-    SDL_Color color;
-    for (int y = 0; y < surface->h; y++) {
-        for (int x = 0; x < surface->w; x++) {
+    SDL_Color color, nearestColor;
+    for (int x = 0; x < surface->w; x++) {
+        for (int y = 0; y < surface->h; y++) {
             color = getPixel(surface, x, y);
 
-            result.push_back(PixelPoint(x, y, getNearestColorBW(colors, 0.299*color.r+0.587*color.g+0.114*color.b)));
+            nearestColor = getNearestColorBW(colors, 0.299*color.r+0.587*color.g+0.114*color.b);
+
+            result.push_back(getColorIndex(colors, nearestColor));
+        }
+    }
+
+    return new BucketResult(colors, result);
+};
+
+Processor::BucketResult* Processor::generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image) {
+    std::vector<int> result;
+
+    std::vector<SDL_Color> colors = generateMedianCutRGBSelection(image, getPixelAmount(surface));
+
+    SDL_Color color, nearestColor;
+    for (int x = 0; x < surface->w; x++) {
+        for (int y = 0; y < surface->h; y++) {
+            color = getPixel(surface, x, y);
+
+            nearestColor = getNearestColorRGB(colors, color);
+
+            result.push_back(getColorIndex(colors, nearestColor));
+        }
+    }
+
+    return new BucketResult(colors, result);
+};
+
+std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surface* surface, std::vector<SDL_Color>& image) {
+    std::vector<Processor::PixelPoint> result;
+
+    int y = 0;
+    int x = 0;
+
+    int ySize = sqrt(surface->h);
+    int xSize = sqrt(surface->w);
+
+    for (int k = 0; k < image.size(); k++) {
+        if ((x + xSize) > surface->w) {
+            x = 0;
+            y += ySize;
+        }   
+
+        for (int xx = 0; xx < xSize; xx++)  {
+            for (int yy = 0; yy < ySize; yy++) {
+                result.push_back(PixelPoint(x + xx, y + yy, image[k]));
+            }
+        }
+
+        if (x >= surface->w) { 
+            x = 0;
+            y += ySize;
+        } else {
+            x += xSize;
+        }
+    }
+
+    return result;
+}
+
+std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringRGB(SDL_Surface* surface) {
+    std::vector<Processor::PixelPoint> result;
+
+    SDL_Color color, newColor, tempColor;
+
+    std::vector<std::vector<float>> colorShiftsR((surface->w) + 2, std::vector<float>((surface->h) + 2));
+    std::vector<std::vector<float>> colorShiftsG((surface->w) + 2, std::vector<float>((surface->h) + 2));
+    std::vector<std::vector<float>> colorShiftsB((surface->w) + 2, std::vector<float>((surface->h) + 2));
+
+    int colorShiftR = 0;
+    int colorShiftG = 0;
+    int colorShiftB = 0;
+
+    for (int y = 0; y < surface->h; y++){
+        for(int x = 0; x < surface->w; x++){
+            color = Processor::getPixel(surface, x, y);
+
+            tempColor.r = Processor::normalizeValue(
+                color.r + colorShiftsR[x+NATIVE_SHIFT][y], 0, 255);
+
+            tempColor.g = Processor::normalizeValue(
+                color.g + colorShiftsG[x+NATIVE_SHIFT][y], 0, 255);
+
+            tempColor.b = Processor::normalizeValue(
+                color.b + colorShiftsB[x+NATIVE_SHIFT][y], 0, 255);
+
+            newColor = Processor::convert7BitRGBTo24BitRGB(Processor::convert24BitRGBTo7BitRGB(tempColor));
+
+            colorShiftR = tempColor.r - newColor.r;
+            colorShiftG = tempColor.g - newColor.g;
+            colorShiftB = tempColor.b - newColor.b;
+
+            result.push_back(PixelPoint(x, y, newColor));
+
+            colorShiftsR[x + 1 + NATIVE_SHIFT][y] += (colorShiftR * 7.0 / 16.0);
+            colorShiftsR[x - 1 + NATIVE_SHIFT][y + 1] += (colorShiftR * 3.0 / 16.0);
+            colorShiftsR[x + NATIVE_SHIFT][y + 1] += (colorShiftR * 5.0 / 16.0);
+            colorShiftsR[x + 1 + NATIVE_SHIFT][y + 1] += (colorShiftR * 1.0 / 16.0);
+
+            colorShiftsG[x + 1 + NATIVE_SHIFT][y] += (colorShiftG * 7.0 / 16.0);
+            colorShiftsG[x - 1 + NATIVE_SHIFT][y + 1] += (colorShiftG * 3.0 / 16.0);
+            colorShiftsG[x + NATIVE_SHIFT][y + 1] += (colorShiftG * 5.0 / 16.0);
+            colorShiftsG[x + 1 + NATIVE_SHIFT][y + 1] += (colorShiftG * 1.0 / 16.0);
+
+            colorShiftsB[x + 1 + NATIVE_SHIFT][y] += (colorShiftB * 7.0 / 16.0);
+            colorShiftsB[x - 1 + NATIVE_SHIFT][y + 1] += (colorShiftB * 3.0 / 16.0);
+            colorShiftsB[x + NATIVE_SHIFT][y + 1] += (colorShiftB * 5.0 / 16.0);
+            colorShiftsB[x + 1 + NATIVE_SHIFT][y + 1] += (colorShiftB * 1.0 / 16.0);
         }
     }
 
     return result;
 };
 
-std::vector<Processor::PixelPoint> Processor::generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image) {
+std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringBW(SDL_Surface* surface) {
     std::vector<Processor::PixelPoint> result;
 
-    std::vector<SDL_Color> colors = generateMedianCutRGBSelection(image, getPixelAmount(surface));
+    std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
 
-    SDL_Color color;
-    for (int y = 0; y < surface->h; y++) {
-        for (int x = 0; x < surface->w; x++) {
-            color = getPixel(surface, x, y);
+    SDL_Color color, newColor, tempColor;
+    Uint8 grey, newGrey, tempGrey;
 
-            result.push_back(PixelPoint(x, y, getNearestColorRGB(colors, color)));
+    std::vector<std::vector<float>> colorShifts((surface->w)+2, std::vector<float>((surface->h)+2));
+
+    int colorShift = 0;
+
+    for (int y = 0; y < surface->h; y++){
+        for(int x = 0; x < surface->w; x++){
+            color = Processor::getPixel(surface, x, y);
+
+            grey = Processor::convertRGBToGreyUint8(color);
+
+            tempGrey = Processor::normalizeValue(
+                grey + colorShifts[x+NATIVE_SHIFT][y], 0, 255);
+
+            tempColor.r = tempGrey;
+            tempColor.g = tempGrey;
+            tempColor.b = tempGrey;
+
+            newColor = Processor::convert7BitGreyTo24BitRGB(Processor::convert24BitRGBTo7BitGrey(tempColor));
+
+            newGrey = newColor.r;
+
+            colorShift = tempGrey - newGrey;
+
+            result.push_back(PixelPoint(x, y, newColor));
+
+            colorShifts[x+1+NATIVE_SHIFT][y] += (colorShift * 7.0 / 16.0);
+            colorShifts[x-1+NATIVE_SHIFT][y+1] += (colorShift * 3.0 / 16.0);
+            colorShifts[x+NATIVE_SHIFT][y+1] += (colorShift * 5.0 / 16.0);
+            colorShifts[x+1+NATIVE_SHIFT][y+1] += (colorShift * 1.0 / 16.0);
         }
     }
 
@@ -328,6 +463,148 @@ SDL_Color Processor::convert7BitGreyTo24BitRGB(Uint8 grey) {
         .r = static_cast<Uint8>(grey * 255.0 / 127.0),
         .g = static_cast<Uint8>(grey * 255.0 / 127.0),
         .b = static_cast<Uint8>(grey * 255.0 / 127.0)
+    };
+}
+
+std::vector<Uint8> Processor::convert8BitTo7Bit(std::vector<Uint8> input) {
+    std::vector<Uint8> output(PREFERRED_BIT_NUM_PER_PIXEL, 0);
+
+    Uint8 tmp;
+
+    input[0] = input[0] << 1;
+    tmp = input[1];
+    input[1] = input[1] >> 6;
+    output[0] = input[0] | input[1];
+
+    tmp = tmp << 2;
+    output[1] = tmp;
+    tmp = input[2];
+    input[2] = input[2] >> 5;
+    output[1] = output[1] | input[2];
+
+    tmp = tmp << 3;
+    output[2] = tmp;
+    tmp = input[3];
+    input[3] = input[3] >> 4;
+    output[2] = output[2] | input[3];
+
+    tmp = tmp << 4;
+    output[3] = tmp;
+    tmp = input[4];
+    input[4] = input[4] >> 3;
+    output[3] = output[3] | input[4];
+
+    tmp = tmp << 5;
+    output[4] = tmp;
+    tmp = input[5];
+    input[5] = input[5] >> 2;
+    output[4] = output[4] | input[5];
+
+    tmp = tmp << 6;
+    output[5] = tmp;
+    tmp = input[6];
+    input[6] = input[6] >> 1;
+    output[5] = output[5] | input[6];
+
+    tmp = tmp << 7;
+    output[6] = tmp;
+    tmp = input[7];
+    input[7] = input[7] >> 0;
+    output[6] = output[6] | input[7];
+
+    return output;
+};
+
+std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
+    std::vector<Uint8> output(ORIGINAL_BIT_NUM_PER_PIXEL, 0);
+
+    Uint8 tmp;
+
+    tmp = input[0];
+    tmp = tmp >> 1;
+    output[0] = tmp;
+    tmp = input[0];
+    tmp = tmp << 7;
+    tmp = tmp >> 1;
+    output[1] = output[1] | tmp;
+
+    tmp = input[1];
+    tmp = tmp >> 2;
+    output[1] = output[1] | tmp;
+    tmp = input[1];
+    tmp = tmp << 6;
+    tmp = tmp >> 1;
+    output[2] = output[2] | tmp;
+
+    tmp = input[2];
+    tmp = tmp >> 3;
+    output[2] = output[2] | tmp;
+    tmp = input[2];
+    tmp = tmp << 5;
+    tmp = tmp >> 1;
+    output[3] = output[3] | tmp;
+
+    tmp = input[3];
+    tmp = tmp >> 4;
+    output[3] = output[3] | tmp;
+    tmp = input[3];
+    tmp = tmp << 4;
+    tmp = tmp >> 1;
+    output[4] = output[4] | tmp;
+
+    tmp = input[4];
+    tmp = tmp >> 5;
+    output[4] = output[4] | tmp;
+    tmp = input[4];
+    tmp = tmp << 3;
+    tmp = tmp >> 1;
+    output[5] = output[5] | tmp;
+
+    tmp = input[5];
+    tmp = tmp >> 6;
+    output[5] = output[5] | tmp;
+    tmp = input[5];
+    tmp = tmp << 2;
+    tmp = tmp >> 1;
+    output[6] = output[6] | tmp;
+
+    tmp = input[6];
+    tmp = tmp >> 7;
+    output[6] = output[6] | tmp;
+    tmp = input[6];
+    tmp = tmp << 1;
+    tmp = tmp >> 1;
+    output[7] = output[7] | tmp;
+
+    return output;
+};
+
+Uint32 Processor::convertColorToUint32(SDL_Color color) {
+    return (Uint32)((color.r << 16) + (color.g << 8) + (color.b << 0));
+};
+
+SDL_Color Processor::convertUint32ToColor(Uint32 color) {
+    SDL_Color result;
+
+	result.a = 255;
+	result.r = (color >> 16) & 0xFF;
+	result.g = (color >> 8) & 0xFF;
+	result.b = color & 0xFF;
+
+    return result;
+};
+
+Uint8 Processor::convertRGBToGreyUint8(SDL_Color color) {
+    return 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
+}
+
+SDL_Color Processor::convertRGBToGrey(SDL_Color color) {
+    Uint8 grey = convertRGBToGreyUint8(color);
+
+    return {
+        .r = grey,
+        .g = grey,
+        .b = grey
     };
 }
 
@@ -405,4 +682,8 @@ void Processor::setPixels(SDL_Surface* surface, std::vector<Processor::PixelPoin
     for (Processor::PixelPoint pixel : pixels) {
         setPixel(surface, pixel.x, pixel.y, pixel.color);
     }
+}
+
+void Processor::cleanSurface(SDL_Surface* surface) {
+    SDL_FillRect(surface, NULL, 0x000000);
 }

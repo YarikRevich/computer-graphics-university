@@ -6,6 +6,7 @@ Decode::Decode(args::ArgumentParser* argumentParser) {
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the output media", {"type"});
+    this->debug = new args::Flag(*group, "true|false(default)", "Enables debug mode", {"debug"});;
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -29,42 +30,47 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
-    if (!IO::isFileCGUCompatible(from->Get())) {
-        Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
-        return EXIT_FAILURE;
-    }
-
-    SDL_Surface* input = IO::readFileCGU(from->Get());
-    if (input == NULL){
+    std::ifstream inputStream(from->Get(), std::ios_base::binary);
+    if (!inputStream.is_open()) {
         Validator::throwValueFlagInvalidException("from");
         return EXIT_FAILURE;
     }
 
-    IO::FileMetadata metadata = IO::readMetadataFromFileCGU(from->Get());
+    IO::FileMetadata* metadata = new IO::FileMetadata(inputStream);
+    if (!metadata->getCompatible()) {
+        Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
+        return EXIT_FAILURE;
+    }
 
-    int result;
+    SDL_Surface* input;
 
-    switch (metadata.getConvertion()) {
+    switch (metadata->getConvertion()) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
-            result = Converter::convertFromCGUNativeRGB(input);
+            input = Converter::convertFromCGUNativeRGB(inputStream, metadata);
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
-            result = Converter::convertFromCGUNativeBW(input);
+            input = Converter::convertFromCGUNativeBW(inputStream, metadata);
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
-            result = Converter::convertFromCGUPaletteRGB(input);
+            input = Converter::convertFromCGUPaletteRGB(inputStream, metadata);
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
-            result = Converter::convertFromCGUPaletteBW(input);
+            input = Converter::convertFromCGUPaletteBW(inputStream, metadata);
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");
             return EXIT_FAILURE;
     }
 
-    if (result != EXIT_SUCCESS){
+    if (input == NULL) {
         return EXIT_FAILURE;
-    };
+    }
+
+    if (debug->Get()) {
+        if (Converter::convertToCGUPaletteDetected(input) != EXIT_SUCCESS) {
+            return EXIT_FAILURE;
+        };
+    }
 
     switch (IO::getFileType(type->Get())) {
         case IO::FILE_TYPES::JPG:
@@ -86,6 +92,8 @@ int Decode::handle() {
             Validator::throwValueFlagInvalidException("type");
             return EXIT_FAILURE;
     }
+
+    inputStream.close();
 
     return EXIT_SUCCESS;
 };

@@ -61,6 +61,8 @@ int Window::handle(SDL_Surface* surface) {
         }
     }
 
+    SDL_FreeSurface(surface);
+
     return EXIT_SUCCESS;
 }
 

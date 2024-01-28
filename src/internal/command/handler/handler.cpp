@@ -23,6 +23,8 @@ int Handler::run() {
         };
     }
 
+    Tools::startIndefiniteSpinner();
+
     if (decode->isCalled()) {
         return decode->handle();
     }

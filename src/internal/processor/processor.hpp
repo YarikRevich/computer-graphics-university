@@ -47,18 +47,65 @@ public:
     static std::vector<SDL_Color> getCompleteBitColorMap(SDL_Surface* surface);
     
     /**
+     * Represents result struct for the MedianCut related algorithms.
+    */
+    class BucketResult {
+        private:
+            std::vector<SDL_Color> colors;
+
+            std::vector<int> indeces;
+        public:
+            BucketResult(std::vector<SDL_Color> colors, std::vector<int> indeces) : colors(colors), indeces(indeces) {};
+
+            /**
+             * Retrieves color bit map.
+             * @return retrieved color bit map.
+            */
+            std::vector<SDL_Color> getColors();
+
+            /**
+             * Retrieves color bit map indeces.
+             * @return retrieved color bit map indeces.
+            */
+            std::vector<int> getIndeces();
+    };
+
+    /**
      * Generates color buckets from the given color bit map using MedianCut algorithm in BW mode.
      * @param image - given image colors bit map.
-     * @return palet of the color buckets.
+     * @return result bucket.
     */
-    static std::vector<Processor::PixelPoint> generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image);
+    static BucketResult* generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image);
 
     /**
      * Generates color buckets from the given color bit map using MedianCut algorithm in RGB mode.
+     * @param surface - surface intended to be scanned.
      * @param image - given image colors bit map.
-     * @return palet of the color buckets.
+     * @return result bucket.
     */
-    static std::vector<Processor::PixelPoint> generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image);
+    static BucketResult* generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image);
+
+    /**
+     * Generates dedicated palette using the processed reduced color map.
+     * @param surface - surface intended to be scanned.
+     * @param image - given reduced image colors bit map.
+     * @return dedicated palette of the color bit map.
+    */
+    static std::vector<Processor::PixelPoint> generateDedicatedPalette(SDL_Surface* surface, std::vector<SDL_Color>& image);
+
+    /**
+     * Generates palette with the applied dithering Floyd-Steinberg algorithm for RGB mode.
+     * @param surface - surface intended to be scanned. 
+     * @return palette with the applied dithering algorithm.
+    */
+    static std::vector<Processor::PixelPoint> generateFloydSteinbergDitheringRGB(SDL_Surface* surface);
+
+    /**
+     * Generates palette with the applied dithering Floyd-Steinberg algorithm for BW mode.
+     * @param surface - surface intended to be scanned. 
+     * @return palette with the applied dithering algorithm.
+    */
+    static std::vector<Processor::PixelPoint> generateFloydSteinbergDitheringBW(SDL_Surface* surface);
 
     /**
      * Converts given 24 bit RGB color to 7 bit RGB single.
@@ -87,6 +134,48 @@ public:
      * @return converted 24 bit RGB color.
     */
     static SDL_Color convert7BitGreyTo24BitRGB(Uint8 grey);
+
+    /**
+     * Converts 8 bit color to 7 bit color.
+     * @param input - given 8 bit color to be converted.
+     * @return converted 7 bit color.
+    */
+    static std::vector<Uint8> convert8BitTo7Bit(std::vector<Uint8> input);
+
+    /**
+     * Converts 7 bit RGB color to 8 bit RGB color.
+     * @param input - given 7 bit color to be converted.
+     * @return converted 8 bit color.
+    */
+    static std::vector<Uint8> convert7BitTo8Bit(std::vector<Uint8> input);
+
+    /**
+     * Converts given SDL_Color color to its Uint32 representation
+     * @param color - given SDL_Color color to be converted.
+     * @return converted Uint32 representation.
+    */
+    static Uint32 convertColorToUint32(SDL_Color color);
+
+    /**
+     * Converts given Uint32 color to its SDL_Color representation
+     * @param color - given Uint32 color to be converted.
+     * @return converted SDL_Color representation.
+    */
+    static SDL_Color convertUint32ToColor(Uint32 color);
+
+    /**
+     * Converts given RGB color to its Grey representation.
+     * @param color - given RGB color to be converted to Grey.
+     * @return result of the conversion.
+    */
+    static Uint8 convertRGBToGreyUint8(SDL_Color color);
+
+    /**
+     * Converts given RGB color to its Grey representation.
+     * @param color - given RGB color to be converted to Grey.
+     * @return result of the conversion.
+    */
+    static SDL_Color convertRGBToGrey(SDL_Color color);
 
     /**
      * Retrieves amount of pixels in the given surface.
@@ -128,6 +217,12 @@ public:
      * @param pixels - pixels intended to be set in the given surface.
     */
     static void setPixels(SDL_Surface* surface, std::vector<PixelPoint> pixels);
+
+    /**
+     * Cleans the given surface with the empty rectangle.
+     * @param surface - given surface to be cleaned.
+    */
+    static void cleanSurface(SDL_Surface* surface);
 private:
     /**
      * Checks if the given colors are equal.
@@ -160,6 +255,14 @@ private:
      * @return nearest color to the given color compound.
     */
     static SDL_Color getNearestColorRGB(std::vector<SDL_Color> colors, SDL_Color src);
+
+    /**
+     * Retrieves given color index in the given palette.
+     * @param colors - given bit color map to be scanned.
+     * @param src - given color.
+     * @return retrieved given color's index in the given color bit map(returns -1 if not found).
+    */
+    static int getColorIndex(std::vector<SDL_Color> colors, SDL_Color src);
 
     /**
      * Sorts given color map in BW mode, in the incrementing way.

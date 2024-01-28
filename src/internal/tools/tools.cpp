@@ -3,6 +3,8 @@
 std::string Tools::SPIN_CHARS = "/-\\|";
 
 void Tools::startIndefiniteSpinnerRaw() {
+#if defined(__linux__) || defined(__APPLE__)
+    
     int i = 0;
 
     while (true) {
@@ -13,9 +15,15 @@ void Tools::startIndefiniteSpinnerRaw() {
 
         i++;
     }
+
+#endif
 }
 
 void Tools::startIndefiniteSpinner() {
+#if defined(__linux__) || defined(__APPLE__)
+    
     std::thread t1(startIndefiniteSpinnerRaw);
     t1.detach();
+
+#endif
 }

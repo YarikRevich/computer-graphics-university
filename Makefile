@@ -23,7 +23,7 @@ endif
 endif
 
 .PHONY: build
-build: ## Build the project
+build: prepare ## Build the project
 	@cd $(shell pwd)/build && cmake .. && make
 
 .PHONY: install

@@ -7,7 +7,7 @@ Encode::Encode(args::ArgumentParser* argumentParser) {
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the source media", {"type"});
     this->conversion = new args::ValueFlag<std::string>(*group, "native_rgb|native_bw|palette_rgb|palette_bw", "Type of the media conversion", {"conversion"});
-    this->compression = new args::ValueFlag<bool>(*group, "true|false", "Enable compression", {"conversion"});
+    this->dithering = new args::Flag(*group, "true|false(default)", "Enables dithering for the output stream", {"dithering"});
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
 
@@ -58,20 +58,43 @@ int Encode::handle() {
         return EXIT_FAILURE;
     }
 
+    std::ofstream outputStream(to->Get(), std::ios_base::out | std::ios_base::binary);
+    if (!outputStream.is_open()) {
+        Validator::throwValueFlagInvalidException("from");
+        return EXIT_FAILURE;
+    }
+
     int result;
 
     switch (IO::getConversionType(conversion->Get())) {
         case IO::CONVERSION_TYPES::NATIVE_RGB:
-            result = Converter::convertToCGUNativeRGB(input);
+            if (dithering->Get()) {
+                result = Converter::convertToCGUNativeRGBDithering(input, outputStream);
+            } else {
+                result = Converter::convertToCGUNativeRGB(input, outputStream);
+            }
+
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
-            result = Converter::convertToCGUNativeBW(input);
+            if (dithering->Get()) {
+                result = Converter::convertToCGUNativeBWDithering(input, outputStream);
+            } else {
+                result = Converter::convertToCGUNativeBW(input, outputStream);
+            }
             break;
         case IO::CONVERSION_TYPES::PALETTE_RGB:
-            result = Converter::convertToCGUPaletteRGB(input);
+            if (dithering->Get()) {
+                result = Converter::convertToCGUPaletteRGBDithering(input, outputStream);
+            } else {
+                result = Converter::convertToCGUPaletteRGB(input, outputStream);
+            }
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:
-            result = Converter::convertToCGUPaletteBW(input);
+            if (dithering->Get()) {
+                result = Converter::convertToCGUPaletteBWDithering(input, outputStream);
+            } else {
+                result = Converter::convertToCGUPaletteBW(input, outputStream);
+            }
             break;
         default:
             Validator::throwValueFlagInvalidException("conversion");
@@ -82,9 +105,7 @@ int Encode::handle() {
         return EXIT_FAILURE;
     };
 
-    return IO::writeFileCGU(
-        to->Get(), 
-        IO::composeMetadata(
-            IO::getConversionType(conversion->Get())), 
-        input);
+    outputStream.close();
+
+    return EXIT_SUCCESS;
 }
