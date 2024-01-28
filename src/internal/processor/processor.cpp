@@ -18,18 +18,6 @@ std::vector<SDL_Color> Processor::getReducedBitColorMap(SDL_Surface* surface){
     return result;
 }
 
-std::vector<SDL_Color> Processor::getReducedBitColorMap(std::vector<SDL_Color> colors){
-    std::vector<SDL_Color> result;
-
-    for (auto &value : colors) {
-        if (!isColorPresent(result, value)){
-            result.push_back(value);
-        }
-    }
-
-    return result;
-}
-
 std::vector<SDL_Color> Processor::getCompleteBitColorMap(SDL_Surface* surface) {
     std::vector<SDL_Color> result;
 
@@ -292,7 +280,7 @@ Processor::BucketResult* Processor::generateColorBucketsBW(SDL_Surface* surface,
 
             nearestColor = getNearestColorBW(colors, 0.299*color.r+0.587*color.g+0.114*color.b);
 
-            result.push_back(getColorIndex(reducer, nearestColor));
+            result.push_back(getColorIndex(colors, nearestColor));
         }
     }
 

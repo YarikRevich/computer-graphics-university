@@ -39,8 +39,6 @@ public:
     */
     static std::vector<SDL_Color> getReducedBitColorMap(SDL_Surface* surface);
 
-    static std::vector<SDL_Color> getReducedBitColorMap(std::vector<SDL_Color> colors);
-
     /**
      * Composes complete bit color map of the given surface. 
      * @param surface - surface intended to be scaned.
