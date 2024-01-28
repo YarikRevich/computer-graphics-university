@@ -25,6 +25,7 @@ int View::handle() {
     std::ifstream inputStream(from->Get(), std::ios_base::binary);
     if (!inputStream.is_open()) {
         Validator::throwValueFlagInvalidException("from");
+
         return EXIT_FAILURE;
     }
 

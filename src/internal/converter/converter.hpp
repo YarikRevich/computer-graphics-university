@@ -76,6 +76,7 @@ public:
      * @param outputStream - given output stream.
      * @return result operation status code.
     */
+
     static int convertToCGUPaletteBWDithering(SDL_Surface* surface, std::ofstream& outputStream);
 
     /**

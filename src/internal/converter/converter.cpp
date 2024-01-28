@@ -191,7 +191,8 @@ int Converter::convertToCGUPaletteBW(SDL_Surface* surface, std::ofstream& output
         return EXIT_FAILURE;
     }
 
-    std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
+    return EXIT_SUCCESS;
+}
 
     Processor::BucketResult* result =
         Processor::generateColorBucketsBW(surface, image);
