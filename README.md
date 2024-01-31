@@ -5,7 +5,7 @@
 
 ## General Information
 
-Media codec with the possibility of result representation.
+Media codec application with the possibility of result representation.
 
 ![](./docs/detailed-design.png)
 
@@ -30,7 +30,7 @@ make build
 All the output images of CGU type have **metadata** part, which is located after **EOF** flag. It's used for internal CGU properties
 interpretation and its further usage as parameters for different kind of operations.
 
-**It's important to remember, that all the metadata values are defined with the new line flag!**
+**It's important to remember, that all the metadata values are defined in the content section!**
 
 All the available **metadata** flags:
 
@@ -154,6 +154,7 @@ Image data consists of chunks. Each chunk has 8 pixels. The whole chunk size of 
 
 Each chunk is written in the new line. Output structure looks like this:
 ```
+(0, 8)
 (1, 8)
 (2, 8)
 (3, 8)

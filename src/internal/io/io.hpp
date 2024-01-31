@@ -55,7 +55,7 @@ public:
 
         int indecesSize = 0;
 
-        std::vector<Uint32> indeces;
+        std::vector<Uint8> indeces;
     public:
         static const uint8_t COMPATIBLE_FLAG = 13;
 
@@ -65,7 +65,7 @@ public:
 
         FileMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height) {};
         
-        FileMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height, std::vector<Uint32> indeces) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
+        FileMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height, std::vector<Uint8> indeces) : compatible(COMPATIBLE_FLAG), convertion(convertion), dithering(dithering), width(width), height(height), indecesSize(indeces.size()), indeces(indeces) {};
 
         /**
          * Retrieves compatibility flag.
@@ -143,13 +143,13 @@ public:
          * Retrieves indeces for the image convertion.
          * @return CGU file indeces.
         */
-        std::vector<Uint32> getIndeces();
+        std::vector<Uint8> getIndeces();
 
         /**
          * Sets indeces for the image convertion.
          * @param indexes - given CGU file convertion indeces.
         */
-        void setIndeces(std::vector<Uint32> value);
+        void setIndeces(std::vector<Uint8> value);
 
         /**
          * Writes metadata content to the given stream.
@@ -183,7 +183,7 @@ public:
      * @param indeces - given CGU file color palette.
      * @return composed CGU file metadata.
     */
-    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height, std::vector<Uint32> indeces);
+    static IO::FileMetadata* composeIndecesMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height, std::vector<Uint8> indeces);
 
     /**
      * Converts given file type to enum representation.

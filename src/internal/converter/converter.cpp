@@ -139,10 +139,11 @@ int Converter::convertToCGUPaletteRGB(SDL_Surface* surface, std::ofstream& outpu
     Processor::BucketResult* result =
         Processor::generateColorBucketsRGB(surface, image);
 
-    std::vector<Uint32> indeces;
+    std::vector<Uint8> indeces;
 
     for (auto &value : result->getColors()) {
-        indeces.push_back(Processor::convertColorToUint32(value));
+        // indeces.push_back(Processor::convertColorToUint32(value));
+        indeces.push_back(Processor::convert24BitRGBTo7BitRGB(value));
     }
 
     IO::FileMetadata* metadata = 
@@ -168,10 +169,11 @@ int Converter::convertToCGUPaletteRGBDithering(SDL_Surface* surface, std::ofstre
     Processor::BucketResult* result = 
         Processor::generateColorBucketsRGB(surface, image);
 
-    std::vector<Uint32> indeces;
+    std::vector<Uint8> indeces;
 
     for (auto &value : result->getColors()) {
-        indeces.push_back(Processor::convertColorToUint32(value));
+        // indeces.push_back(Processor::convertColorToUint32(value));
+        indeces.push_back(Processor::convert24BitRGBTo7BitRGB(value));
     }
 
     IO::FileMetadata* metadata = 
@@ -197,10 +199,12 @@ int Converter::convertToCGUPaletteBW(SDL_Surface* surface, std::ofstream& output
     Processor::BucketResult* result =
         Processor::generateColorBucketsBW(surface, image);
 
-    std::vector<Uint32> indeces;
+    std::vector<Uint8> indeces;
 
     for (auto &value : result->getColors()) {
-        indeces.push_back(Processor::convertColorToUint32(value));
+        // indeces.push_back(Processor::convertColorToUint32(value));
+
+        indeces.push_back(Processor::convert24BitRGBTo7BitGrey(value));
     }
     
     IO::FileMetadata* metadata = 
@@ -226,10 +230,12 @@ int Converter::convertToCGUPaletteBWDithering(SDL_Surface* surface, std::ofstrea
     Processor::BucketResult* result = 
         Processor::generateColorBucketsBW(surface, image);
 
-    std::vector<Uint32> indeces;
+    std::vector<Uint8> indeces;
 
     for (auto &value : result->getColors()) {
-        indeces.push_back(Processor::convertColorToUint32(value));
+        // indeces.push_back(Processor::convertColorToUint32(value));
+
+        indeces.push_back(Processor::convert24BitRGBTo7BitGrey(value));
     }
 
     IO::FileMetadata* metadata = 
@@ -357,7 +363,7 @@ SDL_Surface* Converter::convertFromCGUPaletteRGB(std::ifstream& inputStream, IO:
     std::vector<SDL_Color> colors;
 
     for (auto &value : metadata->getIndeces()) {
-        colors.push_back(Processor::convertUint32ToColor(value));
+        colors.push_back(Processor::convert7BitRGBTo24BitRGB(value));
     }
 
     std::vector<int> input(metadata->getWidth() * metadata->getHeight(), 0);
@@ -391,6 +397,7 @@ SDL_Surface* Converter::convertFromCGUPaletteRGB(std::ifstream& inputStream, IO:
     }
 
     if (metadata->getDithering() == IO::FileMetadata::DITHERING_FLAG) {
+        std::cout << "dithering" << std::endl;
         std::vector<Processor::PixelPoint> dithered = 
         Processor::generateFloydSteinbergDitheringRGB(surface);
 
@@ -406,7 +413,8 @@ SDL_Surface* Converter::convertFromCGUPaletteBW(std::ifstream& inputStream, IO::
     std::vector<SDL_Color> colors;
 
     for (auto &value : metadata->getIndeces()) {
-        colors.push_back(Processor::convertUint32ToColor(value));
+        // colors.push_back(Processor::convertUint32ToColor(value));
+        colors.push_back(Processor::convert7BitGreyTo24BitRGB(value));
     }
 
     std::vector<int> input(metadata->getWidth() * metadata->getHeight(), 0);
