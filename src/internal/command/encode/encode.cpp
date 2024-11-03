@@ -6,7 +6,10 @@ Encode::Encode(args::ArgumentParser* argumentParser) {
     args::Group* group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the source media", {"type"});
-    this->conversion = new args::ValueFlag<std::string>(*group, "native_rgb|native_bw|palette_rgb|palette_bw", "Type of the media conversion", {"conversion"});
+    this->conversion = new args::ValueFlag<std::string>(*group, "native_colorful|native_bw|palette_colorful|palette_bw", "Type of the media conversion", {"conversion"});
+    this->bit = new args::ValueFlag<std::string>(*group, "24|16|15|7", "Amount of bits used for the media conversion", {"bit"});
+    this->model = new args::ValueFlag<std::string>(*group, "rgb|yuv|yiq|ycbcr|hsl", "Type of color model to be used for media conversion", {"model"});
+    this->compression = new args::ValueFlag<std::string>(*group, "dct(sampling)|byterun|rle|lzw|lz77", "Type of compression to be used for media conversion", {"compression"});
     this->dithering = new args::Flag(*group, "true|false(default)", "Enables dithering for the output stream", {"dithering"});
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
@@ -67,7 +70,7 @@ int Encode::handle() {
     int result;
 
     switch (IO::getConversionType(conversion->Get())) {
-        case IO::CONVERSION_TYPES::NATIVE_RGB:
+        case IO::CONVERSION_TYPES::NATIVE_COLORFUL:
             if (dithering->Get()) {
                 result = Converter::convertToCGUNativeRGBDithering(input, outputStream);
             } else {
@@ -82,7 +85,7 @@ int Encode::handle() {
                 result = Converter::convertToCGUNativeBW(input, outputStream);
             }
             break;
-        case IO::CONVERSION_TYPES::PALETTE_RGB:
+        case IO::CONVERSION_TYPES::PALETTE_COLORFUL:
             if (dithering->Get()) {
                 result = Converter::convertToCGUPaletteRGBDithering(input, outputStream);
             } else {

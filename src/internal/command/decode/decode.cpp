@@ -45,13 +45,13 @@ int Decode::handle() {
     SDL_Surface* input;
 
     switch (metadata->getConvertion()) {
-        case IO::CONVERSION_TYPES::NATIVE_RGB:
+        case IO::CONVERSION_TYPES::NATIVE_COLORFUL:
             input = Converter::convertFromCGUNativeRGB(inputStream, metadata);
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
             input = Converter::convertFromCGUNativeBW(inputStream, metadata);
             break;
-        case IO::CONVERSION_TYPES::PALETTE_RGB:
+        case IO::CONVERSION_TYPES::PALETTE_COLORFUL:
             input = Converter::convertFromCGUPaletteRGB(inputStream, metadata);
             break;
         case IO::CONVERSION_TYPES::PALETTE_BW:

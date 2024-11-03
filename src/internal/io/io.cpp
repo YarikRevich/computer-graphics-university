@@ -14,12 +14,12 @@ IO::FILE_TYPES IO::getFileType(std::string src){
 }
 
 IO::CONVERSION_TYPES IO::getConversionType(std::string src){
-    if (src == "native_rgb") {
-        return IO::CONVERSION_TYPES::NATIVE_RGB;
+    if (src == "native_colorful") {
+        return IO::CONVERSION_TYPES::NATIVE_COLORFUL;
     } else if (src == "native_bw") {
         return IO::CONVERSION_TYPES::NATIVE_BW;
-    } else if (src == "palette_rgb") {
-        return IO::CONVERSION_TYPES::PALETTE_RGB;
+    } else if (src == "palette_colorful") {
+        return IO::CONVERSION_TYPES::PALETTE_COLORFUL;
     } else if (src == "palette_bw") {
         return IO::CONVERSION_TYPES::PALETTE_BW;
     }
@@ -27,9 +27,58 @@ IO::CONVERSION_TYPES IO::getConversionType(std::string src){
     return IO::CONVERSION_TYPES::NONE;
 }
 
+IO::BIT_TYPES IO::getBitType(std::string src){
+    if (src == "24") {
+        return IO::BIT_TYPES::TWENTY_FOUR;
+    } else if (src == "16") {
+        return IO::BIT_TYPES::SIXTEEN;
+    } else if (src == "15") {
+        return IO::BIT_TYPES::FIFTEEN;
+    } else if (src == "7") {
+        return IO::BIT_TYPES::SEVEN;
+    }
+
+    return IO::BIT_TYPES::NONE;
+}
+
+IO::MODEL_TYPES IO::getModelType(std::string src){
+    if (src == "rgb") {
+        return IO::MODEL_TYPES::RGB;
+    } else if (src == "yuv") {
+        return IO::MODEL_TYPES::YUV;
+    } else if (src == "yiq") {
+        return IO::MODEL_TYPES::YIQ;
+    } else if (src == "ycbcr") {
+        return IO::MODEL_TYPES::YCBCR;
+    } else if (src == "hsl") {
+        return IO::MODEL_TYPES::HSL;
+    }
+
+    return IO::MODEL_TYPES::NONE;
+}
+
+IO::COMPRESSION_TYPES IO::getCompressionType(std::string src){
+    if (src == "dct") {
+        return IO::COMPRESSION_TYPES::DCT;
+    } else if (src == "byterun") {
+        return IO::COMPRESSION_TYPES::BYTE_RUN;
+    } else if (src == "rle") {
+        return IO::COMPRESSION_TYPES::RLE;
+    } else if (src == "lzw") {
+        return IO::COMPRESSION_TYPES::LZW;
+    } else if (src == "lz77") {
+        return IO::COMPRESSION_TYPES::LZ77;
+    }
+
+    return IO::COMPRESSION_TYPES::NONE;
+}
+
 IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
     uint8_t compatibleTemp;
     uint8_t conversion;
+    uint8_t bit;
+    uint8_t model;
+    uint8_t compression;
     uint16_t width;
     uint16_t height;
     uint8_t dithering;
@@ -37,6 +86,9 @@ IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
 
     inputStream.read((char*)&compatibleTemp, sizeof(uint8_t));
     inputStream.read((char*)&conversion, sizeof(uint8_t));
+    inputStream.read((char*)&bit, sizeof(uint8_t));
+    inputStream.read((char*)&model, sizeof(uint8_t));
+    inputStream.read((char*)&compression, sizeof(uint8_t));
     inputStream.read((char*)&width, sizeof(uint16_t));
     inputStream.read((char*)&height, sizeof(uint16_t));
     inputStream.read((char*)&dithering, sizeof(uint8_t));
@@ -47,6 +99,9 @@ IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
 
     setCompatible(compatibleTemp);
     setConvertion((IO::CONVERSION_TYPES)conversion);
+    setBit((IO::BIT_TYPES)bit);
+    setModel((IO::MODEL_TYPES)model);
+    setCompression((IO::COMPRESSION_TYPES)compression);
     setWidth(width);
     setHeight(height);
     setDithering(dithering);
@@ -68,6 +123,30 @@ IO::CONVERSION_TYPES IO::FileMetadata::getConvertion() {
 
 void IO::FileMetadata::setConvertion(IO::CONVERSION_TYPES value) {
     this->convertion = value;
+};
+
+IO::BIT_TYPES IO::FileMetadata::getBit() {
+    return bit;
+}
+
+void IO::FileMetadata::setBit(IO::BIT_TYPES value) {
+    this->bit = value;
+};
+
+IO::MODEL_TYPES IO::FileMetadata::getModel() {
+    return model;
+}
+
+void IO::FileMetadata::setModel(IO::MODEL_TYPES value) {
+    this->model = value;
+};
+
+IO::COMPRESSION_TYPES IO::FileMetadata::getCompression() {
+    return compression;
+}
+
+void IO::FileMetadata::setCompression(IO::COMPRESSION_TYPES value) {
+    this->compression = value;
 };
 
 uint16_t IO::FileMetadata::getWidth() {
@@ -114,6 +193,9 @@ void IO::FileMetadata::setIndeces(std::vector<Uint32> value) {
 void IO::FileMetadata::writeTo(std::ofstream& ofs) {
     uint8_t compatibleTemp = getCompatible();
     uint8_t conversion = (uint8_t)getConvertion();
+    uint8_t bit = (uint8_t)getBit();
+    uint8_t model = (uint8_t)getModel();
+    uint8_t compression = (uint8_t)getCompression();
     uint16_t width = getWidth();
     uint16_t height = getHeight();
     uint8_t dithering = getDithering();
@@ -122,6 +204,9 @@ void IO::FileMetadata::writeTo(std::ofstream& ofs) {
 
     ofs.write((char*)&compatibleTemp, sizeof(uint8_t));
     ofs.write((char*)&conversion, sizeof(uint8_t));
+    ofs.write((char*)&bit, sizeof(uint8_t));
+    ofs.write((char*)&model, sizeof(uint8_t));
+    ofs.write((char*)&compression, sizeof(uint8_t));
     ofs.write((char*)&width, sizeof(uint16_t));
     ofs.write((char*)&height, sizeof(uint16_t));
     ofs.write((char*)&dithering, sizeof(uint8_t));
@@ -130,15 +215,30 @@ void IO::FileMetadata::writeTo(std::ofstream& ofs) {
 };
 
 int IO::FileMetadata::getSize() {
-    return sizeof(int) + (sizeof(uint16_t) * 2) + (sizeof(uint8_t) * 3) + (indeces.size() * sizeof(Uint32));
+    return sizeof(int) + (sizeof(uint16_t) * 2) + (sizeof(uint8_t) * 6) + (indeces.size() * sizeof(Uint32));
 };
 
-IO::FileMetadata* IO::composeNativeMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height) {
-    return new IO::FileMetadata(convertion, dithering, width, height);
+IO::FileMetadata* IO::composeNativeMetadata(
+    IO::CONVERSION_TYPES convertion,
+    IO::BIT_TYPES bit,
+    IO::MODEL_TYPES model,
+    IO::COMPRESSION_TYPES compression,
+    uint8_t dithering, 
+    uint16_t width, 
+    uint16_t height) {
+    return new IO::FileMetadata(convertion, bit, model, compression, dithering, width, height);
 }
 
-IO::FileMetadata* IO::composeIndecesMetadata(IO::CONVERSION_TYPES convertion, uint8_t dithering, uint16_t width, uint16_t height, std::vector<Uint32> indeces) {
-    return new IO::FileMetadata(convertion, dithering, width, height, indeces);
+IO::FileMetadata* IO::composeIndecesMetadata(
+    IO::CONVERSION_TYPES convertion, 
+    IO::BIT_TYPES bit,
+    IO::MODEL_TYPES model,
+    IO::COMPRESSION_TYPES compression,
+    uint8_t dithering, 
+    uint16_t width, 
+    uint16_t height, 
+    std::vector<Uint32> indeces) {
+    return new IO::FileMetadata(convertion, bit, model, compression, dithering, width, height, indeces);
 }
 
 SDL_Surface* IO::readFileJPEG(std::string path) {

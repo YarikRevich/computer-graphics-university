@@ -19,7 +19,7 @@ int Converter::convertToCGUNativeRGB(SDL_Surface* surface, std::ofstream& output
 
     IO::FileMetadata* metadata = 
         IO::composeNativeMetadata(
-            IO::CONVERSION_TYPES::NATIVE_RGB, 0, surface->w, surface->h);
+            IO::CONVERSION_TYPES::NATIVE_COLORFUL, 0, surface->w, surface->h);
 
     metadata->writeTo(outputStream);
 
@@ -53,7 +53,7 @@ int Converter::convertToCGUNativeRGBDithering(SDL_Surface* surface, std::ofstrea
 
     IO::FileMetadata* metadata = 
         IO::composeNativeMetadata(
-            IO::CONVERSION_TYPES::NATIVE_RGB, IO::FileMetadata::DITHERING_FLAG, surface->w, surface->h);
+            IO::CONVERSION_TYPES::NATIVE_COLORFUL, IO::FileMetadata::DITHERING_FLAG, surface->w, surface->h);
 
     metadata->writeTo(outputStream);
 
@@ -147,7 +147,7 @@ int Converter::convertToCGUPaletteRGB(SDL_Surface* surface, std::ofstream& outpu
 
     IO::FileMetadata* metadata = 
         IO::composeIndecesMetadata(
-            IO::CONVERSION_TYPES::PALETTE_RGB, 0, surface->w, surface->h, indeces);
+            IO::CONVERSION_TYPES::PALETTE_COLORFUL, 0, surface->w, surface->h, indeces);
 
     metadata->writeTo(outputStream);
 
@@ -176,7 +176,7 @@ int Converter::convertToCGUPaletteRGBDithering(SDL_Surface* surface, std::ofstre
 
     IO::FileMetadata* metadata = 
         IO::composeIndecesMetadata(
-            IO::CONVERSION_TYPES::PALETTE_RGB, IO::FileMetadata::DITHERING_FLAG, surface->w, surface->h, indeces);
+            IO::CONVERSION_TYPES::PALETTE_COLORFUL, IO::FileMetadata::DITHERING_FLAG, surface->w, surface->h, indeces);
 
     metadata->writeTo(outputStream);
 

@@ -17,6 +17,9 @@ private:
     args::ValueFlag<std::string>* from = NULL;
     args::ValueFlag<std::string>* type = NULL;
     args::ValueFlag<std::string>* conversion = NULL;
+    args::ValueFlag<std::string>* bit = NULL;
+    args::ValueFlag<std::string>* model = NULL;
+    args::ValueFlag<std::string>* compression = NULL;
     args::Flag* dithering = NULL;
     args::ValueFlag<std::string>* to = NULL;
 
