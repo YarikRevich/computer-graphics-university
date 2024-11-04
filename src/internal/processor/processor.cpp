@@ -435,9 +435,9 @@ std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringBW(
 };
 
 Uint8 Processor::convert24BitRGBTo7BitRGB(SDL_Color color) {
-    int newColorR = round(color.r*3.0/255.0);
-    int newColorG = round(color.g*7.0/255.0);
-    int newColorB = round(color.b*3.0/255.0);
+    int newColorR = round(color.r * 3.0 / 255.0);
+    int newColorG = round(color.g * 7.0 / 255.0);
+    int newColorB = round(color.b * 3.0 / 255.0);
 
     return (newColorR << 5) | (newColorG << 2) | newColorB;
 }
@@ -463,6 +463,72 @@ SDL_Color Processor::convert7BitGreyTo24BitRGB(Uint8 grey) {
         .r = static_cast<Uint8>(grey * 255.0 / 127.0),
         .g = static_cast<Uint8>(grey * 255.0 / 127.0),
         .b = static_cast<Uint8>(grey * 255.0 / 127.0)
+    };
+}
+
+Uint16 Processor::convert24BitRGBTo16BitRGB(SDL_Color color) {
+    Uint8 r = color.r >> 3;
+    Uint8 g = color.g >> 2;
+    Uint8 b = color.b >> 3;
+
+    return (Uint16)((r << 11) | (g << 5) | b);
+}
+
+
+SDL_Color Processor::convert16BitRGBTo24BitRGB(Uint16 color) {
+    return {
+        .r = static_cast<Uint8>((color >> 11) << 3), 
+        .g = static_cast<Uint8>(((color << 5) >> 10) << 2),
+        .b = static_cast<Uint8>(color << 3)
+    };
+}
+
+Uint8 Processor::convert24BitRGBTo16BitGrey(SDL_Color color) {
+    Uint8 r = color.r >> 3;
+    Uint8 g = color.g >> 2;
+    Uint8 b = color.b >> 3;
+
+    return round(0.299 * r + 0.587 * g + 0.114 * b);
+}
+
+SDL_Color Processor::convert16BitGreyTo24BitRGB(Uint8 grey) {
+    return {
+        .r = static_cast<Uint8>(grey << 3),
+        .g = static_cast<Uint8>(grey << 2),
+        .b = static_cast<Uint8>(grey << 3)
+    };
+}
+
+Uint16 Processor::convert24BitRGBTo15BitRGB(SDL_Color color) {
+    Uint8 r = color.r >> 3;
+    Uint8 g = color.g >> 3;
+    Uint8 b = color.b >> 3;
+
+    return (Uint16)((r << 10) | (g << 5) | b);
+}
+
+
+SDL_Color Processor::convert15BitRGBTo24BitRGB(Uint16 color) {
+    return {
+        .r = static_cast<Uint8>(((color << 1) >> 11) << 3), 
+        .g = static_cast<Uint8>(((color << 6) >> 11) << 3),
+        .b = static_cast<Uint8>(color << 3)
+    };
+}
+
+Uint8 Processor::convert24BitRGBTo15BitGrey(SDL_Color color) {
+    Uint8 r = color.r >> 3;
+    Uint8 g = color.g >> 3;
+    Uint8 b = color.b >> 3;
+
+    return round(0.299 * r + 0.587 * g + 0.114 * b);
+}
+
+SDL_Color Processor::convert15BitGreyTo24BitRGB(Uint8 grey) {
+    return {
+        .r = static_cast<Uint8>(grey << 3),
+        .g = static_cast<Uint8>(grey << 3),
+        .b = static_cast<Uint8>(grey << 3)
     };
 }
 
