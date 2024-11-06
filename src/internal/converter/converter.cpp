@@ -526,7 +526,7 @@ void Converter::composeMetadata(
     std::ofstream &outputStream)
 {
     IO::FileMetadata* metadata = 
-        IO::composeNativeMetadata(
+        IO::composeMetadata(
             conversionType, 0, 0, 0, IO::FileMetadata::DITHERING_FLAG, input->w, input->h);
 
     metadata->writeTo(outputStream);

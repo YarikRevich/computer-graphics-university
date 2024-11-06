@@ -5,6 +5,7 @@
 
 #include "../validator/validator.hpp"
 #include "../../converter/converter.hpp"
+#include "../../pipeline/pipeline.hpp"
 #include "../../io/io.hpp"
 
 /**

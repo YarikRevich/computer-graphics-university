@@ -126,8 +126,6 @@ public:
      */
     static SDL_Surface *convertFromCGUPaletteBW(std::ifstream &inputStream, IO::FileMetadata *metadata);
 
-
-
     static void compressToDCT();
 
     static void decompressFromDCT();
@@ -155,4 +153,11 @@ public:
         int height,
         std::vector<Uint32> indeces,
         std::ofstream &outputStream);
+private:
+    /**
+     * Represents a result 
+     */
+    class PaletteConversionResult {
+
+    };
 };

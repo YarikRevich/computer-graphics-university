@@ -11,6 +11,7 @@ Encode::Encode(args::ArgumentParser *argumentParser)
     this->bit = new args::ValueFlag<std::string>(*group, "24|16|15|7", "Amount of bits used for the media conversion", {"bit"});
     this->model = new args::ValueFlag<std::string>(*group, "rgb|yuv|yiq|ycbcr|hsl", "Type of color model to be used for media conversion", {"model"});
     this->compression = new args::ValueFlag<std::string>(*group, "dct(sampling)|byterun|rle|lzw|lz77", "Type of compression to be used for media conversion", {"compression"});
+    this->filter = new args::ValueFlag<std::string>(*group, "differential|line_difference|average|paeth", "Type of filter to be used for media conversion", {"filter"});
     this->dithering = new args::Flag(*group, "true|false(default)", "Enables dithering for the output stream", {"dithering"});
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
 }
@@ -40,9 +41,39 @@ int Encode::handle()
         return EXIT_FAILURE;
     }
 
+    if (!bit->Matched())
+    {
+        Validator::throwValueFlagRequiredException("bit");
+        return EXIT_FAILURE;
+    }
+
+    if (!model->Matched())
+    {
+        Validator::throwValueFlagRequiredException("model");
+        return EXIT_FAILURE;
+    }
+
     if (!to->Matched())
     {
         Validator::throwValueFlagRequiredException("to");
+        return EXIT_FAILURE;
+    }
+
+    IO::CONVERSION_TYPES conversionType = IO::getConversionType(conversion->Get());
+    if (conversionType == IO::CONVERSION_TYPES::NONE) {
+        Validator::throwValueFlagInvalidException("conversion");
+        return EXIT_FAILURE;
+    }
+
+    IO::BIT_TYPES bitType = IO::getBitType(bit->Get());
+    if (bitType == IO::BIT_TYPES::NONE) {
+        Validator::throwValueFlagInvalidException("bit");
+        return EXIT_FAILURE;
+    }
+
+    IO::MODEL_TYPES modelType = IO::getModelType(model->Get());
+    if (bitType == IO::BIT_TYPES::NONE) {
+        Validator::throwValueFlagInvalidException("model");
         return EXIT_FAILURE;
     }
 
@@ -77,76 +108,21 @@ int Encode::handle()
         return EXIT_FAILURE;
     }
 
-    int result;
-
-    switch (IO::getConversionType(conversion->Get()))
-    {
-    case IO::CONVERSION_TYPES::NATIVE_COLORFUL:
-        if (dithering->Get())
-        {
-            result = Converter::convertToCGUNativeRGBDithering(input);
-        }
-        else
-        {
-            result = Converter::convertToCGUNativeRGB(input);
-        }
-
-        break;
-    case IO::CONVERSION_TYPES::NATIVE_BW:
-        if (dithering->Get())
-        {
-            result = Converter::convertToCGUNativeBWDithering(input);
-        }
-        else
-        {
-            result = Converter::convertToCGUNativeBW(input);
-        }
-
-        break;
-    case IO::CONVERSION_TYPES::PALETTE_COLORFUL:
-        if (dithering->Get())
-        {
-            result = Converter::convertToCGUPaletteRGBDithering(input);
-        }
-        else
-        {
-            result = Converter::convertToCGUPaletteRGB(input);
-        }
-
-        break;
-    case IO::CONVERSION_TYPES::PALETTE_BW:
-        if (dithering->Get())
-        {
-            result = Converter::convertToCGUPaletteBWDithering(input);
-        }
-        else
-        {
-            result = Converter::convertToCGUPaletteBW(input);
-        }
-
-        break;
-    default:
-        Validator::throwValueFlagInvalidException("conversion");
-        return EXIT_FAILURE;
-    }
-
-    if (result != EXIT_SUCCESS)
-    {
-        return EXIT_FAILURE;
-    };
-
-    Converter::composeMetadata(
-        conversion->Get(),
-        bit->Get(),
-        model->Get(),
-        compression->Get(),
+    int result = Pipeline::handleEncode(
+        input, 
+        conversionType, 
+        bitType, 
+        modelType, 
+        IO::getCompressionType(compression->Get()),
+        IO::getFilterType(filter->Get()),
         dithering->Get(),
-        input->w,
-        input->h,
-        nullptr,
         outputStream);
 
     outputStream.close();
+
+    if (result != EXIT_SUCCESS) {
+        return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }

@@ -18,8 +18,14 @@ public:
     class PixelPoint
     {
     public:
+        /**
+         * Represents a position of the pixel point.
+         */
         int x, y;
 
+        /**
+         * Represents a color of the pixel point.
+         */
         SDL_Color color;
 
         PixelPoint(int x, int y, SDL_Color color) : x(x), y(y), color(color) {}
@@ -56,11 +62,6 @@ public:
      */
     class BucketResult
     {
-    private:
-        std::vector<SDL_Color> colors;
-
-        std::vector<int> indeces;
-
     public:
         BucketResult(std::vector<SDL_Color> colors, std::vector<int> indeces) : colors(colors), indeces(indeces) {};
 
@@ -77,6 +78,17 @@ public:
          * @return retrieved color bit map indeces.
          */
         std::vector<int> getIndeces();
+
+    private:
+        /**
+         * Represents bucket colors.
+         */
+        std::vector<SDL_Color> colors;
+
+        /**
+         * Represents bucket indeces.
+         */
+        std::vector<int> indeces;
     };
 
     /**
@@ -136,7 +148,7 @@ public:
      * @return converted 24 bit RGB color.
      */
     static SDL_Color convert7BitRGBTo24BitRGB(Uint8 color);
-
+    
     /**
      * Converts given 24 bit RGB color to 7 bit grey single.
      *
@@ -170,22 +182,6 @@ public:
     static SDL_Color convert16BitRGBTo24BitRGB(Uint16 color);
 
     /**
-     * Converts given 24 bit RGB color to 16 bit grey single.
-     *
-     * @param color - given 24 bit RGB color to be converted.
-     * @return converted 16 bit grey single.
-     */
-    static Uint8 convert24BitRGBTo16BitGrey(SDL_Color color);
-
-    /**
-     * Converts 16 bit grey single to 24 bit RGB color.
-     *
-     * @param color - given 16 bit grey single to be converted.
-     * @return converted 24 bit RGB color.
-     */
-    static SDL_Color convert16BitGreyTo24BitRGB(Uint8 grey);
-
-    /**
      * Converts given 24 bit RGB color to 15 bit RGB single.
      *
      * @param color - given 24 bit RGB color to be converted.
@@ -200,23 +196,6 @@ public:
      * @return converted 24 bit RGB color.
      */
     static SDL_Color convert15BitRGBTo24BitRGB(Uint16 color);
-
-    /**
-     * Converts given 24 bit RGB color to 15 bit grey single.
-     *
-     * @param color - given 24 bit RGB color to be converted.
-     * @return converted 15 bit grey single.
-     */
-    static Uint8 convert24BitRGBTo15BitGrey(SDL_Color color);
-
-    /**
-     * Converts 15 bit grey single to 24 bit RGB color.
-     *
-     * @param color - given 15 bit grey single to be converted.
-     * @return converted 24 bit RGB color.
-     */
-    static SDL_Color convert15BitGreyTo24BitRGB(Uint8 grey);
-
     /**
      * Converts 8 bit color to 7 bit color.
      *

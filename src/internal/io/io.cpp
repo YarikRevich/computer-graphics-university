@@ -73,12 +73,27 @@ IO::COMPRESSION_TYPES IO::getCompressionType(std::string src){
     return IO::COMPRESSION_TYPES::NONE;
 }
 
+IO::FILTER_TYPES IO::getFilterType(std::string src){
+    if (src == "differential") {
+        return IO::FILTER_TYPES::DIFFERENTIAL;
+    } else if (src == "line_difference") {
+        return IO::FILTER_TYPES::LINE_DIFFERENCE;
+    } else if (src == "average") {
+        return IO::FILTER_TYPES::AVERAGE;
+    } else if (src == "paeth") {
+        return IO::FILTER_TYPES::PAETH;
+    }
+
+    return IO::FILTER_TYPES::NONE;
+}
+
 IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
     uint8_t compatibleTemp;
     uint8_t conversion;
     uint8_t bit;
     uint8_t model;
     uint8_t compression;
+    uint8_t filter;
     uint16_t width;
     uint16_t height;
     uint8_t dithering;
@@ -89,6 +104,7 @@ IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
     inputStream.read((char*)&bit, sizeof(uint8_t));
     inputStream.read((char*)&model, sizeof(uint8_t));
     inputStream.read((char*)&compression, sizeof(uint8_t));
+    inputStream.read((char*)&filter, sizeof(uint8_t));
     inputStream.read((char*)&width, sizeof(uint16_t));
     inputStream.read((char*)&height, sizeof(uint16_t));
     inputStream.read((char*)&dithering, sizeof(uint8_t));
@@ -102,6 +118,7 @@ IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
     setBit((IO::BIT_TYPES)bit);
     setModel((IO::MODEL_TYPES)model);
     setCompression((IO::COMPRESSION_TYPES)compression);
+    setFilter((IO::FILTER_TYPES)filter);
     setWidth(width);
     setHeight(height);
     setDithering(dithering);
@@ -147,6 +164,14 @@ IO::COMPRESSION_TYPES IO::FileMetadata::getCompression() {
 
 void IO::FileMetadata::setCompression(IO::COMPRESSION_TYPES value) {
     this->compression = value;
+};
+
+IO::FILTER_TYPES IO::FileMetadata::getFilter() {
+    return filter;
+}
+
+void IO::FileMetadata::setFilter(IO::FILTER_TYPES value) {
+    this->filter = value;
 };
 
 uint16_t IO::FileMetadata::getWidth() {
@@ -196,6 +221,7 @@ void IO::FileMetadata::writeTo(std::ofstream& ofs) {
     uint8_t bit = (uint8_t)getBit();
     uint8_t model = (uint8_t)getModel();
     uint8_t compression = (uint8_t)getCompression();
+    uint8_t filter = (uint8_t)getFilter();
     uint16_t width = getWidth();
     uint16_t height = getHeight();
     uint8_t dithering = getDithering();
@@ -207,6 +233,7 @@ void IO::FileMetadata::writeTo(std::ofstream& ofs) {
     ofs.write((char*)&bit, sizeof(uint8_t));
     ofs.write((char*)&model, sizeof(uint8_t));
     ofs.write((char*)&compression, sizeof(uint8_t));
+    ofs.write((char*)&filter, sizeof(uint8_t));
     ofs.write((char*)&width, sizeof(uint16_t));
     ofs.write((char*)&height, sizeof(uint16_t));
     ofs.write((char*)&dithering, sizeof(uint8_t));
@@ -215,30 +242,19 @@ void IO::FileMetadata::writeTo(std::ofstream& ofs) {
 };
 
 int IO::FileMetadata::getSize() {
-    return sizeof(int) + (sizeof(uint16_t) * 2) + (sizeof(uint8_t) * 6) + (indeces.size() * sizeof(Uint32));
+    return sizeof(int) + (sizeof(uint16_t) * 2) + (sizeof(uint8_t) * 7) + (indeces.size() * sizeof(Uint32));
 };
 
-IO::FileMetadata* IO::composeNativeMetadata(
+IO::FileMetadata* IO::composeMetadata(
     IO::CONVERSION_TYPES convertion,
     IO::BIT_TYPES bit,
     IO::MODEL_TYPES model,
     IO::COMPRESSION_TYPES compression,
     uint8_t dithering, 
     uint16_t width, 
-    uint16_t height) {
+    uint16_t height,
+    std::optional<std::vector<Uint32>> indeces) {
     return new IO::FileMetadata(convertion, bit, model, compression, dithering, width, height);
-}
-
-IO::FileMetadata* IO::composeIndecesMetadata(
-    IO::CONVERSION_TYPES convertion, 
-    IO::BIT_TYPES bit,
-    IO::MODEL_TYPES model,
-    IO::COMPRESSION_TYPES compression,
-    uint8_t dithering, 
-    uint16_t width, 
-    uint16_t height, 
-    std::vector<Uint32> indeces) {
-    return new IO::FileMetadata(convertion, bit, model, compression, dithering, width, height, indeces);
 }
 
 SDL_Surface* IO::readFileJPEG(std::string path) {

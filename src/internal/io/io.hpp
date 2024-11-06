@@ -78,6 +78,18 @@ public:
     };
 
     /**
+     * Represents all filter types available to be chosen.
+     */
+    enum class FILTER_TYPES
+    {
+        DIFFERENTIAL,
+        LINE_DIFFERENCE,
+        AVERAGE,
+        PAETH,
+        NONE
+    };
+
+    /**
      * Represents general CGU file oriented metadata configuration.
      */
     class FileMetadata
@@ -92,6 +104,8 @@ public:
         IO::MODEL_TYPES model;
 
         IO::COMPRESSION_TYPES compression;
+
+        IO::FILTER_TYPES filter;
 
         uint8_t dithering;
 
@@ -132,6 +146,7 @@ public:
             IO::BIT_TYPES bit, 
             IO::MODEL_TYPES model, 
             IO::COMPRESSION_TYPES compression,
+            IO::FILTER_TYPES filter,
             uint8_t dithering, 
             uint16_t width, 
             uint16_t height, 
@@ -141,6 +156,7 @@ public:
             bit(bit),
             model(model),
             compression(compression),
+            filter(filter),
             dithering(dithering), 
             width(width), 
             height(height), 
@@ -209,6 +225,20 @@ public:
          * @return CGU file compression type.
          */
         IO::COMPRESSION_TYPES getCompression();
+
+        /**
+         * Sets given filter type.
+         *
+         * @param value - given CGU file filter type.
+         */
+        void setFilter(IO::FILTER_TYPES value);
+
+        /**
+         * Retrieves CGU file filter type.
+         *
+         * @return CGU file filter type.
+         */
+        IO::FILTER_TYPES getFilter();
 
         /**
          * Sets given compression type.
@@ -312,39 +342,18 @@ public:
      * @param dithering - CGU file dithering mode switch.
      * @param width - given CGU file width.
      * @param height - given CGU file height.
+     * @param indeces - given CGU file optional color palette.
      * @return composed CGU file metadata.
      */
-    static IO::FileMetadata *composeNativeMetadata(
+    static IO::FileMetadata *composeMetadata(
         IO::CONVERSION_TYPES convertion, 
         IO::BIT_TYPES bit, 
         IO::MODEL_TYPES model, 
         IO::COMPRESSION_TYPES compression, 
         uint8_t dithering, 
         uint16_t width, 
-        uint16_t height);
-
-    /**
-     * Composes CGU file metadata struct with the given arguments.
-     * 
-     * @param convertion - given CGU file convertion type.
-     * @param bit - given CGU file bit type.
-     * @param model - given CGU file model type.
-     * @param compression - given CGU file compression type.
-     * @param dithering - CGU file dithering mode switch.
-     * @param width - given CGU file width.
-     * @param height - given CGU file height.
-     * @param indeces - given CGU file color palette.
-     * @return composed CGU file metadata.
-     */
-    static IO::FileMetadata *composeIndecesMetadata(
-        IO::CONVERSION_TYPES convertion, 
-        IO::BIT_TYPES bit, 
-        IO::MODEL_TYPES model, 
-        IO::COMPRESSION_TYPES compression, 
-        uint8_t dithering, 
-        uint16_t width, 
-        uint16_t height, 
-        std::vector<Uint32> indeces);
+        uint16_t height,
+        std::optional<std::vector<Uint32>> indeces);
 
     /**
      * Converts given file type to enum representation.
@@ -385,6 +394,14 @@ public:
      * @return enum representation of a compression type.
      */
     static IO::COMPRESSION_TYPES getCompressionType(std::string src);
+
+    /**
+     * Converts given filter type to enum representation.
+     * 
+     * @param src - given filter type.
+     * @return enum representation of a filter type.
+     */
+    static IO::FILTER_TYPES getFilterType(std::string src);
 
     /**
      * Reads media JPEG file with the given path into managable surface canvas.
