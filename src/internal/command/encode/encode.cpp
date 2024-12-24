@@ -10,7 +10,9 @@ Encode::Encode(args::ArgumentParser *argumentParser)
     this->conversion = new args::ValueFlag<std::string>(*group, "native_colorful|native_bw|palette_colorful|palette_bw", "Type of the media conversion", {"conversion"});
     this->bit = new args::ValueFlag<std::string>(*group, "24|16|15|7", "Amount of bits used for the media conversion", {"bit"});
     this->model = new args::ValueFlag<std::string>(*group, "rgb|yuv|yiq|ycbcr|hsl", "Type of color model to be used for media conversion", {"model"});
-    this->compression = new args::ValueFlag<std::string>(*group, "dct(sampling)|byterun|rle|lzw|lz77", "Type of compression to be used for media conversion", {"compression"});
+    this->losslessCompression = new args::ValueFlag<std::string>(*group, "byterun|rle|lzw|lz77", "Type of lossless compression to be used for media conversion", {"losslessCompression"});
+    this->lossyCompression = new args::ValueFlag<std::string>(*group, "dct", "Type of lossy compression to be used for media conversion, can be combined with losless compression", {"lossyCompression"});
+    this->sampling = new args::ValueFlag<std::string>(*group, "four_one_one", "Type of sampling to be applied", {"sampling"});
     this->filter = new args::ValueFlag<std::string>(*group, "differential|line_difference|average|paeth", "Type of filter to be used for media conversion", {"filter"});
     this->dithering = new args::Flag(*group, "true|false(default)", "Enables dithering for the output stream", {"dithering"});
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});
@@ -113,7 +115,9 @@ int Encode::handle()
         conversionType, 
         bitType, 
         modelType, 
-        IO::getCompressionType(compression->Get()),
+        IO::getLosslessCompressionType(losslessCompression->Get()),
+        IO::getLossyCompressionType(lossyCompression->Get()),
+        IO::getSamplingType(sampling->Get()),
         IO::getFilterType(filter->Get()),
         dithering->Get(),
         outputStream);

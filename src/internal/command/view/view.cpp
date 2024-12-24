@@ -39,7 +39,7 @@ int View::handle() {
 
     switch (metadata->getConvertion()) {
         case IO::CONVERSION_TYPES::NATIVE_COLORFUL:
-            input = Converter::convertFromCGUNativeRGB(inputStream, metadata);
+            input = Converter::convertFromCGUNativeColorful(inputStream, metadata);
             break;
         case IO::CONVERSION_TYPES::NATIVE_BW:
             input = Converter::convertFromCGUNativeBW(inputStream, metadata);

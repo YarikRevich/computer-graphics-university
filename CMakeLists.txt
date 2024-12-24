@@ -50,8 +50,8 @@ add_executable(
 
 	src/internal/tools/tools.cpp
 	src/internal/logger/logger.cpp
-	src/internal/processor/processor.cpp
-	src/internal/converter/converter.cpp
+	src/internal/pipeline/pipeline.cpp
+	src/internal/service/service.cpp
 	src/internal/processor/processor.cpp
 	src/internal/io/io.cpp
 	src/internal/window/window.cpp

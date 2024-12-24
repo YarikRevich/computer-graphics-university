@@ -12,7 +12,7 @@
 /**
  * Сontains toolset to perform codec operations.
  */
-class Converter
+class Service
 {
 public:
     /**
@@ -125,6 +125,18 @@ public:
      * @return result operation status code.
      */
     static SDL_Surface *convertFromCGUPaletteBW(std::ifstream &inputStream, IO::FileMetadata *metadata);
+
+    static SDL_Surface *convertPaletteBWDithering
+
+
+
+
+
+
+
+
+
+
 
     static void compressToDCT();
 

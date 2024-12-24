@@ -65,15 +65,32 @@ public:
     };
 
     /**
-     * Represents all compression types available to be chosen.
+     * Represents all lossless compression types available to be chosen.
      */
-    enum class COMPRESSION_TYPES
+    enum class LOSSLESS_COMPRESSION_TYPES
     {
-        DCT,
         BYTE_RUN,
         RLE,
         LZW,
         LZ77,
+        NONE
+    };
+
+    /**
+     * Represents all lossy compression types available to be chosen.
+     */
+    enum class LOSSY_COMPRESSION_TYPES
+    {
+        DCT,
+        NONE
+    };
+
+    /**
+     * Represents all sampling types available to be chosen.
+     */
+    enum class SAMPLING_TYPES
+    {
+        FOUR_ONE_ONE,
         NONE
     };
 
@@ -103,7 +120,11 @@ public:
 
         IO::MODEL_TYPES model;
 
-        IO::COMPRESSION_TYPES compression;
+        IO::LOSSLESS_COMPRESSION_TYPES losslessCompression;
+
+        IO::LOSSY_COMPRESSION_TYPES lossyCompression;
+
+        IO::SAMPLING_TYPES sampling;
 
         IO::FILTER_TYPES filter;
 
@@ -128,7 +149,10 @@ public:
             IO::CONVERSION_TYPES convertion, 
             IO::BIT_TYPES bit, 
             IO::MODEL_TYPES model, 
-            IO::COMPRESSION_TYPES compression, 
+            IO::LOSSLESS_COMPRESSION_TYPES losslessCompression,
+            IO::LOSSY_COMPRESSION_TYPES lossyCompression,
+            IO::SAMPLING_TYPES sampling,
+            IO::FILTER_TYPES filter,
             uint8_t dithering, 
             uint16_t width, 
             uint16_t height) : 
@@ -136,7 +160,9 @@ public:
             convertion(convertion), 
             bit(bit),
             model(model),
-            compression(compression),
+            losslessCompression(losslessCompression),
+            lossyCompression(lossyCompression),
+            sampling(sampling),
             dithering(dithering), 
             width(width), 
             height(height) {};
@@ -145,7 +171,9 @@ public:
             IO::CONVERSION_TYPES convertion, 
             IO::BIT_TYPES bit, 
             IO::MODEL_TYPES model, 
-            IO::COMPRESSION_TYPES compression,
+            IO::LOSSLESS_COMPRESSION_TYPES losslessCompression,
+            IO::LOSSY_COMPRESSION_TYPES lossyCompression,
+            IO::SAMPLING_TYPES sampling,
             IO::FILTER_TYPES filter,
             uint8_t dithering, 
             uint16_t width, 
@@ -155,7 +183,9 @@ public:
             convertion(convertion), 
             bit(bit),
             model(model),
-            compression(compression),
+            losslessCompression(losslessCompression),
+            lossyCompression(lossyCompression),
+            sampling(sampling),
             filter(filter),
             dithering(dithering), 
             width(width), 
@@ -220,11 +250,46 @@ public:
         void setModel(IO::MODEL_TYPES value);
 
         /**
-         * Retrieves CGU file compression type.
+         * Retrieves CGU file lossless compression type.
          *
-         * @return CGU file compression type.
+         * @return CGU file lossless compression type.
          */
-        IO::COMPRESSION_TYPES getCompression();
+        IO::LOSSLESS_COMPRESSION_TYPES getLosslessCompression();
+
+        /**
+         * Sets given lossless compression type.
+         *
+         * @param value - given CGU file lossless compression type.
+         */
+        void setLosslessCompression(IO::LOSSLESS_COMPRESSION_TYPES value);
+
+        /**
+         * Retrieves CGU file lossy compression type.
+         *
+         * @return CGU file lossy compression type.
+         */
+        IO::LOSSY_COMPRESSION_TYPES getLossyCompression();
+
+        /**
+         * Sets given lossy compression type.
+         *
+         * @param value - given CGU file lossy compression type.
+         */
+        void setLossyCompression(IO::LOSSY_COMPRESSION_TYPES value);
+
+        /**
+         * Retrieves CGU file sampling type.
+         *
+         * @return CGU file sampling type.
+         */
+        IO::SAMPLING_TYPES getSampling();
+
+        /**
+         * Sets given sampling type.
+         *
+         * @param value - given CGU file sampling type.
+         */
+        void setSampling(IO::SAMPLING_TYPES value);
 
         /**
          * Sets given filter type.
@@ -239,13 +304,6 @@ public:
          * @return CGU file filter type.
          */
         IO::FILTER_TYPES getFilter();
-
-        /**
-         * Sets given compression type.
-         *
-         * @param value - given CGU file compression type.
-         */
-        void setCompression(IO::COMPRESSION_TYPES value);
 
         /**
          * Retrives status of the dithering mode.
@@ -338,7 +396,9 @@ public:
      * @param convertion - given CGU file convertion type.
      * @param bit - given CGU file bit type.
      * @param model - given CGU file model type.
-     * @param compression - given CGU file compression type.
+     * @param losslessCompression - given CGU file lossless compression type.
+     * @param lossyCompression - given CGU file lossy compression type.
+     * @param filter - given CGU file filter type.
      * @param dithering - CGU file dithering mode switch.
      * @param width - given CGU file width.
      * @param height - given CGU file height.
@@ -349,7 +409,10 @@ public:
         IO::CONVERSION_TYPES convertion, 
         IO::BIT_TYPES bit, 
         IO::MODEL_TYPES model, 
-        IO::COMPRESSION_TYPES compression, 
+        IO::LOSSLESS_COMPRESSION_TYPES losslessCompression, 
+        IO::LOSSY_COMPRESSION_TYPES lossyCompression, 
+        IO::SAMPLING_TYPES sampling,
+        IO::FILTER_TYPES filter,
         uint8_t dithering, 
         uint16_t width, 
         uint16_t height,
@@ -388,12 +451,28 @@ public:
     static IO::MODEL_TYPES getModelType(std::string src);
 
     /**
-     * Converts given compression type to enum representation.
+     * Converts given lossless compression type to enum representation.
      * 
-     * @param src - given compression type.
-     * @return enum representation of a compression type.
+     * @param src - given lossless compression type.
+     * @return enum representation of a lossless compression type.
      */
-    static IO::COMPRESSION_TYPES getCompressionType(std::string src);
+    static IO::LOSSLESS_COMPRESSION_TYPES getLosslessCompressionType(std::string src);
+
+    /**
+     * Converts given lossy compression type to enum representation.
+     * 
+     * @param src - given lossy compression type.
+     * @return enum representation of a lossy compression type.
+     */
+    static IO::LOSSY_COMPRESSION_TYPES getLossyCompressionType(std::string src);
+
+    /**
+     * Converts given sampling type to enum representation.
+     * 
+     * @param src - given sampling type.
+     * @return enum representation of a sampling type.
+     */
+    static IO::SAMPLING_TYPES getSamplingType(std::string src);
 
     /**
      * Converts given filter type to enum representation.

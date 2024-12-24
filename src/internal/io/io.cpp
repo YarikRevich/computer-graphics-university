@@ -57,20 +57,34 @@ IO::MODEL_TYPES IO::getModelType(std::string src){
     return IO::MODEL_TYPES::NONE;
 }
 
-IO::COMPRESSION_TYPES IO::getCompressionType(std::string src){
-    if (src == "dct") {
-        return IO::COMPRESSION_TYPES::DCT;
-    } else if (src == "byterun") {
-        return IO::COMPRESSION_TYPES::BYTE_RUN;
+IO::LOSSLESS_COMPRESSION_TYPES IO::getLosslessCompressionType(std::string src){
+    if (src == "byterun") {
+        return IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN;
     } else if (src == "rle") {
-        return IO::COMPRESSION_TYPES::RLE;
+        return IO::LOSSLESS_COMPRESSION_TYPES::RLE;
     } else if (src == "lzw") {
-        return IO::COMPRESSION_TYPES::LZW;
+        return IO::LOSSLESS_COMPRESSION_TYPES::LZW;
     } else if (src == "lz77") {
-        return IO::COMPRESSION_TYPES::LZ77;
+        return IO::LOSSLESS_COMPRESSION_TYPES::LZ77;
     }
 
-    return IO::COMPRESSION_TYPES::NONE;
+    return IO::LOSSLESS_COMPRESSION_TYPES::NONE;
+}
+
+IO::LOSSY_COMPRESSION_TYPES IO::getLossyCompressionType(std::string src){
+    if (src == "dct") {
+        return IO::LOSSY_COMPRESSION_TYPES::DCT;
+    }
+
+    return IO::LOSSY_COMPRESSION_TYPES::NONE;
+}
+
+IO::SAMPLING_TYPES IO::getSamplingType(std::string src){
+    if (src == "four_one_one") {
+        return IO::SAMPLING_TYPES::FOUR_ONE_ONE;
+    }
+
+    return IO::SAMPLING_TYPES::NONE;
 }
 
 IO::FILTER_TYPES IO::getFilterType(std::string src){
@@ -92,7 +106,9 @@ IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
     uint8_t conversion;
     uint8_t bit;
     uint8_t model;
-    uint8_t compression;
+    uint8_t losslessCompression;
+    uint8_t lossyCompression;
+    uint8_t sampling;
     uint8_t filter;
     uint16_t width;
     uint16_t height;
@@ -103,7 +119,9 @@ IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
     inputStream.read((char*)&conversion, sizeof(uint8_t));
     inputStream.read((char*)&bit, sizeof(uint8_t));
     inputStream.read((char*)&model, sizeof(uint8_t));
-    inputStream.read((char*)&compression, sizeof(uint8_t));
+    inputStream.read((char*)&losslessCompression, sizeof(uint8_t));
+    inputStream.read((char*)&lossyCompression, sizeof(uint8_t));
+    inputStream.read((char*)&sampling, sizeof(uint8_t));
     inputStream.read((char*)&filter, sizeof(uint8_t));
     inputStream.read((char*)&width, sizeof(uint16_t));
     inputStream.read((char*)&height, sizeof(uint16_t));
@@ -117,7 +135,9 @@ IO::FileMetadata::FileMetadata(std::ifstream& inputStream) {
     setConvertion((IO::CONVERSION_TYPES)conversion);
     setBit((IO::BIT_TYPES)bit);
     setModel((IO::MODEL_TYPES)model);
-    setCompression((IO::COMPRESSION_TYPES)compression);
+    setLosslessCompression((IO::LOSSLESS_COMPRESSION_TYPES)losslessCompression);
+    setLossyCompression((IO::LOSSY_COMPRESSION_TYPES)lossyCompression);
+    setSampling((IO::SAMPLING_TYPES)sampling);
     setFilter((IO::FILTER_TYPES)filter);
     setWidth(width);
     setHeight(height);
@@ -158,12 +178,28 @@ void IO::FileMetadata::setModel(IO::MODEL_TYPES value) {
     this->model = value;
 };
 
-IO::COMPRESSION_TYPES IO::FileMetadata::getCompression() {
-    return compression;
+IO::LOSSLESS_COMPRESSION_TYPES IO::FileMetadata::getLosslessCompression() {
+    return losslessCompression;
 }
 
-void IO::FileMetadata::setCompression(IO::COMPRESSION_TYPES value) {
-    this->compression = value;
+void IO::FileMetadata::setLosslessCompression(IO::LOSSLESS_COMPRESSION_TYPES value) {
+    this->losslessCompression = value;
+};
+
+IO::LOSSY_COMPRESSION_TYPES IO::FileMetadata::getLossyCompression() {
+    return lossyCompression;
+}
+
+void IO::FileMetadata::setLossyCompression(IO::LOSSY_COMPRESSION_TYPES value) {
+    this->lossyCompression = value;
+};
+
+IO::SAMPLING_TYPES IO::FileMetadata::getSampling() {
+    return sampling;
+}
+
+void IO::FileMetadata::setSampling(IO::SAMPLING_TYPES value) {
+    this->sampling = value;
 };
 
 IO::FILTER_TYPES IO::FileMetadata::getFilter() {
@@ -220,7 +256,9 @@ void IO::FileMetadata::writeTo(std::ofstream& ofs) {
     uint8_t conversion = (uint8_t)getConvertion();
     uint8_t bit = (uint8_t)getBit();
     uint8_t model = (uint8_t)getModel();
-    uint8_t compression = (uint8_t)getCompression();
+    uint8_t losslessCompression = (uint8_t)getLosslessCompression();
+    uint8_t lossyCompression = (uint8_t)getLossyCompression();
+    uint8_t sampling = (uint8_t)getSampling();
     uint8_t filter = (uint8_t)getFilter();
     uint16_t width = getWidth();
     uint16_t height = getHeight();
@@ -232,7 +270,9 @@ void IO::FileMetadata::writeTo(std::ofstream& ofs) {
     ofs.write((char*)&conversion, sizeof(uint8_t));
     ofs.write((char*)&bit, sizeof(uint8_t));
     ofs.write((char*)&model, sizeof(uint8_t));
-    ofs.write((char*)&compression, sizeof(uint8_t));
+    ofs.write((char*)&losslessCompression, sizeof(uint8_t));
+    ofs.write((char*)&lossyCompression, sizeof(uint8_t));
+    ofs.write((char*)&sampling, sizeof(uint8_t));
     ofs.write((char*)&filter, sizeof(uint8_t));
     ofs.write((char*)&width, sizeof(uint16_t));
     ofs.write((char*)&height, sizeof(uint16_t));
@@ -242,19 +282,26 @@ void IO::FileMetadata::writeTo(std::ofstream& ofs) {
 };
 
 int IO::FileMetadata::getSize() {
-    return sizeof(int) + (sizeof(uint16_t) * 2) + (sizeof(uint8_t) * 7) + (indeces.size() * sizeof(Uint32));
+    return sizeof(int) + (sizeof(uint16_t) * 2) + (sizeof(uint8_t) * 9) + (indeces.size() * sizeof(Uint32));
 };
 
 IO::FileMetadata* IO::composeMetadata(
     IO::CONVERSION_TYPES convertion,
     IO::BIT_TYPES bit,
     IO::MODEL_TYPES model,
-    IO::COMPRESSION_TYPES compression,
+    IO::LOSSLESS_COMPRESSION_TYPES losslessCompression,
+    IO::LOSSY_COMPRESSION_TYPES lossyCompression,
+    IO::SAMPLING_TYPES sampling,
+    IO::FILTER_TYPES filter,
     uint8_t dithering, 
     uint16_t width, 
     uint16_t height,
     std::optional<std::vector<Uint32>> indeces) {
-    return new IO::FileMetadata(convertion, bit, model, compression, dithering, width, height);
+    if (indeces.has_value()) {
+        return new IO::FileMetadata(convertion, bit, model, losslessCompression, lossyCompression, sampling, filter, dithering, width, height, indeces.value());    
+    } 
+
+    return new IO::FileMetadata(convertion, bit, model, losslessCompression, lossyCompression, sampling, filter, dithering, width, height);
 }
 
 SDL_Surface* IO::readFileJPEG(std::string path) {

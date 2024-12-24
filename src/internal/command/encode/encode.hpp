@@ -4,7 +4,6 @@
 
 #include <string>
 
-#include "../../converter/converter.hpp"
 #include "../../pipeline/pipeline.hpp"
 #include "../validator/validator.hpp"
 #include "../../io/io.hpp"
@@ -20,7 +19,9 @@ private:
     args::ValueFlag<std::string>* conversion = NULL;
     args::ValueFlag<std::string>* bit = NULL;
     args::ValueFlag<std::string>* model = NULL;
-    args::ValueFlag<std::string>* compression = NULL;
+    args::ValueFlag<std::string>* lossyCompression = NULL;
+    args::ValueFlag<std::string>* losslessCompression = NULL;
+    args::ValueFlag<std::string>* sampling = NULL;
     args::ValueFlag<std::string>* filter = NULL;
     args::Flag* dithering = NULL;
     args::ValueFlag<std::string>* to = NULL;
