@@ -42,7 +42,7 @@ int Decode::handle() {
         return EXIT_FAILURE;
     }
 
-    int result = Pipeline::handleDecode(inputStream, debug->Get(), fileType);
+    int result = Pipeline::handleDecode(inputStream, debug->Get(), fileType, to->Get());
 
     inputStream.close();
 

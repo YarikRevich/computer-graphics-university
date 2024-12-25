@@ -16,68 +16,88 @@ class Service
 {
 public:
     /**
+     * Represents a result of palette based conversion.
+     */
+    class PaletteConversionResult
+    {
+    public:
+        PaletteConversionResult(
+            std::vector<int> data, std::vector<Uint32> indeces) : data(data), indeces(indeces) {};
+
+    private:
+        /**
+         * Represents palette conversion data.
+         */
+        std::vector<int> data;
+
+        /**
+         * Represents palette conversion indeces.
+         */
+        std::vector<Uint32> indeces;
+    };
+
+    /**
+     * Represents a result of native based conversion.
+     */
+    class NativeConversionResult
+    {
+    public:
+        NativeConversionResult(std::vector<std::vector<Uint8>> data) : data(data) {};
+
+    private:
+        /**
+         * represents native conversion data.
+         */
+        std::vector<std::vector<Uint8>> data;
+    };
+
+    /**
      * Converts given surface canvas to CGU media type in native colorful mode.
      *
      * @param surface - given surface to be converted.
-     * @return result operation status code.
+     * @return native conversion result.
      */
-    static int convertToCGUNativeColorful(SDL_Surface *surface);
+    static Service::NativeConversionResult *convertToCGUNativeColorful(SDL_Surface *surface);
 
     /**
      * Converts given surface canvas to CGU media type in native BW mode.
      *
      * @param surface - given surface to be converted.
-     * @return result operation status code.
+     * @return native conversion result.
      */
-    static int convertToCGUNativeBW(SDL_Surface *surface);
-
-    /**
-     * Converts given surface canvas to CGU media type in native colorful mode including dithering.
-     *
-     * @param surface - given surface to be converted.
-     * @return result operation status code.
-     */
-    static int convertToCGUNativeColorfulDithering(SDL_Surface *surface);
-
-    /**
-     * Converts given surface canvas to CGU media type in native BW mode including dithering.
-     *
-     * @param surface - given surface to be converted.
-     * @return result operation status code.
-     */
-    static int convertToCGUNativeBWDithering(SDL_Surface *surface);
+    static Service::NativeConversionResult *convertToCGUNativeBW(SDL_Surface *surface);
 
     /**
      * Converts given surface canvas to CGU media type in palette colorful mode.
      *
      * @param surface - given surface to be converted.
-     * @return result operation status code.
+     * @return palette conversion result.
      */
-    static int convertToCGUPaletteColorful(SDL_Surface *surface);
-
-    /**
-     * Converts given surface canvas to CGU media type in palette colorful mode.
-     *
-     * @param surface - given surface to be converted.
-     * @return result operation status code.
-     */
-    static int convertToCGUPaletteColorfulDithering(SDL_Surface *surface);
+    static Service::PaletteConversionResult *convertToCGUPaletteColorful(SDL_Surface *surface);
 
     /**
      * Converts given surface canvas to CGU media type in palette BW mode.
      *
      * @param surface - given surface to be converted.
-     * @return result operation status code.
+     * @return palette conversion result.
      */
-    static int convertToCGUPaletteBW(SDL_Surface *surface);
+    static Service::PaletteConversionResult *convertToCGUPaletteBW(SDL_Surface *surface);
 
     /**
-     * Converts given surface canvas to CGU media type in palette BW mode.
+     * Applies colorful dithering to the surface.
      *
-     * @param surface - given surface to be converted.
-     * @return result operation status code.
+     * @param surface - given surface to be modified.
+     * @return result opereation status code.
      */
-    static int convertToCGUPaletteBWDithering(SDL_Surface *surface);
+    static int applyColorfulDithering(SDL_Surface *surface);
+
+    /**
+     * Applies bw dithering to the surface.
+     *
+     * @param surface - given surface to be modified.
+     * @return result opereation status code.
+     */
+    static int applyBWDithering(SDL_Surface *surface);
 
     /**
      * Converts given surface canvas to CGU media type in palette Detected mode.
@@ -126,50 +146,83 @@ public:
      */
     static SDL_Surface *convertFromCGUPaletteBW(std::ifstream &inputStream, IO::FileMetadata *metadata);
 
-    static SDL_Surface *convertPaletteBWDithering
+    /**
+     *
+     */
+    static void compressToByteRun();
 
+    /**
+     *
+     */
+    static void decompressFromByteRun();
 
+    /**
+     *
+     */
+    static void compressToRLE();
 
+    /**
+     *
+     */
+    static void decompressFromRLE();
 
+    /**
+     *
+     */
+    static void compressToLZW();
 
+    /**
+     *
+     */
+    static void decompressFromLZW();
 
+    /**
+     *
+     */
+    static void compressToLZ77();
 
+    /**
+     *
+     */
+    static void decompressFromLZ77();
 
-
-
-
+    /**
+     *
+     */
     static void compressToDCT();
 
+    /**
+     *
+     */
     static void decompressFromDCT();
 
     /**
-     * Composes CGU file metadata struct with the given arguments.
+     * Saves CGU file metadata struct with the given arguments.
      *
      * @param convertion - given CGU file raw convertion type.
      * @param bit - given CGU file raw bit type.
      * @param model - given CGU file raw model type.
-     * @param compression - given CGU file raw compression type.
+     * @param losslessCompression - given CGU file raw lossless compression type.
+     * @param lossyCompression - given CGU file raw lossy compression type.
+     * @param sampling - given CGU file raw sampling type.
+     * @param filter - given CGU file raw filter type.
      * @param dithering - CGU file dithering mode switch.
      * @param width - given CGU file width.
      * @param height - given CGU file height.
      * @param indeces - given CGU file color palette.
      * @param outputStream - given output stream.
      */
-    static void composeMetadata(
-        std::string conversion,
-        std::string bit,
-        std::string model,
-        std::string compression,
+    static void saveMetadata(
+        IO::CONVERSION_TYPES conversionType,
+        IO::BIT_TYPES bitType,
+        IO::MODEL_TYPES modelType,
+        IO::LOSSLESS_COMPRESSION_TYPES losslessCompressionType,
+        IO::LOSSY_COMPRESSION_TYPES lossyCompressionType,
+        IO::SAMPLING_TYPES samplingType,
+        IO::FILTER_TYPES filterType,
         bool dithering,
         int width,
         int height,
-        std::vector<Uint32> indeces,
+        std::optional<std::vector<Uint32>> indeces,
         std::ofstream &outputStream);
-private:
-    /**
-     * Represents a result 
-     */
-    class PaletteConversionResult {
-
-    };
 };

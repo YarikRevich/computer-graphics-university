@@ -7,7 +7,7 @@ Encode::Encode(args::ArgumentParser *argumentParser)
     args::Group *group = new args::Group(*command, "");
     this->from = new args::ValueFlag<std::string>(*group, "path", "Path to the source media", {"from"});
     this->type = new args::ValueFlag<std::string>(*group, "bmp|jpg|jpeg|png", "Type of the source media", {"type"});
-    this->conversion = new args::ValueFlag<std::string>(*group, "native_colorful|native_bw|palette_colorful|palette_bw", "Type of the media conversion", {"conversion"});
+    this->conversion = new args::ValueFlag<std::string>(*group, "native_colorful|native_bw|palette_colorful|palette_bw", "Type of the media conversion. Available only with 7 bit mode.", {"conversion"});
     this->bit = new args::ValueFlag<std::string>(*group, "24|16|15|7", "Amount of bits used for the media conversion", {"bit"});
     this->model = new args::ValueFlag<std::string>(*group, "rgb|yuv|yiq|ycbcr|hsl", "Type of color model to be used for media conversion", {"model"});
     this->losslessCompression = new args::ValueFlag<std::string>(*group, "byterun|rle|lzw|lz77", "Type of lossless compression to be used for media conversion", {"losslessCompression"});
@@ -62,10 +62,6 @@ int Encode::handle()
     }
 
     IO::CONVERSION_TYPES conversionType = IO::getConversionType(conversion->Get());
-    if (conversionType == IO::CONVERSION_TYPES::NONE) {
-        Validator::throwValueFlagInvalidException("conversion");
-        return EXIT_FAILURE;
-    }
 
     IO::BIT_TYPES bitType = IO::getBitType(bit->Get());
     if (bitType == IO::BIT_TYPES::NONE) {
@@ -73,8 +69,13 @@ int Encode::handle()
         return EXIT_FAILURE;
     }
 
+    if (conversionType != IO::CONVERSION_TYPES::NONE && bitType != IO::BIT_TYPES::SEVEN) {
+        Validator::throwValueFlagInvalidException("'bit' flag should be equal to '7' to use conversion");
+        return EXIT_FAILURE;
+    }
+
     IO::MODEL_TYPES modelType = IO::getModelType(model->Get());
-    if (bitType == IO::BIT_TYPES::NONE) {
+    if (modelType == IO::MODEL_TYPES::NONE) {
         Validator::throwValueFlagInvalidException("model");
         return EXIT_FAILURE;
     }

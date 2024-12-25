@@ -12,8 +12,12 @@ class Pipeline
 public:
     /**
      * Handles CGU view operation.
+     * 
+     * @param inputStream - given CGU file input stream.
+     * @param debug - given CGU file debug option.
+     * @return retrieved surface.
      */
-    static int handleView();
+    static SDL_Surface* handleView(std::ifstream &inputStream, bool debug);
 
     /**
      * Handles CGU decode operation.
