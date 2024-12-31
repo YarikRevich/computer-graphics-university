@@ -136,16 +136,13 @@ public:
 
         int indecesSize = 0;
 
-        std::vector<Uint32> indeces;
-
     public:
         static const uint8_t COMPATIBLE_FLAG = 13;
 
         static const uint8_t DITHERING_FLAG = 14;
 
-        FileMetadata(std::ifstream &inputStream);
-
         FileMetadata(
+            uint8_t compatible,
             IO::CONVERSION_TYPES convertion, 
             IO::BIT_TYPES bit, 
             IO::MODEL_TYPES model, 
@@ -153,33 +150,11 @@ public:
             IO::LOSSY_COMPRESSION_TYPES lossyCompression,
             IO::SAMPLING_TYPES sampling,
             IO::FILTER_TYPES filter,
-            uint8_t dithering, 
-            uint16_t width, 
-            uint16_t height) : 
-            compatible(COMPATIBLE_FLAG), 
-            convertion(convertion), 
-            bit(bit),
-            model(model),
-            losslessCompression(losslessCompression),
-            lossyCompression(lossyCompression),
-            sampling(sampling),
-            dithering(dithering), 
-            width(width), 
-            height(height) {};
-
-        FileMetadata(
-            IO::CONVERSION_TYPES convertion, 
-            IO::BIT_TYPES bit, 
-            IO::MODEL_TYPES model, 
-            IO::LOSSLESS_COMPRESSION_TYPES losslessCompression,
-            IO::LOSSY_COMPRESSION_TYPES lossyCompression,
-            IO::SAMPLING_TYPES sampling,
-            IO::FILTER_TYPES filter,
-            uint8_t dithering, 
             uint16_t width, 
             uint16_t height, 
-            std::vector<Uint32> indeces) : 
-            compatible(COMPATIBLE_FLAG), 
+            uint8_t dithering, 
+            int indecesSize) : 
+            compatible(compatible), 
             convertion(convertion), 
             bit(bit),
             model(model),
@@ -187,11 +162,10 @@ public:
             lossyCompression(lossyCompression),
             sampling(sampling),
             filter(filter),
-            dithering(dithering), 
             width(width), 
             height(height), 
-            indecesSize(indeces.size()), 
-            indeces(indeces) {};
+            dithering(dithering), 
+            indecesSize(indecesSize) {};
 
         /**
          * Retrieves compatibility flag.
@@ -362,20 +336,6 @@ public:
         void setIndecesSize(int value);
 
         /**
-         * Retrieves indeces for the image convertion.
-         * 
-         * @return CGU file indeces.
-         */
-        std::vector<Uint32> getIndeces();
-
-        /**
-         * Sets indeces for the image convertion.
-         * 
-         * @param indexes - given CGU file convertion indeces.
-         */
-        void setIndeces(std::vector<Uint32> value);
-
-        /**
          * Writes metadata content to the given stream.
          * 
          * @param ofs - given output stream.
@@ -391,6 +351,14 @@ public:
     };
 
     /**
+     * Reads CGU metadata file.
+     * 
+     * @param inputStream - given CGU metadata input stream.
+     * @return read CGU common metadata file.
+     */
+    static IO::FileMetadata *readMetadata(std::ifstream &inputStream);
+
+    /**
      * Composes CGU file metadata struct with the given arguments.
      * 
      * @param convertion - given CGU file convertion type.
@@ -402,7 +370,6 @@ public:
      * @param dithering - CGU file dithering mode switch.
      * @param width - given CGU file width.
      * @param height - given CGU file height.
-     * @param indeces - given CGU file optional color palette.
      * @return composed CGU file metadata.
      */
     static IO::FileMetadata *composeMetadata(
@@ -416,7 +383,7 @@ public:
         uint8_t dithering, 
         uint16_t width, 
         uint16_t height,
-        std::optional<std::vector<Uint32>> indeces);
+        int indecesSize);
 
     /**
      * Converts given file type to enum representation.

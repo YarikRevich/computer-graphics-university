@@ -69,11 +69,6 @@ int Encode::handle()
         return EXIT_FAILURE;
     }
 
-    if (conversionType != IO::CONVERSION_TYPES::NONE && bitType != IO::BIT_TYPES::SEVEN) {
-        Validator::throwValueFlagInvalidException("'bit' flag should be equal to '7' to use conversion");
-        return EXIT_FAILURE;
-    }
-
     IO::MODEL_TYPES modelType = IO::getModelType(model->Get());
     if (modelType == IO::MODEL_TYPES::NONE) {
         Validator::throwValueFlagInvalidException("model");

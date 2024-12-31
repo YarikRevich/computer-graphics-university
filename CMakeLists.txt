@@ -6,6 +6,7 @@ project(editor VERSION 0.0.1 LANGUAGES C CXX)
 
 set(CMAKE_CXX_FLAGS "-std=c++17 -D_XOPEN_SOURCE_EXTENDED")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(CMAKE_BUILD_RPATH /Library/Frameworks)
 message("Make build output path is /bin")
 
 # Describes general viewport properties.
@@ -25,6 +26,7 @@ add_compile_definitions(METADATA_FIELDS_NUM=4)
 # Describes pre-defined errors used for functionality validation.
 add_compile_definitions(BIT_SIZE_MIN_EXCEPTION="Given image has too small amount of unique color bits. Please use another conversion type")
 add_compile_definitions(FILE_NOT_COMPATIBLE_EXCEPTION="Given file is not compatible with CGU codec.")
+add_compile_definitions(NO_CONVERSION_TYPE_EXCEPTION="No conversion type is given.")
 add_compile_definitions(METADATA_RETRIEVAL_EXCEPTION="Error happened during metadata retrieval. Please try to switch 'optimal' flag")
 
 include_directories(

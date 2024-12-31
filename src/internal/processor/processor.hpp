@@ -4,6 +4,9 @@
 #include <algorithm>
 #include <vector>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include <SDL2/SDL.h>
 
 /**
@@ -148,7 +151,7 @@ public:
      * @return converted 24 bit RGB color.
      */
     static SDL_Color convert7BitRGBTo24BitRGB(Uint8 color);
-    
+
     /**
      * Converts given 24 bit RGB color to 7 bit grey single.
      *
@@ -166,36 +169,36 @@ public:
     static SDL_Color convert7BitGreyTo24BitRGB(Uint8 grey);
 
     /**
-     * Converts given 24 bit RGB color to 16 bit RGB single.
+     * Converts given 24 bit color to 16 bit single.
      *
-     * @param color - given 24 bit RGB color to be converted.
-     * @return converted 16 bit RGB single.
+     * @param color - given 24 bit color to be converted.
+     * @return converted 16 bit single.
      */
-    static Uint16 convert24BitRGBTo16BitRGB(SDL_Color color);
+    static Uint16 convert24BitColorTo16BitColor(SDL_Color color);
 
     /**
-     * Converts given 16 bit single RGB to 24 bit RGB color.
+     * Converts given 16 bit single to 24 bit color.
      *
      * @param color - given 16 bit single color to be converted.
-     * @return converted 24 bit RGB color.
+     * @return converted 24 bit color.
      */
-    static SDL_Color convert16BitRGBTo24BitRGB(Uint16 color);
+    static SDL_Color convert16BitColorTo24BitColor(Uint16 color);
 
     /**
-     * Converts given 24 bit RGB color to 15 bit RGB single.
+     * Converts given 24 bit color to 15 bit single.
      *
-     * @param color - given 24 bit RGB color to be converted.
-     * @return converted 15 bit RGB single.
+     * @param color - given 24 bit color to be converted.
+     * @return converted 15 bit single.
      */
-    static Uint16 convert24BitRGBTo15BitRGB(SDL_Color color);
+    static Uint16 convert24BitColorTo15BitColor(SDL_Color color);
 
     /**
-     * Converts given 15 bit single RGB to 24 bit RGB color.
+     * Converts given 15 bit single to 24 bit color.
      *
      * @param color - given 15 bit single color to be converted.
-     * @return converted 24 bit RGB color.
+     * @return converted 24 bit color.
      */
-    static SDL_Color convert15BitRGBTo24BitRGB(Uint16 color);
+    static SDL_Color convert15BitColorTo24BitColor(Uint16 color);
     /**
      * Converts 8 bit color to 7 bit color.
      *
@@ -229,20 +232,92 @@ public:
     static SDL_Color convertUint32ToColor(Uint32 color);
 
     /**
-     * Converts given RGB color to its Grey representation.
+     * Converts given color to its Grey representation.
      *
-     * @param color - given RGB color to be converted to Grey.
+     * @param color - given color to be converted to Grey.
      * @return result of the conversion.
      */
-    static Uint8 convertRGBToGreyUint8(SDL_Color color);
+    static Uint8 convertColorToGreyUint8(SDL_Color color);
 
     /**
-     * Converts given RGB color to its Grey representation.
+     * Converts given color to its Grey representation.
      *
-     * @param color - given RGB color to be converted to Grey.
+     * @param color - given color to be converted to Grey.
      * @return result of the conversion.
      */
-    static SDL_Color convertRGBToGrey(SDL_Color color);
+    static SDL_Color convertColorToGrey(SDL_Color color);
+
+    /**
+     * Converts given YCbCr color to RGB.
+     *
+     * @param y - given 'y' compound.
+     * @param cb - given 'cb' compound.
+     * @param cr - given 'cr' compound.
+     * @return result of conversion.
+     */
+    static SDL_Color convertYCbCrToRGB(int y, int cb, int cr);
+
+    /**
+     * Converts given RGB color to YCbCr.
+     *
+     * @param color - given RGB color.
+     * @return result of conversion.
+     */
+    static SDL_Color convertRGBToYCbCr(SDL_Color color);
+
+    /**
+     * Converts given YUV color to RGB.
+     *
+     * @param y - given 'y' compound.
+     * @param u - given 'u' compound.
+     * @param v - given 'v' compound.
+     * @return result of conversion.
+     */
+    static SDL_Color convertYUVToRGB(int y, int u, int v);
+
+    /**
+     * Converts given RGB color to YUV.
+     *
+     * @param color - given RGB color.
+     * @return result of conversion.
+     */
+    static SDL_Color convertRGBToYUV(SDL_Color color);
+
+    /**
+     * Converts given YIQ color to RGB.
+     *
+     * @param y - given 'y' compound.
+     * @param i - given 'i' compound.
+     * @param q - given 'q' compound.
+     * @return result of conversion.
+     */
+    static SDL_Color convertYIQToRGB(int y, int i, int q);
+
+    /**
+     * Converts given RGB color to YIQ.
+     *
+     * @param color - given RGB color.
+     * @return result of conversion.
+     */
+    static SDL_Color convertRGBToYIQ(SDL_Color color);
+
+    /**
+     * Converts given HSL color to RGB.
+     *
+     * @param h - given 'h' compound.
+     * @param s - given 's' compound.
+     * @param l - given 'l' compound.
+     * @return result of conversion.
+     */
+    static SDL_Color convertHSLToRGB(int h, int s, int l);
+
+    /**
+     * Converts given RGB color to HSL.
+     *
+     * @param color - given RGB color.
+     * @return result of conversion.
+     */
+    static SDL_Color convertRGBToHSL(SDL_Color color);
 
     /**
      * Retrieves amount of pixels in the given surface.
@@ -281,6 +356,16 @@ public:
      * @param color - color to be set at the given location.
      */
     static void setPixel(SDL_Surface *surface, int x, int y, SDL_Color color);
+
+    /**
+     * Creates surface filled with the given colors.
+     * 
+     * @param width - given surface width.
+     * @param height - given surface height.
+     * @param image - given colors.
+     * @return created surface.
+     */
+    static SDL_Surface *createFilledSurface(int width, int height, std::vector<SDL_Color> &image);
 
     /**
      * Sets given pixels for the surface.
