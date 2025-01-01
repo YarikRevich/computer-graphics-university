@@ -79,7 +79,7 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             std::vector<std::vector<Uint8>> buff;
 
             std::vector<Uint8> internal(PREFERRED_BIT_NUM_PER_PIXEL, 0);
-            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i++)
+            for (int i = 0; i < (metadata->getIndecesSize() / PREFERRED_BIT_NUM_PER_PIXEL) - 2; i++)
             {
                 inputStream.read((char *)(internal.data()), PREFERRED_BIT_NUM_PER_PIXEL * sizeof(Uint8));
 
@@ -97,17 +97,17 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
         }
         else if (metadata->getBit() == IO::BIT_TYPES::FIFTEEN)
         {
-            std::vector<Uint16> buff(metadata->getWidth() * metadata->getHeight(), 0);
+            std::vector<Uint16> buff(metadata->getIndecesSize(), 0);
 
-            inputStream.read((char *)(buff.data()), metadata->getWidth() * metadata->getHeight() * sizeof(Uint16));
+            inputStream.read((char *)(buff.data()), metadata->getIndecesSize() * sizeof(Uint16));
 
             encodedColors = Service::convertFrom15Bit(buff);
         }
         else if (metadata->getBit() == IO::BIT_TYPES::SIXTEEN)
         {
-            std::vector<Uint16> buff(metadata->getWidth() * metadata->getHeight(), 0);
+            std::vector<Uint16> buff(metadata->getIndecesSize(), 0);
 
-            inputStream.read((char *)(buff.data()), metadata->getWidth() * metadata->getHeight() * sizeof(Uint16));
+            inputStream.read((char *)(buff.data()), metadata->getIndecesSize() * sizeof(Uint16));
 
             encodedColors = Service::convertFrom16Bit(buff);
         }
@@ -116,7 +116,7 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             std::vector<std::vector<Uint8>> buff;
 
             std::vector<Uint8> internal(3, 0);
-            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight())); i++)
+            for (int i = 0; i < metadata->getIndecesSize(); i++)
             {
                 inputStream.read((char *)(internal.data()), 3 * sizeof(Uint8));
 
@@ -165,6 +165,29 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
         return NULL;
     }
 
+    std::cout << (uint)metadata->getDithering() << std::endl;
+
+    if (metadata->getDithering() == IO::FileMetadata::DITHERING_FLAG)
+    {
+        switch (metadata->getConvertion())
+        {
+        case IO::CONVERSION_TYPES::PALETTE_COLORFUL:
+            if (Service::applyColorfulDithering(input) != EXIT_SUCCESS)
+            {
+                return NULL;
+            }
+
+            break;
+        case IO::CONVERSION_TYPES::PALETTE_BW:
+            if (Service::applyBWDithering(input) != EXIT_SUCCESS)
+            {
+                return NULL;
+            }
+
+            break;
+        }
+    }
+
     if (debug)
     {
         if (Service::convertToCGUPaletteDetected(input) != EXIT_SUCCESS)
@@ -183,7 +206,7 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
     {
         Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
 
-        return EXIT_FAILURE;
+        return NULL;
     }
 
     inputStream.seekg(metadata->getSize());
@@ -255,7 +278,7 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             std::vector<std::vector<Uint8>> buff;
 
             std::vector<Uint8> internal(PREFERRED_BIT_NUM_PER_PIXEL, 0);
-            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i++)
+            for (int i = 0; i < (metadata->getIndecesSize() / PREFERRED_BIT_NUM_PER_PIXEL) - 2; i++)
             {
                 inputStream.read((char *)(internal.data()), PREFERRED_BIT_NUM_PER_PIXEL * sizeof(Uint8));
 
@@ -273,17 +296,17 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
         }
         else if (metadata->getBit() == IO::BIT_TYPES::FIFTEEN)
         {
-            std::vector<Uint16> buff(metadata->getWidth() * metadata->getHeight(), 0);
+            std::vector<Uint16> buff(metadata->getIndecesSize(), 0);
 
-            inputStream.read((char *)(buff.data()), metadata->getWidth() * metadata->getHeight() * sizeof(Uint16));
+            inputStream.read((char *)(buff.data()), metadata->getIndecesSize() * sizeof(Uint16));
 
             encodedColors = Service::convertFrom15Bit(buff);
         }
         else if (metadata->getBit() == IO::BIT_TYPES::SIXTEEN)
         {
-            std::vector<Uint16> buff(metadata->getWidth() * metadata->getHeight(), 0);
+            std::vector<Uint16> buff(metadata->getIndecesSize(), 0);
 
-            inputStream.read((char *)(buff.data()), metadata->getWidth() * metadata->getHeight() * sizeof(Uint16));
+            inputStream.read((char *)(buff.data()), metadata->getIndecesSize() * sizeof(Uint16));
 
             encodedColors = Service::convertFrom16Bit(buff);
         }
@@ -292,7 +315,7 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             std::vector<std::vector<Uint8>> buff;
 
             std::vector<Uint8> internal(3, 0);
-            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight())); i++)
+            for (int i = 0; i < metadata->getIndecesSize(); i++)
             {
                 inputStream.read((char *)(internal.data()), 3 * sizeof(Uint8));
 
@@ -312,7 +335,7 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
     }
     else
     {
-        return EXIT_FAILURE;
+        return NULL;
     }
 
     switch (metadata->getModel())
@@ -338,7 +361,28 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
     SDL_Surface *input = Processor::createFilledSurface(metadata->getWidth(), metadata->getHeight(), colors);
     if (input == NULL)
     {
-        return EXIT_FAILURE;
+        return NULL;
+    }
+
+    if (metadata->getDithering() == IO::FileMetadata::DITHERING_FLAG)
+    {
+        switch (metadata->getConvertion())
+        {
+        case IO::CONVERSION_TYPES::PALETTE_COLORFUL:
+            if (Service::applyColorfulDithering(input) != EXIT_SUCCESS)
+            {
+                return EXIT_FAILURE;
+            }
+
+            break;
+        case IO::CONVERSION_TYPES::PALETTE_BW:
+            if (Service::applyBWDithering(input) != EXIT_SUCCESS)
+            {
+                return EXIT_FAILURE;
+            }
+
+            break;
+        }
     }
 
     if (debug)
@@ -387,28 +431,25 @@ int Pipeline::handleEncode(
     if (conversionType == IO::CONVERSION_TYPES::NATIVE_COLORFUL ||
         conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
     {
-        switch (conversionType)
+        if (dithering)
         {
-        case IO::CONVERSION_TYPES::NATIVE_COLORFUL:
-            if (dithering)
+            switch (conversionType)
             {
+            case IO::CONVERSION_TYPES::NATIVE_COLORFUL:
                 if (Service::applyColorfulDithering(input) != EXIT_SUCCESS)
                 {
                     return EXIT_FAILURE;
                 }
-            }
 
-            break;
-        case IO::CONVERSION_TYPES::NATIVE_BW:
-            if (dithering)
-            {
+                break;
+            case IO::CONVERSION_TYPES::NATIVE_BW:
                 if (Service::applyBWDithering(input) != EXIT_SUCCESS)
                 {
                     return EXIT_FAILURE;
                 }
-            }
 
-            break;
+                break;
+            }
         }
 
         std::vector<SDL_Color> colors = Processor::getCompleteBitColorMap(input);
@@ -535,7 +576,7 @@ int Pipeline::handleEncode(
             dithering,
             input->w,
             input->h,
-            result->getIndeces().size(),
+            result->getColors().size(),
             outputStream);
 
         std::vector<SDL_Color> internal = result->getColors();
@@ -565,17 +606,22 @@ int Pipeline::handleEncode(
             break;
         }
 
+        if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
+        {
+            internal = Service::sampleFourToOne(internal, input);
+        }
+
         if (bitType == IO::BIT_TYPES::SEVEN)
         {
             std::vector<std::vector<Uint8>> sevenBitColors;
 
             if (conversionType == IO::CONVERSION_TYPES::NATIVE_COLORFUL)
             {
-                sevenBitColors = Service::convertTo7BitColorful(colors);
+                sevenBitColors = Service::convertTo7BitColorful(internal);
             }
             else
             {
-                sevenBitColors = Service::convertTo7BitBW(colors);
+                sevenBitColors = Service::convertTo7BitBW(internal);
             }
 
             for (std::vector<Uint8> &value : sevenBitColors)
@@ -585,19 +631,19 @@ int Pipeline::handleEncode(
         }
         else if (bitType == IO::BIT_TYPES::FIFTEEN)
         {
-            std::vector<Uint16> fifteenBitColors = Service::convertTo15Bit(colors);
+            std::vector<Uint16> fifteenBitColors = Service::convertTo15Bit(internal);
 
             outputStream.write((char *)(fifteenBitColors.data()), fifteenBitColors.size() * sizeof(Uint16));
         }
         else if (bitType == IO::BIT_TYPES::SIXTEEN)
         {
-            std::vector<Uint16> sixteenBitColors = Service::convertTo16Bit(colors);
+            std::vector<Uint16> sixteenBitColors = Service::convertTo16Bit(internal);
 
             outputStream.write((char *)(sixteenBitColors.data()), sixteenBitColors.size() * sizeof(Uint16));
         }
         else if (bitType == IO::BIT_TYPES::TWENTY_FOUR)
         {
-            std::vector<std::vector<Uint8>> twentyFourBitColors = Service::convertTo24Bit(colors);
+            std::vector<std::vector<Uint8>> twentyFourBitColors = Service::convertTo24Bit(internal);
 
             for (std::vector<Uint8> &value : twentyFourBitColors)
             {

@@ -284,56 +284,6 @@ std::vector<SDL_Color> Service::sampleFourToOne(std::vector<SDL_Color> &colors, 
     return result;
 }
 
-// Service::PaletteConversionResult *Service::convertToCGUPaletteColorful(SDL_Surface *surface)
-// {
-//     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-//     if (colors.size() < BIT_NUM_MAX)
-//     {
-//         Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
-
-//         return NULL;
-//     }
-
-//     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
-
-//     Processor::BucketResult *result =
-//         Processor::generateColorBucketsRGB(surface, image);
-
-//     std::vector<Uint32> indeces;
-
-//     for (auto &value : result->getColors())
-//     {
-//         indeces.push_back(Processor::convertColorToUint32(value));
-//     }
-
-//     return new Service::PaletteConversionResult(result->getIndeces(), indeces);
-// }
-
-// Service::PaletteConversionResult *Service::convertToCGUPaletteBW(SDL_Surface *surface)
-// {
-//     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
-//     if (colors.size() < BIT_NUM_MAX)
-//     {
-//         Logger::SetError(BIT_SIZE_MIN_EXCEPTION);
-
-//         return NULL;
-//     }
-
-//     std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(surface);
-
-//     Processor::BucketResult *result =
-//         Processor::generateColorBucketsBW(surface, image);
-
-//     std::vector<Uint32> indeces;
-
-//     for (auto &value : result->getColors())
-//     {
-//         indeces.push_back(Processor::convertColorToUint32(value));
-//     }
-
-//     return new Service::PaletteConversionResult(result->getIndeces(), indeces);
-//
-
 int Service::applyColorfulDithering(SDL_Surface *surface)
 {
     std::vector<Processor::PixelPoint> result =
@@ -368,106 +318,6 @@ int Service::convertToCGUPaletteDetected(SDL_Surface *surface)
     return EXIT_SUCCESS;
 }
 
-// SDL_Surface *Service::convertFromCGUPaletteColorful(std::ifstream &inputStream, IO::FileMetadata *metadata)
-// {
-//     inputStream.seekg(metadata->getSize());
-
-//     std::vector<SDL_Color> colors;
-
-//     for (auto &value : metadata->getIndeces())
-//     {
-//         colors.push_back(Processor::convertUint32ToColor(value));
-//     }
-
-//     std::vector<int> input(metadata->getWidth() * metadata->getHeight(), 0);
-//     inputStream.read((char *)(input.data()), input.size() * sizeof(int));
-
-//     std::vector<SDL_Color> image;
-//     for (auto &value : input)
-//     {
-//         image.push_back(colors[value]);
-//     }
-
-//     SDL_Surface *surface =
-//         SDL_CreateRGBSurface(0, metadata->getWidth(), metadata->getHeight(), 32, 0, 0, 0, 0);
-
-//     int x = 0;
-//     int y = 0;
-
-//     for (int k = 0; k < image.size(); k++)
-//     {
-//         if (y == surface->h)
-//         {
-//             x += 1;
-//             y = 0;
-//         }
-
-//         Processor::setPixel(surface, x, y, image[k]);
-
-//         if (x == surface->w)
-//         {
-//             y += 1;
-//             x = 0;
-//         }
-//         else
-//         {
-//             y += 1;
-//         }
-//     }
-
-//     return surface;
-// };
-
-// SDL_Surface *Service::convertFromCGUPaletteBW(std::ifstream &inputStream, IO::FileMetadata *metadata)
-// {
-//     inputStream.seekg(metadata->getSize());
-
-//     std::vector<SDL_Color> colors;
-
-//     for (auto &value : metadata->getIndeces())
-//     {
-//         colors.push_back(Processor::convertUint32ToColor(value));
-//     }
-
-//     std::vector<int> input(metadata->getWidth() * metadata->getHeight(), 0);
-//     inputStream.read((char *)(input.data()), input.size() * sizeof(int));
-
-//     std::vector<SDL_Color> image;
-//     for (auto &value : input)
-//     {
-//         image.push_back(colors[value]);
-//     }
-
-//     SDL_Surface *surface =
-//         SDL_CreateRGBSurface(0, metadata->getWidth(), metadata->getHeight(), 32, 0, 0, 0, 0);
-
-//     int x = 0;
-//     int y = 0;
-
-//     for (int k = 0; k < image.size(); k++)
-//     {
-//         if (y == surface->h)
-//         {
-//             x += 1;
-//             y = 0;
-//         }
-
-//         Processor::setPixel(surface, x, y, image[k]);
-
-//         if (x == surface->w)
-//         {
-//             y += 1;
-//             x = 0;
-//         }
-//         else
-//         {
-//             y += 1;
-//         }
-//     }
-
-//     return surface;
-// };
-
 void Service::saveMetadata(
     IO::CONVERSION_TYPES conversionType,
     IO::BIT_TYPES bitType,
@@ -490,7 +340,7 @@ void Service::saveMetadata(
         lossyCompressionType,
         samplingType,
         filterType,
-        IO::FileMetadata::DITHERING_FLAG ? dithering : 0,
+        dithering ? IO::FileMetadata::DITHERING_FLAG : 0,
         width,
         height,
         indecesSize);
