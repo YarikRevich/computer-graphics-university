@@ -160,49 +160,13 @@ public:
     static void convertToBW(std::vector<SDL_Color> &colors);
 
     /**
-     * Performs image sampling using four to one one approach with rgb representation.
+     * Performs image sampling using four to one one approach.
      * 
      * @param colors - given colors to be sampled.
      * @param surface - given surface to be modified.
      * @return result of sampling operation.
      */
-    static std::vector<SDL_Color> sampleFourToOneRGB(std::vector<SDL_Color>& colors, SDL_Surface *surface);
-
-    /**
-     * Performs image sampling using four to one one approach with yuv representation.
-     * 
-     * @param colors - given colors to be sampled.
-     * @param surface - given surface to be modified.
-     * @return result of sampling operation.
-     */
-    static std::vector<SDL_Color> sampleFourToOneYUV(std::vector<SDL_Color>& colors, SDL_Surface *surface);
-
-    /**
-     * Performs image sampling using four to one one approach with yiq representation.
-     * 
-     * @param colors - given colors to be sampled.
-     * @param surface - given surface to be modified.
-     * @return result of sampling operation.
-     */
-    static std::vector<SDL_Color> sampleFourToOneYIQ(std::vector<SDL_Color>& colors, SDL_Surface *surface);
-
-    /**
-     * Performs image sampling using four to one one approach with ycbcr representation.
-     * 
-     * @param colors - given colors to be sampled.
-     * @param surface - given surface to be modified.
-     * @return result of sampling operation.
-     */
-    static std::vector<SDL_Color> sampleFourToOneYCbCr(std::vector<SDL_Color>& colors, SDL_Surface *surface);
-
-    /**
-     * Performs image sampling using four to one one approach with hsl representation.
-     * 
-     * @param colors - given colors to be sampled.
-     * @param surface - given surface to be modified.
-     * @return result of sampling operation.
-     */
-    static std::vector<SDL_Color> sampleFourToOneHSL(std::vector<SDL_Color>& colors, SDL_Surface *surface);
+    static std::vector<SDL_Color> sampleFourToOne(std::vector<SDL_Color>& colors, SDL_Surface *surface);
 
     /**
      * Applies colorful dithering to the surface.

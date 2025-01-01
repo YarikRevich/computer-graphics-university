@@ -63,8 +63,6 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             {
                 inputStream.read((char *)(internal.data()), 3 * sizeof(Uint8));
 
-                // std::cout << "r: " << (uint)internal.at(0) << " g: " << (uint)internal.at(1) << " b: " << (uint)internal.at(2) << std::endl;
-
                 buff.push_back(internal);
             }
 
@@ -243,8 +241,6 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
 
                 buff.push_back(internal);
             }
-
-            std::cout << buff.size() << std::endl;
 
             colors = Service::convertFrom24Bit(buff);
         }
@@ -427,46 +423,24 @@ int Pipeline::handleEncode(
         case IO::MODEL_TYPES::YCBCR:
             Service::convertToYCbCr(colors);
 
-            if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
-            {
-                colors = Service::sampleFourToOneYCbCr(colors, input);
-            }
-
             break;
         case IO::MODEL_TYPES::YIQ:
             Service::convertToYIQ(colors);
-
-            if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
-            {
-                colors = Service::sampleFourToOneYIQ(colors, input);
-            }
 
             break;
         case IO::MODEL_TYPES::YUV:
             Service::convertToYUV(colors);
 
-            if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
-            {
-                colors = Service::sampleFourToOneYUV(colors, input);
-            }
-
             break;
         case IO::MODEL_TYPES::HSL:
             Service::convertToHSL(colors);
 
-            if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
-            {
-                colors = Service::sampleFourToOneHSL(colors, input);
-            }
-
             break;
-        case IO::MODEL_TYPES::RGB:
-            if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
-            {
-                colors = Service::sampleFourToOneRGB(colors, input);
-            }
+        }
 
-            break;
+        if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
+        {
+            colors = Service::sampleFourToOne(colors, input);
         }
 
         Service::saveMetadata(
@@ -517,13 +491,8 @@ int Pipeline::handleEncode(
         {
             std::vector<std::vector<Uint8>> twentyFourBitColors = Service::convertTo24Bit(colors);
 
-            std::cout << twentyFourBitColors.size() << std::endl;
-
             for (std::vector<Uint8> &value : twentyFourBitColors)
             {
-                // std::cout << "r: " << (uint)value.at(0) << " g: " << (uint)value.at(1) << " b: " << (uint)value.at(2) << std::endl;
-                // std::cout << value.size() << std::endl;
-
                 outputStream.write((char *)(value.data()), value.size() * sizeof(Uint8));
             }
         }
