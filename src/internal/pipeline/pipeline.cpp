@@ -9,7 +9,7 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
         return NULL;
     }
-    
+
     inputStream.seekg(metadata->getSize());
 
     std::vector<SDL_Color> colors;
@@ -58,18 +58,18 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
         {
             std::vector<std::vector<Uint8>> buff;
 
-            std::vector<Uint8> internal(PREFERRED_BIT_NUM_PER_PIXEL, 0);
-            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i++)
+            std::vector<Uint8> internal(3, 0);
+            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight())); i++)
             {
                 inputStream.read((char *)(internal.data()), 3 * sizeof(Uint8));
+
+                // std::cout << "r: " << (uint)internal.at(0) << " g: " << (uint)internal.at(1) << " b: " << (uint)internal.at(2) << std::endl;
 
                 buff.push_back(internal);
             }
 
             colors = Service::convertFrom24Bit(buff);
         }
-
-        
     }
     else if (metadata->getConvertion() == IO::CONVERSION_TYPES::PALETTE_COLORFUL ||
              metadata->getConvertion() == IO::CONVERSION_TYPES::PALETTE_BW)
@@ -117,8 +117,8 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
         {
             std::vector<std::vector<Uint8>> buff;
 
-            std::vector<Uint8> internal(PREFERRED_BIT_NUM_PER_PIXEL, 0);
-            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i++)
+            std::vector<Uint8> internal(3, 0);
+            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight())); i++)
             {
                 inputStream.read((char *)(internal.data()), 3 * sizeof(Uint8));
 
@@ -236,13 +236,15 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
         {
             std::vector<std::vector<Uint8>> buff;
 
-            std::vector<Uint8> internal(PREFERRED_BIT_NUM_PER_PIXEL, 0);
-            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i++)
+            std::vector<Uint8> internal(3, 0);
+            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight())); i++)
             {
                 inputStream.read((char *)(internal.data()), 3 * sizeof(Uint8));
 
                 buff.push_back(internal);
             }
+
+            std::cout << buff.size() << std::endl;
 
             colors = Service::convertFrom24Bit(buff);
         }
@@ -293,8 +295,8 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
         {
             std::vector<std::vector<Uint8>> buff;
 
-            std::vector<Uint8> internal(PREFERRED_BIT_NUM_PER_PIXEL, 0);
-            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i++)
+            std::vector<Uint8> internal(3, 0);
+            for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight())); i++)
             {
                 inputStream.read((char *)(internal.data()), 3 * sizeof(Uint8));
 
@@ -415,7 +417,8 @@ int Pipeline::handleEncode(
 
         std::vector<SDL_Color> colors = Processor::getCompleteBitColorMap(input);
 
-        if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW) {
+        if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
+        {
             Service::convertToBW(colors);
         }
 
@@ -424,17 +427,44 @@ int Pipeline::handleEncode(
         case IO::MODEL_TYPES::YCBCR:
             Service::convertToYCbCr(colors);
 
+            if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
+            {
+                colors = Service::sampleFourToOneYCbCr(colors, input);
+            }
+
             break;
         case IO::MODEL_TYPES::YIQ:
             Service::convertToYIQ(colors);
+
+            if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
+            {
+                colors = Service::sampleFourToOneYIQ(colors, input);
+            }
 
             break;
         case IO::MODEL_TYPES::YUV:
             Service::convertToYUV(colors);
 
+            if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
+            {
+                colors = Service::sampleFourToOneYUV(colors, input);
+            }
+
             break;
         case IO::MODEL_TYPES::HSL:
             Service::convertToHSL(colors);
+
+            if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
+            {
+                colors = Service::sampleFourToOneHSL(colors, input);
+            }
+
+            break;
+        case IO::MODEL_TYPES::RGB:
+            if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
+            {
+                colors = Service::sampleFourToOneRGB(colors, input);
+            }
 
             break;
         }
@@ -487,8 +517,13 @@ int Pipeline::handleEncode(
         {
             std::vector<std::vector<Uint8>> twentyFourBitColors = Service::convertTo24Bit(colors);
 
+            std::cout << twentyFourBitColors.size() << std::endl;
+
             for (std::vector<Uint8> &value : twentyFourBitColors)
             {
+                // std::cout << "r: " << (uint)value.at(0) << " g: " << (uint)value.at(1) << " b: " << (uint)value.at(2) << std::endl;
+                // std::cout << value.size() << std::endl;
+
                 outputStream.write((char *)(value.data()), value.size() * sizeof(Uint8));
             }
         }
@@ -536,7 +571,8 @@ int Pipeline::handleEncode(
 
         std::vector<SDL_Color> internal = result->getColors();
 
-        if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW) {
+        if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+        {
             Service::convertToBW(colors);
         }
 

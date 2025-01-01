@@ -12,7 +12,7 @@ Encode::Encode(args::ArgumentParser *argumentParser)
     this->model = new args::ValueFlag<std::string>(*group, "rgb|yuv|yiq|ycbcr|hsl", "Type of color model to be used for media conversion", {"model"});
     this->losslessCompression = new args::ValueFlag<std::string>(*group, "byterun|rle|lzw|lz77", "Type of lossless compression to be used for media conversion", {"losslessCompression"});
     this->lossyCompression = new args::ValueFlag<std::string>(*group, "dct", "Type of lossy compression to be used for media conversion, can be combined with losless compression", {"lossyCompression"});
-    this->sampling = new args::ValueFlag<std::string>(*group, "four_one_one", "Type of sampling to be applied", {"sampling"});
+    this->sampling = new args::ValueFlag<std::string>(*group, "two_two_one", "Type of sampling to be applied", {"sampling"});
     this->filter = new args::ValueFlag<std::string>(*group, "differential|line_difference|average|paeth", "Type of filter to be used for media conversion", {"filter"});
     this->dithering = new args::Flag(*group, "true|false(default)", "Enables dithering for the output stream", {"dithering"});
     this->to = new args::ValueFlag<std::string>(*group, "path", "Path to the output media", {"to"});

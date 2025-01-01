@@ -123,9 +123,9 @@ IO::LOSSY_COMPRESSION_TYPES IO::getLossyCompressionType(std::string src)
 
 IO::SAMPLING_TYPES IO::getSamplingType(std::string src)
 {
-    if (src == "four_one_one")
+    if (src == "two_two_one")
     {
-        return IO::SAMPLING_TYPES::FOUR_ONE_ONE;
+        return IO::SAMPLING_TYPES::TWO_TWO_ONE;
     }
 
     return IO::SAMPLING_TYPES::NONE;

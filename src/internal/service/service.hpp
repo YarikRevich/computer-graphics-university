@@ -16,63 +16,6 @@ class Service
 {
 public:
     /**
-     * Represents a result of palette based conversion.
-     */
-    class PaletteConversionResult
-    {
-    public:
-        PaletteConversionResult(
-            std::vector<int> data, std::vector<Uint32> indeces) : data(data), indeces(indeces) {};
-
-        /**
-         * Retrieves palette conversion data.
-         *
-         * @return retrieved palette conversion data.
-         */
-        std::vector<int> getData();
-
-        /**
-         * Retrieves palette conversion data.
-         *
-         * @return retrieved palette conversion data.
-         */
-        std::vector<Uint32> getIndeces();
-
-    private:
-        /**
-         * Represents palette conversion data.
-         */
-        std::vector<int> data;
-
-        /**
-         * Represents palette conversion indeces.
-         */
-        std::vector<Uint32> indeces;
-    };
-
-    /**
-     * Represents a result of native based conversion.
-     */
-    class NativeConversionResult
-    {
-    public:
-        NativeConversionResult(std::vector<std::vector<Uint8>> data) : data(data) {};
-
-        /**
-         * Retrieves native conversion data.
-         *
-         * @return retrieved native conversion data.
-         */
-        std::vector<std::vector<Uint8>> getData();
-
-    private:
-        /**
-         * represents native conversion data.
-         */
-        std::vector<std::vector<Uint8>> data;
-    };
-
-    /**
      * Converts given colors to YCbCr mode.
      *
      * @param colors - given colors to be converted.
@@ -209,7 +152,6 @@ public:
      */
     static std::vector<SDL_Color> convertFrom7BitBW(std::vector<std::vector<Uint8>> &colors);
 
-
     /**
      * Converts given colors to bw representation.
      *
@@ -217,45 +159,56 @@ public:
      */
     static void convertToBW(std::vector<SDL_Color> &colors);
 
-    // /**
-    //  * Converts given surface canvas to CGU media type in native colorful mode.
-    //  *
-    //  * @param surface - given surface to be converted.
-    //  * @param bitType - given bit type to be used for conversion.
-    //  * @return native conversion result.
-    //  */
-    // static std::vector<SDL_Color> convertToCGUNativeColorful(SDL_Surface *surface, IO::BIT_TYPES bitType);
+    /**
+     * Performs image sampling using four to one one approach with rgb representation.
+     * 
+     * @param colors - given colors to be sampled.
+     * @param surface - given surface to be modified.
+     * @return result of sampling operation.
+     */
+    static std::vector<SDL_Color> sampleFourToOneRGB(std::vector<SDL_Color>& colors, SDL_Surface *surface);
 
-    // /**
-    //  * Converts given surface canvas to CGU media type in native BW mode.
-    //  *
-    //  * @param surface - given surface to be converted.
-    //  * @param bitType - given bit type to be used for conversion.
-    //  * @return native conversion result.
-    //  */
-    // static std::vector<SDL_Color> convertToCGUNativeBW(SDL_Surface *surface, IO::BIT_TYPES bitType);
+    /**
+     * Performs image sampling using four to one one approach with yuv representation.
+     * 
+     * @param colors - given colors to be sampled.
+     * @param surface - given surface to be modified.
+     * @return result of sampling operation.
+     */
+    static std::vector<SDL_Color> sampleFourToOneYUV(std::vector<SDL_Color>& colors, SDL_Surface *surface);
 
-    // /**
-    //  * Converts given surface canvas to CGU media type in palette colorful mode.
-    //  *
-    //  * @param surface - given surface to be converted.
-    //  * @return palette conversion result.
-    //  */
-    // static Service::PaletteConversionResult *convertToCGUPaletteColorful(SDL_Surface *surface);
+    /**
+     * Performs image sampling using four to one one approach with yiq representation.
+     * 
+     * @param colors - given colors to be sampled.
+     * @param surface - given surface to be modified.
+     * @return result of sampling operation.
+     */
+    static std::vector<SDL_Color> sampleFourToOneYIQ(std::vector<SDL_Color>& colors, SDL_Surface *surface);
 
-    // /**
-    //  * Converts given surface canvas to CGU media type in palette BW mode.
-    //  *
-    //  * @param surface - given surface to be converted.
-    //  * @return palette conversion result.
-    //  */
-    // static Service::PaletteConversionResult *convertToCGUPaletteBW(SDL_Surface *surface);
+    /**
+     * Performs image sampling using four to one one approach with ycbcr representation.
+     * 
+     * @param colors - given colors to be sampled.
+     * @param surface - given surface to be modified.
+     * @return result of sampling operation.
+     */
+    static std::vector<SDL_Color> sampleFourToOneYCbCr(std::vector<SDL_Color>& colors, SDL_Surface *surface);
+
+    /**
+     * Performs image sampling using four to one one approach with hsl representation.
+     * 
+     * @param colors - given colors to be sampled.
+     * @param surface - given surface to be modified.
+     * @return result of sampling operation.
+     */
+    static std::vector<SDL_Color> sampleFourToOneHSL(std::vector<SDL_Color>& colors, SDL_Surface *surface);
 
     /**
      * Applies colorful dithering to the surface.
      *
      * @param surface - given surface to be modified.
-     * @return result opereation status code.
+     * @return result operation status code.
      */
     static int applyColorfulDithering(SDL_Surface *surface);
 
@@ -273,46 +226,6 @@ public:
      * @return result operation status code.
      */
     static int convertToCGUPaletteDetected(SDL_Surface *surface);
-
-    // /**
-    //  * Converts given surface canvas from CGU media type in native colorful mode.
-    //  * back to the original, but with the some loss of quality.
-    //  *
-    //  * @param inputStream - given input stream.
-    //  * @param metadata - given file metadata.
-    //  * @return result operation status code.
-    //  */
-    // static SDL_Surface *convertFromCGUNativeColorful(std::ifstream &inputStream, IO::FileMetadata *metadata);
-
-    // /**
-    //  * Converts given surface canvas from CGU media type in native BW mode.
-    //  * back to the original, but with the some loss of quality.
-    //  *
-    //  * @param inputStream - given input stream.
-    //  * @param metadata - given file metadata.
-    //  * @return result operation status code.
-    //  */
-    // static SDL_Surface *convertFromCGUNativeBW(std::ifstream &inputStream, IO::FileMetadata *metadata);
-
-    // /**
-    //  * Converts given surface canvas from CGU media type in palette colorful mode.
-    //  * back to the original, but with the some loss of quality.
-    //  *
-    //  * @param inputStream - given input stream.
-    //  * @param metadata - given file metadata.
-    //  * @return result operation status code.
-    //  */
-    // static SDL_Surface *convertFromCGUPaletteColorful(std::ifstream &inputStream, IO::FileMetadata *metadata);
-
-    // /**
-    //  * Converts given surface canvas from CGU media type in palette BW mode.
-    //  * back to the original, but with the some loss of quality.
-    //  *
-    //  * @param inputStream - given input stream.
-    //  * @param metadata - given file metadata.
-    //  * @return result operation status code.
-    //  */
-    // static SDL_Surface *convertFromCGUPaletteBW(std::ifstream &inputStream, IO::FileMetadata *metadata);
 
     /**
      *

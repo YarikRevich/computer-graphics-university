@@ -773,23 +773,15 @@ SDL_Color Processor::convert7BitRGBTo24BitRGB(Uint8 color)
 
 Uint8 Processor::convert24BitRGBTo7BitGrey(SDL_Color color)
 {
-    int newColorRGrey = round(color.r * 127.0 / 255.0);
-    int newColorGGrey = round(color.g * 127.0 / 255.0);
-    int newColorBGrey = round(color.b * 127.0 / 255.0);
-
-    return (newColorRGrey << 5) | (newColorGGrey << 2) | newColorBGrey;
+    return round(color.r * 127.0 / 255.0);
 }
 
 SDL_Color Processor::convert7BitGreyTo24BitRGB(Uint8 grey)
 {
-    int newColorRGrey = (grey & (0b01100000)) >> 5;
-    int newColorGGrey = (grey & (0b00011100)) >> 2;
-    int newColorBGrey = (grey & (0b00000011));
-
     return {
-        .r = static_cast<Uint8>(newColorRGrey * 255.0 / 127.0),
-        .g = static_cast<Uint8>(newColorGGrey * 255.0 / 127.0),
-        .b = static_cast<Uint8>(newColorBGrey * 255.0 / 127.0)};
+        .r = static_cast<Uint8>(grey * 255.0 / 127.0),
+        .g = static_cast<Uint8>(grey * 255.0 / 127.0),
+        .b = static_cast<Uint8>(grey * 255.0 / 127.0)};
 }
 
 Uint16 Processor::convert24BitColorTo16BitColor(SDL_Color color)
@@ -1080,8 +1072,8 @@ SDL_Color Processor::convertRGBToYCbCr(SDL_Color color)
 SDL_Color Processor::convertHSLToRGB(int h, int s, int l)
 {
     double hRaw = h;
-    double sRaw = s / 100;
-    double lRaw = l / 100;
+    double sRaw = s / 255.0;
+    double lRaw = l / 255.0;
 
     float r;
     float g;
@@ -1228,7 +1220,7 @@ SDL_Color Processor::convertRGBToHSL(SDL_Color color)
 
     if (m == mx)
     {
-        result.b = l * 100;
+        result.b = l * 255.0;
 
         return result;
     }
@@ -1294,8 +1286,8 @@ SDL_Color Processor::convertRGBToHSL(SDL_Color color)
     }
 
     result.r = h;
-    result.g = s * 100;
-    result.b = l * 100;
+    result.g = s * 255.0;
+    result.b = l * 255.0;
 
     return result;
 }

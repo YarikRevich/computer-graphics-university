@@ -90,7 +90,7 @@ public:
      */
     enum class SAMPLING_TYPES
     {
-        FOUR_ONE_ONE,
+        TWO_TWO_ONE,
         NONE
     };
 
