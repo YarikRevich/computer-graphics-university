@@ -168,6 +168,79 @@ public:
      */
     static SDL_Color convert7BitGreyTo24BitRGB(Uint8 grey);
 
+
+
+    /**
+     * Converts given 24 bit YCbCr color to 7 bit grey single.
+     *
+     * @param color - given 24 bit YCbCr color to be converted.
+     * @return converted 7 bit grey single.
+     */
+    static Uint8 convert24BitYCbCrTo7BitGrey(SDL_Color color);
+
+    /**
+     * Converts 7 bit grey single to 24 bit YCbCr color.
+     *
+     * @param color - given 7 bit grey single to be converted.
+     * @return converted 24 bit YCbCr color.
+     */
+    static SDL_Color convert7BitGreyTo24BitYCbCr(Uint8 grey);
+
+
+
+
+
+
+
+
+    /**
+     * Converts given 24 bit YUV color to 7 bit grey single.
+     *
+     * @param color - given 24 bit YUV color to be converted.
+     * @return converted 7 bit grey single.
+     */
+    static Uint8 convert24BitYUVTo7BitGrey(SDL_Color color);
+
+    /**
+     * Converts 7 bit grey single to 24 bit YUV color.
+     *
+     * @param color - given 7 bit grey single to be converted.
+     * @return converted 24 bit YUV color.
+     */
+    static SDL_Color convert7BitGreyTo24BitYUV(Uint8 grey);
+
+    /**
+     * Converts given 24 bit YIQ color to 7 bit grey single.
+     *
+     * @param color - given 24 bit YIQ color to be converted.
+     * @return converted 7 bit grey single.
+     */
+    static Uint8 convert24BitYIQTo7BitGrey(SDL_Color color);
+
+    /**
+     * Converts 7 bit grey single to 24 bit YIQ color.
+     *
+     * @param color - given 7 bit grey single to be converted.
+     * @return converted 24 bit YIQ color.
+     */
+    static SDL_Color convert7BitGreyTo24BitYIQ(Uint8 grey);
+
+     /**
+     * Converts given 24 bit HSL color to 7 bit grey single.
+     *
+     * @param color - given 24 bit HSL color to be converted.
+     * @return converted 7 bit grey single.
+     */
+    static Uint8 convert24BitHSLTo7BitGrey(SDL_Color color);
+
+    /**
+     * Converts 7 bit grey single to 24 bit HSL color.
+     *
+     * @param color - given 7 bit grey single to be converted.
+     * @return converted 24 bit HSL color.
+     */
+    static SDL_Color convert7BitGreyTo24BitHSL(Uint8 grey);
+
     /**
      * Converts given 24 bit color to 16 bit single.
      *
@@ -240,12 +313,12 @@ public:
     static Uint8 convertColorToGreyUint8(SDL_Color color);
 
     /**
-     * Converts given color to its Grey representation.
+     * Converts given RGB to its Grey representation.
      *
      * @param color - given color to be converted to Grey.
      * @return result of the conversion.
      */
-    static SDL_Color convertColorToGrey(SDL_Color color);
+    static SDL_Color convertRGBToGrey(SDL_Color color);
 
     /**
      * Converts given YCbCr color to RGB.

@@ -135,29 +135,41 @@ public:
      * @return converted colors.
      */
     static std::vector<SDL_Color> convertFrom7BitColorful(std::vector<std::vector<Uint8>> &colors);
-
+    
     /**
-     * Converts given colors to 7 bit bw representation.
-     *
-     * @param colors - given colors to be converted.
-     * @return converted colors.
-     */
-    static std::vector<std::vector<Uint8>> convertTo7BitBW(std::vector<SDL_Color> &colors);
-
-    /**
-     * Converts given 7 bit to bw representation.
-     *
-     * @param colors - given colors to be converted.
-     * @return converted colors.
-     */
-    static std::vector<SDL_Color> convertFrom7BitBW(std::vector<std::vector<Uint8>> &colors);
-
-    /**
-     * Converts given colors to bw representation.
+     * Converts given rgb colors to bw representation.
      *
      * @param colors - given colors to be converted.
      */
-    static void convertToBW(std::vector<SDL_Color> &colors);
+    static void convertToRGBBW(std::vector<SDL_Color> &colors);
+
+    /**
+     * Converts given yuv colors to bw representation.
+     *
+     * @param colors - given colors to be converted.
+     */
+    static void convertToYUVBW(std::vector<SDL_Color> &colors);
+
+    /**
+     * Converts given yiq colors to bw representation.
+     *
+     * @param colors - given colors to be converted.
+     */
+    static void convertToYIQBW(std::vector<SDL_Color> &colors);
+
+    /**
+     * Converts given ycbcr colors to bw representation.
+     *
+     * @param colors - given colors to be converted.
+     */
+    static void convertToYCbCrBW(std::vector<SDL_Color> &colors);
+
+    /**
+     * Converts given hsl colors to bw representation.
+     *
+     * @param colors - given colors to be converted.
+     */
+    static void convertToHSLBW(std::vector<SDL_Color> &colors);
 
     /**
      * Performs image sampling using four to one one approach.

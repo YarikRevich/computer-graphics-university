@@ -35,7 +35,38 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else
             {
-                colors = Service::convertFrom7BitBW(buff);
+                std::vector<Uint8> assemble(ORIGINAL_BIT_NUM_PER_PIXEL, 0);
+                for (auto &value : buff)
+                {
+                    assemble = Processor::convert7BitTo8Bit(value);
+
+                    for (auto &compound : assemble)
+                    {
+                        switch (metadata->getModel())
+                        {
+                        case IO::MODEL_TYPES::YCBCR:
+                            colors.push_back(Processor::convert7BitGreyTo24BitYCbCr(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::YUV:
+                            colors.push_back(Processor::convert7BitGreyTo24BitYUV(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::YIQ:
+                            colors.push_back(Processor::convert7BitGreyTo24BitYIQ(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::HSL:
+                            colors.push_back(Processor::convert7BitGreyTo24BitHSL(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::RGB:
+                            colors.push_back(Processor::convert7BitGreyTo24BitRGB(compound));
+
+                            break;
+                        }
+                    }
+                }
             }
         }
         else if (metadata->getBit() == IO::BIT_TYPES::FIFTEEN)
@@ -92,7 +123,38 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else
             {
-                encodedColors = Service::convertFrom7BitBW(buff);
+                std::vector<Uint8> assemble(ORIGINAL_BIT_NUM_PER_PIXEL, 0);
+                for (auto &value : buff)
+                {
+                    assemble = Processor::convert7BitTo8Bit(value);
+
+                    for (auto &compound : assemble)
+                    {
+                        switch (metadata->getModel())
+                        {
+                        case IO::MODEL_TYPES::YCBCR:
+                            encodedColors.push_back(Processor::convert7BitGreyTo24BitYCbCr(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::YUV:
+                            encodedColors.push_back(Processor::convert7BitGreyTo24BitYUV(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::YIQ:
+                            encodedColors.push_back(Processor::convert7BitGreyTo24BitYIQ(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::HSL:
+                            encodedColors.push_back(Processor::convert7BitGreyTo24BitHSL(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::RGB:
+                            encodedColors.push_back(Processor::convert7BitGreyTo24BitRGB(compound));
+
+                            break;
+                        }
+                    }
+                }
             }
         }
         else if (metadata->getBit() == IO::BIT_TYPES::FIFTEEN)
@@ -131,6 +193,8 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
         for (auto &value : input)
         {
+            std::cout << value << std::endl;
+
             colors.push_back(encodedColors[value]);
         }
     }
@@ -164,8 +228,6 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
     {
         return NULL;
     }
-
-    std::cout << (uint)metadata->getDithering() << std::endl;
 
     if (metadata->getDithering() == IO::FileMetadata::DITHERING_FLAG)
     {
@@ -234,7 +296,38 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             }
             else
             {
-                colors = Service::convertFrom7BitBW(buff);
+                std::vector<Uint8> assemble(ORIGINAL_BIT_NUM_PER_PIXEL, 0);
+                for (auto &value : buff)
+                {
+                    assemble = Processor::convert7BitTo8Bit(value);
+
+                    for (auto &compound : assemble)
+                    {
+                        switch (metadata->getModel())
+                        {
+                        case IO::MODEL_TYPES::YCBCR:
+                            colors.push_back(Processor::convert7BitGreyTo24BitYCbCr(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::YUV:
+                            colors.push_back(Processor::convert7BitGreyTo24BitYUV(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::YIQ:
+                            colors.push_back(Processor::convert7BitGreyTo24BitYIQ(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::HSL:
+                            colors.push_back(Processor::convert7BitGreyTo24BitHSL(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::RGB:
+                            colors.push_back(Processor::convert7BitGreyTo24BitRGB(compound));
+
+                            break;
+                        }
+                    }
+                }
             }
         }
         else if (metadata->getBit() == IO::BIT_TYPES::FIFTEEN)
@@ -291,7 +384,38 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             }
             else
             {
-                encodedColors = Service::convertFrom7BitBW(buff);
+                std::vector<Uint8> assemble(ORIGINAL_BIT_NUM_PER_PIXEL, 0);
+                for (auto &value : buff)
+                {
+                    assemble = Processor::convert7BitTo8Bit(value);
+
+                    for (auto &compound : assemble)
+                    {
+                        switch (metadata->getModel())
+                        {
+                        case IO::MODEL_TYPES::YCBCR:
+                            encodedColors.push_back(Processor::convert7BitGreyTo24BitYCbCr(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::YUV:
+                            encodedColors.push_back(Processor::convert7BitGreyTo24BitYUV(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::YIQ:
+                            encodedColors.push_back(Processor::convert7BitGreyTo24BitYIQ(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::HSL:
+                            encodedColors.push_back(Processor::convert7BitGreyTo24BitHSL(compound));
+
+                            break;
+                        case IO::MODEL_TYPES::RGB:
+                            encodedColors.push_back(Processor::convert7BitGreyTo24BitRGB(compound));
+
+                            break;
+                        }
+                    }
+                }
             }
         }
         else if (metadata->getBit() == IO::BIT_TYPES::FIFTEEN)
@@ -454,29 +578,50 @@ int Pipeline::handleEncode(
 
         std::vector<SDL_Color> colors = Processor::getCompleteBitColorMap(input);
 
-        if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
-        {
-            Service::convertToBW(colors);
-        }
-
         switch (modelType)
         {
         case IO::MODEL_TYPES::YCBCR:
             Service::convertToYCbCr(colors);
 
+            if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
+            {
+                Service::convertToYCbCrBW(colors);
+            }
+
             break;
         case IO::MODEL_TYPES::YIQ:
             Service::convertToYIQ(colors);
+
+            if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
+            {
+                Service::convertToYIQBW(colors);
+            }
 
             break;
         case IO::MODEL_TYPES::YUV:
             Service::convertToYUV(colors);
 
+            if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
+            {
+                Service::convertToYUVBW(colors);
+            }
+
             break;
         case IO::MODEL_TYPES::HSL:
             Service::convertToHSL(colors);
 
+            if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
+            {
+                Service::convertToHSLBW(colors);
+            }
+
             break;
+
+        case IO::MODEL_TYPES::RGB:
+            if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
+            {
+                Service::convertToRGBBW(colors);
+            }
         }
 
         if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
@@ -508,7 +653,41 @@ int Pipeline::handleEncode(
             }
             else
             {
-                sevenBitColors = Service::convertTo7BitBW(colors);
+                std::vector<Uint8> assemble(ORIGINAL_BIT_NUM_PER_PIXEL);
+
+                for (int i = 0; i < colors.size(); i += ORIGINAL_BIT_NUM_PER_PIXEL)
+                {
+                    assemble.clear();
+
+                    for (int j = 0; j < ORIGINAL_BIT_NUM_PER_PIXEL; j++)
+                    {
+                        switch (modelType)
+                        {
+                        case IO::MODEL_TYPES::YCBCR:
+                            assemble.push_back(Processor::convert24BitYCbCrTo7BitGrey(colors[i + j]));
+
+                            break;
+                        case IO::MODEL_TYPES::YUV:
+                            assemble.push_back(Processor::convert24BitYUVTo7BitGrey(colors[i + j]));
+
+                            break;
+                        case IO::MODEL_TYPES::YIQ:
+                            assemble.push_back(Processor::convert24BitYIQTo7BitGrey(colors[i + j]));
+
+                            break;
+                        case IO::MODEL_TYPES::HSL:
+                            assemble.push_back(Processor::convert24BitHSLTo7BitGrey(colors[i + j]));
+
+                            break;
+                        case IO::MODEL_TYPES::RGB:
+                            assemble.push_back(Processor::convert24BitRGBTo7BitGrey(colors[i + j]));
+
+                            break;
+                        }
+                    }
+
+                    sevenBitColors.push_back(Processor::convert8BitTo7Bit(assemble));
+                }
             }
 
             for (std::vector<Uint8> &value : sevenBitColors)
@@ -581,29 +760,49 @@ int Pipeline::handleEncode(
 
         std::vector<SDL_Color> internal = result->getColors();
 
-        if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
-        {
-            Service::convertToBW(colors);
-        }
-
         switch (modelType)
         {
         case IO::MODEL_TYPES::YCBCR:
             Service::convertToYCbCr(internal);
 
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+            {
+                Service::convertToYCbCrBW(internal);
+            }
+
             break;
         case IO::MODEL_TYPES::YIQ:
             Service::convertToYIQ(internal);
+
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+            {
+                Service::convertToYIQBW(internal);
+            }
 
             break;
         case IO::MODEL_TYPES::YUV:
             Service::convertToYUV(internal);
 
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+            {
+                Service::convertToYUVBW(internal);
+            }
+
             break;
         case IO::MODEL_TYPES::HSL:
             Service::convertToHSL(internal);
 
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+            {
+                Service::convertToHSLBW(internal);
+            }
+
             break;
+        case IO::MODEL_TYPES::RGB:
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+            {
+                Service::convertToRGBBW(internal);
+            }
         }
 
         if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
@@ -615,13 +814,47 @@ int Pipeline::handleEncode(
         {
             std::vector<std::vector<Uint8>> sevenBitColors;
 
-            if (conversionType == IO::CONVERSION_TYPES::NATIVE_COLORFUL)
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_COLORFUL)
             {
                 sevenBitColors = Service::convertTo7BitColorful(internal);
             }
             else
             {
-                sevenBitColors = Service::convertTo7BitBW(internal);
+                std::vector<Uint8> assemble(ORIGINAL_BIT_NUM_PER_PIXEL);
+
+                for (int i = 0; i < internal.size(); i += ORIGINAL_BIT_NUM_PER_PIXEL)
+                {
+                    assemble.clear();
+
+                    for (int j = 0; j < ORIGINAL_BIT_NUM_PER_PIXEL; j++)
+                    {
+                        switch (modelType)
+                        {
+                        case IO::MODEL_TYPES::YCBCR:
+                            assemble.push_back(Processor::convert24BitYCbCrTo7BitGrey(internal[i + j]));
+
+                            break;
+                        case IO::MODEL_TYPES::YUV:
+                            assemble.push_back(Processor::convert24BitYUVTo7BitGrey(internal[i + j]));
+
+                            break;
+                        case IO::MODEL_TYPES::YIQ:
+                            assemble.push_back(Processor::convert24BitYIQTo7BitGrey(internal[i + j]));
+
+                            break;
+                        case IO::MODEL_TYPES::HSL:
+                            assemble.push_back(Processor::convert24BitHSLTo7BitGrey(internal[i + j]));
+
+                            break;
+                        case IO::MODEL_TYPES::RGB:
+                            assemble.push_back(Processor::convert24BitRGBTo7BitGrey(internal[i + j]));
+
+                            break;
+                        }
+                    }
+
+                    sevenBitColors.push_back(Processor::convert8BitTo7Bit(assemble));
+                }
             }
 
             for (std::vector<Uint8> &value : sevenBitColors)

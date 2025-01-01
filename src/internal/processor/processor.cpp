@@ -784,6 +784,59 @@ SDL_Color Processor::convert7BitGreyTo24BitRGB(Uint8 grey)
         .b = static_cast<Uint8>(grey * 255.0 / 127.0)};
 }
 
+Uint8 Processor::convert24BitYCbCrTo7BitGrey(SDL_Color color)
+{
+    return round(color.r * 127.0 / 255.0);
+}
+
+SDL_Color Processor::convert7BitGreyTo24BitYCbCr(Uint8 grey)
+{
+    return {
+        .r = static_cast<Uint8>(grey * 255.0 / 127.0),
+        .g = 128,
+        .b = 128,
+    };
+}
+
+Uint8 Processor::convert24BitYUVTo7BitGrey(SDL_Color color)
+{
+    return round(color.r * 127.0 / 255.0);
+}
+
+SDL_Color Processor::convert7BitGreyTo24BitYUV(Uint8 grey)
+{
+    return {
+        .r = static_cast<Uint8>(grey * 255.0 / 127.0),
+        .g = 0,
+        .b = 0};
+}
+
+Uint8 Processor::convert24BitYIQTo7BitGrey(SDL_Color color)
+{
+    return round(color.r * 127.0 / 255.0);
+}
+
+SDL_Color Processor::convert7BitGreyTo24BitYIQ(Uint8 grey)
+{
+    return {
+        .r = static_cast<Uint8>(grey * 255.0 / 127.0),
+        .g = 0,
+        .b = 0};
+}
+
+Uint8 Processor::convert24BitHSLTo7BitGrey(SDL_Color color)
+{
+    return round(color.b * 127.0 / 255.0);
+}
+
+SDL_Color Processor::convert7BitGreyTo24BitHSL(Uint8 grey)
+{
+    return {
+        .r = 0,
+        .g = 0,
+        .b = static_cast<Uint8>(grey * 255.0 / 127.0)};
+}
+
 Uint16 Processor::convert24BitColorTo16BitColor(SDL_Color color)
 {
     Uint8 r = color.r >> 3;
@@ -1292,7 +1345,7 @@ SDL_Color Processor::convertRGBToHSL(SDL_Color color)
     return result;
 }
 
-SDL_Color Processor::convertColorToGrey(SDL_Color color)
+SDL_Color Processor::convertRGBToGrey(SDL_Color color)
 {
     Uint8 grey = convertColorToGreyUint8(color);
 
