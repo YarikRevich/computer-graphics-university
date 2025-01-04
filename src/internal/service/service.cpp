@@ -196,46 +196,6 @@ std::vector<SDL_Color> Service::convertFrom7BitColorful(std::vector<std::vector<
     return buff;
 };
 
-// std::vector<std::vector<Uint8>> Service::convertTo7BitBW(std::vector<SDL_Color> &colors)
-// {
-//     std::vector<std::vector<Uint8>> buff;
-//     std::vector<Uint8> assemble(ORIGINAL_BIT_NUM_PER_PIXEL);
-
-//     for (int i = 0; i < colors.size(); i += ORIGINAL_BIT_NUM_PER_PIXEL)
-//     {
-//         assemble.clear();
-
-//         for (int j = 0; j < ORIGINAL_BIT_NUM_PER_PIXEL; j++)
-//         {
-//             assemble.push_back(Processor::convert24BitRGBTo7BitGrey(colors[i + j]));
-//         }
-
-//         buff.push_back(Processor::convert8BitTo7Bit(assemble));
-//     }
-
-//     return buff;
-// };
-
-
-
-// std::vector<SDL_Color> Service::convertFrom7BitBW(std::vector<std::vector<Uint8>> &colors)
-// {
-//     std::vector<SDL_Color> buff;
-
-//     std::vector<Uint8> assemble(ORIGINAL_BIT_NUM_PER_PIXEL, 0);
-//     for (auto &value : colors)
-//     {
-//         assemble = Processor::convert7BitTo8Bit(value);
-
-//         for (auto &compound : assemble)
-//         {
-//             buff.push_back(Processor::convert7BitGreyTo24BitRGB(compound));
-//         }
-//     }
-
-//     return buff;
-// };
-
 void Service::convertToRGBBW(std::vector<SDL_Color> &colors)
 {
     for (int i = 0; i < colors.size(); i++)
@@ -282,7 +242,7 @@ void Service::convertToHSLBW(std::vector<SDL_Color> &colors)
     }
 };
 
-std::vector<SDL_Color> Service::sampleFourToOne(std::vector<SDL_Color> &colors, SDL_Surface *surface)
+std::vector<SDL_Color> Service::sampleFourToOneRGB(std::vector<SDL_Color> &colors, SDL_Surface *surface)
 {
     std::vector<SDL_Color> result = colors;
 
@@ -310,7 +270,157 @@ std::vector<SDL_Color> Service::sampleFourToOne(std::vector<SDL_Color> &colors, 
             averaged.r = (first.r + second.r + third.r + forth.r) / 4;
             averaged.g = (first.g + second.g + third.g + forth.g) / 4;
             averaged.b = (first.b + second.b + third.b + forth.b) / 4;
-            averaged.a = (first.a + second.a + third.a + forth.a) / 4;
+
+            result[index1] = averaged;
+            result[index2] = averaged;
+            result[index3] = averaged;
+            result[index4] = averaged;
+        }
+    }
+
+    return result;
+}
+
+std::vector<SDL_Color> Service::sampleFourToOneYUV(std::vector<SDL_Color> &colors, SDL_Surface *surface)
+{
+    std::vector<SDL_Color> result = colors;
+
+    for (int x = 0; x <= surface->w; x += 2)
+    {
+        for (int y = 0; y <= surface->h; y += 2)
+        {
+            int index1 = y + (x * surface->h);
+            int index2 = y + ((x + 1) * surface->h);
+            int index3 = (y + 1) + (x * surface->h);
+            int index4 = (y + 1) + ((x + 1) * surface->h);
+
+            if (index1 >= colors.size() || index2 >= colors.size() ||
+                index3 >= colors.size() || index4 >= colors.size())
+            {
+                continue;
+            }
+
+            SDL_Color first = colors[index1];
+            SDL_Color second = colors[index2];
+            SDL_Color third = colors[index3];
+            SDL_Color forth = colors[index4];
+
+            SDL_Color averaged;
+            averaged.g = (first.g + second.g + third.g + forth.g) / 4;
+            averaged.b = (first.b + second.b + third.b + forth.b) / 4;
+
+            result[index1] = averaged;
+            result[index2] = averaged;
+            result[index3] = averaged;
+            result[index4] = averaged;
+        }
+    }
+
+    return result;
+}
+
+std::vector<SDL_Color> Service::sampleFourToOneYIQ(std::vector<SDL_Color> &colors, SDL_Surface *surface)
+{
+    std::vector<SDL_Color> result = colors;
+
+    for (int x = 0; x <= surface->w; x += 2)
+    {
+        for (int y = 0; y <= surface->h; y += 2)
+        {
+            int index1 = y + (x * surface->h);
+            int index2 = y + ((x + 1) * surface->h);
+            int index3 = (y + 1) + (x * surface->h);
+            int index4 = (y + 1) + ((x + 1) * surface->h);
+
+            if (index1 >= colors.size() || index2 >= colors.size() ||
+                index3 >= colors.size() || index4 >= colors.size())
+            {
+                continue;
+            }
+
+            SDL_Color first = colors[index1];
+            SDL_Color second = colors[index2];
+            SDL_Color third = colors[index3];
+            SDL_Color forth = colors[index4];
+
+            SDL_Color averaged;
+            averaged.g = (first.g + second.g + third.g + forth.g) / 4;
+            averaged.b = (first.b + second.b + third.b + forth.b) / 4;
+
+            result[index1] = averaged;
+            result[index2] = averaged;
+            result[index3] = averaged;
+            result[index4] = averaged;
+        }
+    }
+
+    return result;
+}
+
+std::vector<SDL_Color> Service::sampleFourToOneYCbCr(std::vector<SDL_Color> &colors, SDL_Surface *surface)
+{
+    std::vector<SDL_Color> result = colors;
+
+    for (int x = 0; x <= surface->w; x += 2)
+    {
+        for (int y = 0; y <= surface->h; y += 2)
+        {
+            int index1 = y + (x * surface->h);
+            int index2 = y + ((x + 1) * surface->h);
+            int index3 = (y + 1) + (x * surface->h);
+            int index4 = (y + 1) + ((x + 1) * surface->h);
+
+            if (index1 >= colors.size() || index2 >= colors.size() ||
+                index3 >= colors.size() || index4 >= colors.size())
+            {
+                continue;
+            }
+
+            SDL_Color first = colors[index1];
+            SDL_Color second = colors[index2];
+            SDL_Color third = colors[index3];
+            SDL_Color forth = colors[index4];
+
+            SDL_Color averaged;
+            averaged.g = (first.g + second.g + third.g + forth.g) / 4;
+            averaged.b = (first.b + second.b + third.b + forth.b) / 4;
+
+            result[index1] = averaged;
+            result[index2] = averaged;
+            result[index3] = averaged;
+            result[index4] = averaged;
+        }
+    }
+
+    return result;
+}
+
+std::vector<SDL_Color> Service::sampleFourToOneHSL(std::vector<SDL_Color> &colors, SDL_Surface *surface)
+{
+    std::vector<SDL_Color> result = colors;
+
+    for (int x = 0; x <= surface->w; x += 2)
+    {
+        for (int y = 0; y <= surface->h; y += 2)
+        {
+            int index1 = y + (x * surface->h);
+            int index2 = y + ((x + 1) * surface->h);
+            int index3 = (y + 1) + (x * surface->h);
+            int index4 = (y + 1) + ((x + 1) * surface->h);
+
+            if (index1 >= colors.size() || index2 >= colors.size() ||
+                index3 >= colors.size() || index4 >= colors.size())
+            {
+                continue;
+            }
+
+            SDL_Color first = colors[index1];
+            SDL_Color second = colors[index2];
+            SDL_Color third = colors[index3];
+            SDL_Color forth = colors[index4];
+
+            SDL_Color averaged;
+            averaged.b = (first.b + second.b + third.b + forth.b) / 4;
 
             result[index1] = averaged;
             result[index2] = averaged;
@@ -356,11 +466,190 @@ int Service::convertToCGUPaletteDetected(SDL_Surface *surface)
     return EXIT_SUCCESS;
 }
 
+std::vector<Sint16> Service::compressByteRunImageUint16(std::vector<Uint16> image)
+{
+    std::vector<Sint16> result;
+
+    int i = 0;
+
+    while (i < image.size())
+    {
+        if ((i < image.size() - 1) && (image.at(i) == image.at(i + 1)))
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) == image.at(i + j + 1)) && j < 127)
+            {
+                j++;
+            }
+
+            result.push_back(-j);
+            result.push_back(image.at(i + j));
+
+            i += (j + 1);
+        }
+        else
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) != image.at(i + j + 1) && (j < 128)))
+            {
+                j++;
+            }
+
+            if ((i + j == image.size() - 1) && (j < 128))
+            {
+                j++;
+            }
+
+            result.push_back(j - 1);
+            for (int k = 0; k < j; k++)
+            {
+                result.push_back(image.at(i + k));
+            }
+
+            i += j;
+        }
+    }
+
+    return result;
+}
+
+std::vector<Uint16> Service::decompressByteRunImageUint16(std::vector<Sint16> image)
+{
+    std::vector<Uint16> result;
+
+    for (int i = 0; i < image.size();)
+    {
+        if (i + 1 >= image.size() - 1) {
+            break;
+        }
+
+        if (image.at(i) < 0)
+        {
+            int repeatCount = -image.at(i);
+
+            Uint16 value = static_cast<Uint16>(image.at(i + 1));
+
+            for (int j = 0; j <= repeatCount; j++)
+            {
+                result.push_back(value);
+            }
+
+            i += 2;
+        }
+        else
+        {
+            int copyCount = image.at(i) + 1;
+
+            for (int j = 0; j < copyCount; j++)
+            {
+                result.push_back(static_cast<Uint16>(image.at(i + 1 + j)));
+            }
+
+            i += (1 + copyCount);
+        }
+    }
+
+    return result;
+}
+
+std::vector<Uint16> Service::compressRLEImageUint16(std::vector<Uint16> image)
+{
+    std::vector<Uint16> result;
+
+    int i = 0;
+
+    while (i < image.size())
+    {
+        if ((i < image.size() - 1) && (image.at(i) == image.at(i + 1)))
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) == image.at(i + j + 1)) && j < 254)
+            {
+                j++;
+            }
+
+            result.push_back(j + 1);
+            result.push_back(image.at(i + j));
+
+            i += (j + 1);
+        }
+        else
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) != image.at(i + j + 1) && (j < 254)))
+            {
+                j++;
+            }
+
+            if ((i + j == image.size() - 1) && (j < 254))
+            {
+                j++;
+            }
+
+            result.push_back(0);
+            result.push_back(j);
+
+            for (int k = 0; k < j; k++)
+            {
+                result.push_back(image.at(i + k));
+            }
+
+            if (j % 2 != 0) {
+                result.push_back(0);
+            }
+
+            i += j;
+        }
+    }
+
+    return result;
+}
+
+std::vector<Uint16> Service::decompressRLEImageUint16(std::vector<Uint16> image) {
+    std::vector<Uint16> result;
+
+    int i = 0;
+    while (i < image.size()) {
+        Uint16 byte1 = image[i];
+        Uint16 byte2 = image[i+1];
+
+        if (byte1 == 0) {
+            i += 2;
+            
+            int repetitions = byte2;
+            
+            for(int j = 0; j < repetitions; j++) {
+                result.push_back(image[i]);
+                i++;
+            }
+
+            if(i % 2 == 1) {
+                i++;
+            }
+        } else {
+            int repetitions = byte1;
+
+            for(int j = 0; j < repetitions; j++) {
+                result.push_back(byte2);
+            }
+
+            i += 2;
+        }
+    }
+
+    return result;
+}
+
 void Service::saveMetadata(
     IO::CONVERSION_TYPES conversionType,
     IO::BIT_TYPES bitType,
     IO::MODEL_TYPES modelType,
     IO::LOSSLESS_COMPRESSION_TYPES losslessCompressionType,
+    int losslessCompressionSize,
     IO::LOSSY_COMPRESSION_TYPES lossyCompressionType,
     IO::SAMPLING_TYPES samplingType,
     IO::FILTER_TYPES filterType,
@@ -375,6 +664,7 @@ void Service::saveMetadata(
         bitType,
         modelType,
         losslessCompressionType,
+        losslessCompressionSize,
         lossyCompressionType,
         samplingType,
         filterType,
@@ -385,3 +675,118 @@ void Service::saveMetadata(
 
     metadata->writeTo(outputStream);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+// class LZWResult {
+// public:
+//     LZWResult( std::map<int, std::vector<Uint8>>& compounds, std::vector<int>& result) : compounds{compounds}, result{result} {}
+
+//     std::vector<int> getResult() {
+//         return result;
+//     }
+
+//     std::map<int, std::vector<Uint8>> getCompounds() {
+//         return compounds;
+//     }
+// private:
+//     std::vector<int> result;
+
+//     std::map<int, std::vector<Uint8>> compounds;
+// };
+
+// bool isCompoundPresent(std::map<int, std::vector<Uint8>> &compounds, std::vector<Uint8> &component)
+// {
+//     for (auto const &[_, compound] : compounds)
+//     {
+//         if (compound == component)
+//         {
+//             return true;
+//         }
+//     }
+
+//     return false;
+// }
+
+// int getCompoundCounter(std::map<int, std::vector<Uint8>> &compounds, std::vector<Uint8> &component)
+// {
+//     for (auto const &[counter, compound] : compounds)
+//     {
+//         if (compound == component)
+//         {
+//             return counter;
+//         }
+//     }
+
+//     return 0;
+// }
+
+// LZWResult* getCompressedLZWImage(const std::vector<Uint8>& image) {
+//     std::vector<int> result;
+
+//     int counter = 256;
+
+//     std::map<int, std::vector<Uint8>> compounds;
+
+//     for (int i = 0; i < 256; ++i) {
+//         compounds[i] = {static_cast<Uint8>(i)};
+//     }
+
+//     std::vector<Uint8> current;
+
+//     int i = 0;
+
+//     for (Uint8 value : image) {
+//         std::vector<Uint8> component = current;
+
+//         component.push_back(value);
+
+//         if (isCompoundPresent(compounds, component)) {
+//             current = component;
+//         } else {
+//             int key = getCompoundCounter(compounds, current);
+//             if (key || !current.empty()) { 
+//                 result.push_back(key);
+//             }
+
+//             compounds[counter] = component; 
+
+//             counter++;
+
+//             current = {value}; 
+//         }
+//     }
+
+//     if (!current.empty()) {
+//         int key = getCompoundCounter(compounds, current);
+//         if (key) {
+//             result.push_back(key);
+//         }
+//     }
+
+//     return new LZWResult(compounds, result);
+// }
+
+// std::vector<Uint8> getDecompressedLZWImage(LZWResult* src)
+// {
+//     std::vector<Uint8> result;
+
+//     for (int key : src->getResult()) {
+//         std::vector<Uint8> compound = src->getCompounds().at(key);
+
+//         for (Uint8 value : compound) {
+//             result.push_back(value);
+//         }
+//     }
+
+//     return result;
+// }

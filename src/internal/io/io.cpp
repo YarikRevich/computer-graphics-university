@@ -123,9 +123,9 @@ IO::LOSSY_COMPRESSION_TYPES IO::getLossyCompressionType(std::string src)
 
 IO::SAMPLING_TYPES IO::getSamplingType(std::string src)
 {
-    if (src == "two_two_one")
+    if (src == "four_two_one")
     {
-        return IO::SAMPLING_TYPES::TWO_TWO_ONE;
+        return IO::SAMPLING_TYPES::FOUR_TWO_ONE;
     }
 
     return IO::SAMPLING_TYPES::NONE;
@@ -158,89 +158,49 @@ uint8_t IO::FileMetadata::getCompatible()
     return compatible;
 }
 
-void IO::FileMetadata::setCompatible(uint8_t value)
-{
-    this->compatible = value;
-};
-
 IO::CONVERSION_TYPES IO::FileMetadata::getConvertion()
 {
     return convertion;
 }
-
-void IO::FileMetadata::setConvertion(IO::CONVERSION_TYPES value)
-{
-    this->convertion = value;
-};
 
 IO::BIT_TYPES IO::FileMetadata::getBit()
 {
     return bit;
 }
 
-void IO::FileMetadata::setBit(IO::BIT_TYPES value)
-{
-    this->bit = value;
-};
-
 IO::MODEL_TYPES IO::FileMetadata::getModel()
 {
     return model;
 }
-
-void IO::FileMetadata::setModel(IO::MODEL_TYPES value)
-{
-    this->model = value;
-};
 
 IO::LOSSLESS_COMPRESSION_TYPES IO::FileMetadata::getLosslessCompression()
 {
     return losslessCompression;
 }
 
-void IO::FileMetadata::setLosslessCompression(IO::LOSSLESS_COMPRESSION_TYPES value)
+int IO::FileMetadata::getLosslessCompressionSize()
 {
-    this->losslessCompression = value;
-};
+    return losslessCompressionSize;
+}
 
 IO::LOSSY_COMPRESSION_TYPES IO::FileMetadata::getLossyCompression()
 {
     return lossyCompression;
 }
 
-void IO::FileMetadata::setLossyCompression(IO::LOSSY_COMPRESSION_TYPES value)
-{
-    this->lossyCompression = value;
-};
-
 IO::SAMPLING_TYPES IO::FileMetadata::getSampling()
 {
     return sampling;
 }
-
-void IO::FileMetadata::setSampling(IO::SAMPLING_TYPES value)
-{
-    this->sampling = value;
-};
 
 IO::FILTER_TYPES IO::FileMetadata::getFilter()
 {
     return filter;
 }
 
-void IO::FileMetadata::setFilter(IO::FILTER_TYPES value)
-{
-    this->filter = value;
-};
-
 uint16_t IO::FileMetadata::getWidth()
 {
     return width;
-};
-
-void IO::FileMetadata::setWidth(uint16_t value)
-{
-    this->width = value;
 };
 
 uint16_t IO::FileMetadata::getHeight()
@@ -248,29 +208,14 @@ uint16_t IO::FileMetadata::getHeight()
     return height;
 };
 
-void IO::FileMetadata::setHeight(uint16_t value)
-{
-    this->height = value;
-};
-
 uint8_t IO::FileMetadata::getDithering()
 {
     return dithering;
 }
 
-void IO::FileMetadata::setDithering(uint8_t value)
-{
-    this->dithering = value;
-};
-
 int IO::FileMetadata::getIndecesSize()
 {
     return indecesSize;
-};
-
-void IO::FileMetadata::setIndecesSize(int value)
-{
-    this->indecesSize = value;
 };
 
 void IO::FileMetadata::writeTo(std::ofstream &ofs)
@@ -280,6 +225,7 @@ void IO::FileMetadata::writeTo(std::ofstream &ofs)
     uint8_t bit = (uint8_t)getBit();
     uint8_t model = (uint8_t)getModel();
     uint8_t losslessCompression = (uint8_t)getLosslessCompression();
+    int losslessCompressionSize = getLosslessCompressionSize();
     uint8_t lossyCompression = (uint8_t)getLossyCompression();
     uint8_t sampling = (uint8_t)getSampling();
     uint8_t filter = (uint8_t)getFilter();
@@ -293,6 +239,7 @@ void IO::FileMetadata::writeTo(std::ofstream &ofs)
     ofs.write((char *)&bit, sizeof(uint8_t));
     ofs.write((char *)&model, sizeof(uint8_t));
     ofs.write((char *)&losslessCompression, sizeof(uint8_t));
+    ofs.write((char *)&losslessCompressionSize, sizeof(int));
     ofs.write((char *)&lossyCompression, sizeof(uint8_t));
     ofs.write((char *)&sampling, sizeof(uint8_t));
     ofs.write((char *)&filter, sizeof(uint8_t));
@@ -309,6 +256,7 @@ IO::FileMetadata *IO::readMetadata(std::ifstream &inputStream)
     uint8_t bit;
     uint8_t model;
     uint8_t losslessCompression;
+    int losslessCompressionSize;
     uint8_t lossyCompression;
     uint8_t sampling;
     uint8_t filter;
@@ -322,6 +270,7 @@ IO::FileMetadata *IO::readMetadata(std::ifstream &inputStream)
     inputStream.read((char *)&bit, sizeof(uint8_t));
     inputStream.read((char *)&model, sizeof(uint8_t));
     inputStream.read((char *)&losslessCompression, sizeof(uint8_t));
+    inputStream.read((char *)&losslessCompressionSize, sizeof(int));
     inputStream.read((char *)&lossyCompression, sizeof(uint8_t));
     inputStream.read((char *)&sampling, sizeof(uint8_t));
     inputStream.read((char *)&filter, sizeof(uint8_t));
@@ -344,6 +293,7 @@ IO::FileMetadata *IO::readMetadata(std::ifstream &inputStream)
         bitType,
         modelType,
         losslessCompressionType,
+        losslessCompressionSize,
         lossyCompressionType,
         samplingType,
         filterType,
@@ -362,6 +312,7 @@ IO::FileMetadata *IO::composeMetadata(
     IO::BIT_TYPES bit,
     IO::MODEL_TYPES model,
     IO::LOSSLESS_COMPRESSION_TYPES losslessCompression,
+    int losslessCompressionSize,
     IO::LOSSY_COMPRESSION_TYPES lossyCompression,
     IO::SAMPLING_TYPES sampling,
     IO::FILTER_TYPES filter,
@@ -376,6 +327,7 @@ IO::FileMetadata *IO::composeMetadata(
         bit, 
         model, 
         losslessCompression, 
+        losslessCompressionSize,
         lossyCompression, 
         sampling, 
         filter, 

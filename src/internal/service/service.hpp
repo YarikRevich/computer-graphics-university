@@ -172,13 +172,49 @@ public:
     static void convertToHSLBW(std::vector<SDL_Color> &colors);
 
     /**
-     * Performs image sampling using four to one one approach.
+     * Performs image sampling using four to one one approach using RGB model.
      * 
      * @param colors - given colors to be sampled.
      * @param surface - given surface to be modified.
      * @return result of sampling operation.
      */
-    static std::vector<SDL_Color> sampleFourToOne(std::vector<SDL_Color>& colors, SDL_Surface *surface);
+    static std::vector<SDL_Color> sampleFourToOneRGB(std::vector<SDL_Color>& colors, SDL_Surface *surface);
+
+    /**
+     * Performs image sampling using four to one one approach using YUV model.
+     * 
+     * @param colors - given colors to be sampled.
+     * @param surface - given surface to be modified.
+     * @return result of sampling operation.
+     */
+    static std::vector<SDL_Color> sampleFourToOneYUV(std::vector<SDL_Color>& colors, SDL_Surface *surface);
+
+    /**
+     * Performs image sampling using four to one one approach using YIQ model.
+     * 
+     * @param colors - given colors to be sampled.
+     * @param surface - given surface to be modified.
+     * @return result of sampling operation.
+     */
+    static std::vector<SDL_Color> sampleFourToOneYIQ(std::vector<SDL_Color>& colors, SDL_Surface *surface);
+
+    /**
+     * Performs image sampling using four to one one approach using YCbCr model.
+     * 
+     * @param colors - given colors to be sampled.
+     * @param surface - given surface to be modified.
+     * @return result of sampling operation.
+     */
+    static std::vector<SDL_Color> sampleFourToOneYCbCr(std::vector<SDL_Color>& colors, SDL_Surface *surface);
+
+    /**
+     * Performs image sampling using four to one one approach using HSL model.
+     * 
+     * @param colors - given colors to be sampled.
+     * @param surface - given surface to be modified.
+     * @return result of sampling operation.
+     */
+    static std::vector<SDL_Color> sampleFourToOneHSL(std::vector<SDL_Color>& colors, SDL_Surface *surface);
 
     /**
      * Applies colorful dithering to the surface.
@@ -202,26 +238,6 @@ public:
      * @return result operation status code.
      */
     static int convertToCGUPaletteDetected(SDL_Surface *surface);
-
-    /**
-     *
-     */
-    static void compressToByteRun();
-
-    /**
-     *
-     */
-    static void decompressFromByteRun();
-
-    /**
-     *
-     */
-    static void compressToRLE();
-
-    /**
-     *
-     */
-    static void decompressFromRLE();
 
     /**
      *
@@ -254,12 +270,45 @@ public:
     static void decompressFromDCT();
 
     /**
+     * Compresses provided image using Uint16 using ByteRun compression.
+     * 
+     * @param image - given non compressed CGU image.
+     * @return compressed CGU image.
+     */
+    static std::vector<Sint16> compressByteRunImageUint16(std::vector<Uint16> image);
+
+    /**
+     * Decompresses provided image using Uint16 using ByteRun compression.
+     * 
+     * @param image - given compressed CGU image.
+     * @return decompressed CGU image.
+     */
+    static std::vector<Uint16> decompressByteRunImageUint16(std::vector<Sint16> image);
+
+    /**
+     * Compresses provided image using Uint16 using RLE compression.
+     * 
+     * @param image - given non compressed CGU image.
+     * @return compressed CGU image.
+     */
+    static std::vector<Uint16> compressRLEImageUint16(std::vector<Uint16> image);
+
+    /**
+     * Decompresses provided image using Uint16 using RLE compression.
+     * 
+     * @param image - given compressed CGU image.
+     * @return decompressed CGU image.
+     */
+    static std::vector<Uint16> decompressRLEImageUint16(std::vector<Uint16> image);
+
+    /**
      * Saves CGU file metadata struct with the given arguments.
      *
      * @param convertion - given CGU file raw convertion type.
      * @param bit - given CGU file raw bit type.
      * @param model - given CGU file raw model type.
      * @param losslessCompression - given CGU file raw lossless compression type.
+     * @param losslessCompressionSize - given CGU file lossless compression size.
      * @param lossyCompression - given CGU file raw lossy compression type.
      * @param sampling - given CGU file raw sampling type.
      * @param filter - given CGU file raw filter type.
@@ -274,6 +323,7 @@ public:
         IO::BIT_TYPES bitType,
         IO::MODEL_TYPES modelType,
         IO::LOSSLESS_COMPRESSION_TYPES losslessCompressionType,
+        int losslessCompressionSize,
         IO::LOSSY_COMPRESSION_TYPES lossyCompressionType,
         IO::SAMPLING_TYPES samplingType,
         IO::FILTER_TYPES filterType,

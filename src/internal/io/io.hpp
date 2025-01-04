@@ -90,7 +90,7 @@ public:
      */
     enum class SAMPLING_TYPES
     {
-        TWO_TWO_ONE,
+        FOUR_TWO_ONE,
         NONE
     };
 
@@ -122,6 +122,8 @@ public:
 
         IO::LOSSLESS_COMPRESSION_TYPES losslessCompression;
 
+        int losslessCompressionSize;
+
         IO::LOSSY_COMPRESSION_TYPES lossyCompression;
 
         IO::SAMPLING_TYPES sampling;
@@ -147,6 +149,7 @@ public:
             IO::BIT_TYPES bit, 
             IO::MODEL_TYPES model, 
             IO::LOSSLESS_COMPRESSION_TYPES losslessCompression,
+            int losslessCompressionSize,
             IO::LOSSY_COMPRESSION_TYPES lossyCompression,
             IO::SAMPLING_TYPES sampling,
             IO::FILTER_TYPES filter,
@@ -159,6 +162,7 @@ public:
             bit(bit),
             model(model),
             losslessCompression(losslessCompression),
+            losslessCompressionSize(losslessCompressionSize),
             lossyCompression(lossyCompression),
             sampling(sampling),
             filter(filter),
@@ -175,25 +179,11 @@ public:
         uint8_t getCompatible();
 
         /**
-         * Sets given compatible type.
-         *
-         * @param value - compatible flag value.
-         */
-        void setCompatible(uint8_t value);
-
-        /**
          * Retrieves CGU file convertion type.
          *
          * @return CGU file convertion type.
          */
         IO::CONVERSION_TYPES getConvertion();
-
-        /**
-         * Sets given convertion type.
-         *
-         * @param value - given CGU file convertion type.
-         */
-        void setConvertion(IO::CONVERSION_TYPES value);
 
         /**
          * Retrieves CGU file bit type.
@@ -203,25 +193,11 @@ public:
         IO::BIT_TYPES getBit();
 
         /**
-         * Sets given bit type.
-         *
-         * @param value - given CGU file bit type.
-         */
-        void setBit(IO::BIT_TYPES value);
-
-        /**
          * Retrieves CGU file model type.
          *
          * @return CGU file model type.
          */
         IO::MODEL_TYPES getModel();
-
-        /**
-         * Sets given model type.
-         *
-         * @param value - given CGU file model type.
-         */
-        void setModel(IO::MODEL_TYPES value);
 
         /**
          * Retrieves CGU file lossless compression type.
@@ -230,12 +206,12 @@ public:
          */
         IO::LOSSLESS_COMPRESSION_TYPES getLosslessCompression();
 
-        /**
-         * Sets given lossless compression type.
+         /**
+         * Retrieves CGU file lossless compression size.
          *
-         * @param value - given CGU file lossless compression type.
+         * @return CGU file lossless compression size.
          */
-        void setLosslessCompression(IO::LOSSLESS_COMPRESSION_TYPES value);
+        int getLosslessCompressionSize();
 
         /**
          * Retrieves CGU file lossy compression type.
@@ -245,32 +221,11 @@ public:
         IO::LOSSY_COMPRESSION_TYPES getLossyCompression();
 
         /**
-         * Sets given lossy compression type.
-         *
-         * @param value - given CGU file lossy compression type.
-         */
-        void setLossyCompression(IO::LOSSY_COMPRESSION_TYPES value);
-
-        /**
          * Retrieves CGU file sampling type.
          *
          * @return CGU file sampling type.
          */
         IO::SAMPLING_TYPES getSampling();
-
-        /**
-         * Sets given sampling type.
-         *
-         * @param value - given CGU file sampling type.
-         */
-        void setSampling(IO::SAMPLING_TYPES value);
-
-        /**
-         * Sets given filter type.
-         *
-         * @param value - given CGU file filter type.
-         */
-        void setFilter(IO::FILTER_TYPES value);
 
         /**
          * Retrieves CGU file filter type.
@@ -287,25 +242,11 @@ public:
         uint8_t getDithering();
 
         /**
-         * Sets dithering mode.
-         * 
-         * @param value - dithering mode to be set.
-         */
-        void setDithering(uint8_t value);
-
-        /**
          * Retrieves CGU file width.
          * 
          * @return CGU file width.
          */
         uint16_t getWidth();
-
-        /**
-         * Sets width of the image.
-         * 
-         * @param value - given image width.
-         */
-        void setWidth(uint16_t value);
 
         /**
          * Retrieves CGU file height.
@@ -315,25 +256,11 @@ public:
         uint16_t getHeight();
 
         /**
-         * Sets height of the image.
-         * 
-         * @param value - given image height.
-         */
-        void setHeight(uint16_t value);
-
-        /**
          * Retrieves indeces array size.
          * 
          * @return retrieved indeces array size.
          */
         int getIndecesSize();
-
-        /**
-         * Sets indeces array size.
-         * 
-         * @param value - given indeces array size.
-         */
-        void setIndecesSize(int value);
 
         /**
          * Writes metadata content to the given stream.
@@ -365,6 +292,7 @@ public:
      * @param bit - given CGU file bit type.
      * @param model - given CGU file model type.
      * @param losslessCompression - given CGU file lossless compression type.
+     * @param losslessCompressionSize - given CGU file lossless compression size.
      * @param lossyCompression - given CGU file lossy compression type.
      * @param filter - given CGU file filter type.
      * @param dithering - CGU file dithering mode switch.
@@ -377,6 +305,7 @@ public:
         IO::BIT_TYPES bit, 
         IO::MODEL_TYPES model, 
         IO::LOSSLESS_COMPRESSION_TYPES losslessCompression, 
+        int losslessCompressionSize,
         IO::LOSSY_COMPRESSION_TYPES lossyCompression, 
         IO::SAMPLING_TYPES sampling,
         IO::FILTER_TYPES filter,

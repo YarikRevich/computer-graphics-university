@@ -73,7 +73,32 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
         {
             std::vector<Uint16> buff(metadata->getWidth() * metadata->getHeight(), 0);
 
-            inputStream.read((char *)(buff.data()), metadata->getWidth() * metadata->getHeight() * sizeof(Uint16));
+            if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
+            {
+                std::vector<Sint16> compressed(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressed.data()), metadata->getLosslessCompressionSize() * sizeof(Sint16));
+
+                buff = Service::decompressByteRunImageUint16(compressed);
+            }
+            else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::RLE)
+            {
+                std::vector<Uint16> compressed(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressed.data()), metadata->getLosslessCompressionSize() * sizeof(Uint16));
+
+                buff = Service::decompressRLEImageUint16(compressed);
+            }
+            else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
+            {
+            }
+            else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
+            {
+            }
+            else
+            {
+                inputStream.read((char *)(buff.data()), metadata->getWidth() * metadata->getHeight() * sizeof(Uint16));
+            }
 
             colors = Service::convertFrom15Bit(buff);
         }
@@ -81,7 +106,32 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
         {
             std::vector<Uint16> buff(metadata->getWidth() * metadata->getHeight(), 0);
 
-            inputStream.read((char *)(buff.data()), metadata->getWidth() * metadata->getHeight() * sizeof(Uint16));
+            if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
+            {
+                std::vector<Sint16> compressed(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressed.data()), metadata->getLosslessCompressionSize() * sizeof(Sint16));
+
+                buff = Service::decompressByteRunImageUint16(compressed);
+            }
+            else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::RLE)
+            {
+                std::vector<Uint16> compressed(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressed.data()), metadata->getLosslessCompressionSize() * sizeof(Uint16));
+
+                buff = Service::decompressRLEImageUint16(compressed);
+            }
+            else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
+            {
+            }
+            else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
+            {
+            }
+            else
+            {
+                inputStream.read((char *)(buff.data()), metadata->getWidth() * metadata->getHeight() * sizeof(Uint16));
+            }
 
             colors = Service::convertFrom16Bit(buff);
         }
@@ -193,8 +243,6 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
         for (auto &value : input)
         {
-            std::cout << value << std::endl;
-
             colors.push_back(encodedColors[value]);
         }
     }
@@ -624,24 +672,20 @@ int Pipeline::handleEncode(
             }
         }
 
-        if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
+        if (samplingType == IO::SAMPLING_TYPES::FOUR_TWO_ONE)
         {
-            colors = Service::sampleFourToOne(colors, input);
+            if (modelType == IO::MODEL_TYPES::RGB) {
+                colors = Service::sampleFourToOneRGB(colors, input);
+            } else if (modelType == IO::MODEL_TYPES::YUV) {
+                colors = Service::sampleFourToOneYUV(colors, input);
+            } else if (modelType == IO::MODEL_TYPES::YIQ) {
+                colors = Service::sampleFourToOneYIQ(colors, input);
+            } else if (modelType == IO::MODEL_TYPES::YCBCR) {
+                colors = Service::sampleFourToOneYCbCr(colors, input);
+            } else if (modelType == IO::MODEL_TYPES::HSL) {
+                colors = Service::sampleFourToOneHSL(colors, input);
+            }
         }
-
-        Service::saveMetadata(
-            conversionType,
-            bitType,
-            modelType,
-            losslessCompressionType,
-            lossyCompressionType,
-            samplingType,
-            filterType,
-            dithering,
-            input->w,
-            input->h,
-            0,
-            outputStream);
 
         if (bitType == IO::BIT_TYPES::SEVEN)
         {
@@ -690,6 +734,21 @@ int Pipeline::handleEncode(
                 }
             }
 
+            Service::saveMetadata(
+                conversionType,
+                bitType,
+                modelType,
+                losslessCompressionType,
+                0,
+                lossyCompressionType,
+                samplingType,
+                filterType,
+                dithering,
+                input->w,
+                input->h,
+                0,
+                outputStream);
+
             for (std::vector<Uint8> &value : sevenBitColors)
             {
                 outputStream.write((char *)(value.data()), value.size() * sizeof(Uint8));
@@ -699,17 +758,164 @@ int Pipeline::handleEncode(
         {
             std::vector<Uint16> fifteenBitColors = Service::convertTo15Bit(colors);
 
-            outputStream.write((char *)(fifteenBitColors.data()), fifteenBitColors.size() * sizeof(Uint16));
+            if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
+            {
+                std::vector<Sint16> fifteenBitColorsCompressed = Service::compressByteRunImageUint16(fifteenBitColors);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    fifteenBitColorsCompressed.size(),
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                outputStream.write((char *)(fifteenBitColorsCompressed.data()), fifteenBitColorsCompressed.size() * sizeof(Sint16));
+            }
+            else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::RLE)
+            {
+                std::vector<Uint16> fifteenBitColorsCompressed = Service::compressRLEImageUint16(fifteenBitColors);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    fifteenBitColorsCompressed.size(),
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                outputStream.write((char *)(fifteenBitColorsCompressed.data()), fifteenBitColorsCompressed.size() * sizeof(Uint16));
+            }
+            else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
+            {
+            }
+            else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
+            {
+            }
+            else
+            {
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    0,
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                outputStream.write((char *)(fifteenBitColors.data()), fifteenBitColors.size() * sizeof(Uint16));
+            }
         }
         else if (bitType == IO::BIT_TYPES::SIXTEEN)
         {
             std::vector<Uint16> sixteenBitColors = Service::convertTo16Bit(colors);
 
-            outputStream.write((char *)(sixteenBitColors.data()), sixteenBitColors.size() * sizeof(Uint16));
+            if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
+            {
+                std::vector<Sint16> sixteenBitColorsCompressed = Service::compressByteRunImageUint16(sixteenBitColors);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    sixteenBitColorsCompressed.size(),
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                outputStream.write((char *)(sixteenBitColorsCompressed.data()), sixteenBitColorsCompressed.size() * sizeof(Sint16));
+            }
+            else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::RLE)
+            {
+                std::vector<Uint16> sixteenBitColorsCompressed = Service::compressRLEImageUint16(sixteenBitColors);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    sixteenBitColorsCompressed.size(),
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                outputStream.write((char *)(sixteenBitColorsCompressed.data()), sixteenBitColorsCompressed.size() * sizeof(Uint16));
+            }
+            else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
+            {
+            }
+            else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
+            {
+            }
+            else
+            {
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    0,
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                outputStream.write((char *)(sixteenBitColors.data()), sixteenBitColors.size() * sizeof(Uint16));
+            }
         }
         else if (bitType == IO::BIT_TYPES::TWENTY_FOUR)
         {
             std::vector<std::vector<Uint8>> twentyFourBitColors = Service::convertTo24Bit(colors);
+
+            Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    0,
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
 
             for (std::vector<Uint8> &value : twentyFourBitColors)
             {
@@ -749,6 +955,7 @@ int Pipeline::handleEncode(
             bitType,
             modelType,
             losslessCompressionType,
+            0,
             lossyCompressionType,
             samplingType,
             filterType,
@@ -805,9 +1012,19 @@ int Pipeline::handleEncode(
             }
         }
 
-        if (samplingType == IO::SAMPLING_TYPES::TWO_TWO_ONE)
+        if (samplingType == IO::SAMPLING_TYPES::FOUR_TWO_ONE)
         {
-            internal = Service::sampleFourToOne(internal, input);
+            if (modelType == IO::MODEL_TYPES::RGB) {
+                internal = Service::sampleFourToOneRGB(internal, input);
+            } else if (modelType == IO::MODEL_TYPES::YUV) {
+                internal = Service::sampleFourToOneYUV(internal, input);
+            } else if (modelType == IO::MODEL_TYPES::YIQ) {
+                internal = Service::sampleFourToOneYIQ(internal, input);
+            } else if (modelType == IO::MODEL_TYPES::YCBCR) {
+                internal = Service::sampleFourToOneYCbCr(internal, input);
+            } else if (modelType == IO::MODEL_TYPES::HSL) {
+                internal = Service::sampleFourToOneHSL(internal, input);
+            }
         }
 
         if (bitType == IO::BIT_TYPES::SEVEN)
