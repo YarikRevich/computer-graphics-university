@@ -66,6 +66,38 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                std::vector<Processor::LZ77Result<Uint8> *> serializedBuffer;
+
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+                {
+                    int distance;
+
+                    inputStream.read((char *)&distance, sizeof(int));
+
+                    int length;
+
+                    inputStream.read((char *)&length, sizeof(int));
+
+                    Uint8 symbol;
+
+                    inputStream.read((char *)&symbol, sizeof(Uint8));
+
+                    serializedBuffer.push_back(new Processor::LZ77Result<Uint8>(distance, length, symbol));
+                }
+
+                auto decompressedBuffer = Service::decompressLZ77ImageUint8(serializedBuffer);
+
+                for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i += PREFERRED_BIT_NUM_PER_PIXEL)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < PREFERRED_BIT_NUM_PER_PIXEL; k++)
+                    {
+                        internal.push_back(decompressedBuffer[i + k]);
+                    }
+
+                    buff.push_back(internal);
+                }
             }
             else
             {
@@ -277,6 +309,38 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                std::vector<Processor::LZ77Result<Uint8> *> serializedBuffer;
+
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+                {
+                    int distance;
+
+                    inputStream.read((char *)&distance, sizeof(int));
+
+                    int length;
+
+                    inputStream.read((char *)&length, sizeof(int));
+
+                    Uint8 symbol;
+
+                    inputStream.read((char *)&symbol, sizeof(Uint8));
+
+                    serializedBuffer.push_back(new Processor::LZ77Result<Uint8>(distance, length, symbol));
+                }
+
+                auto decompressedBuffer = Service::decompressLZ77ImageUint8(serializedBuffer);
+
+                for (int i = 0; i < decompressedBuffer.size(); i += 3)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < 3; k++)
+                    {
+                        internal.push_back(decompressedBuffer[i + k]);
+                    }
+
+                    buff.push_back(internal);
+                }
             }
             else
             {
@@ -1166,6 +1230,47 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                std::vector<Uint8> compressionBuffer;
+
+                for (std::vector<Uint8> value : sevenBitColors)
+                {
+                    for (Uint8 compound : value)
+                    {
+                        compressionBuffer.push_back(compound);
+                    }
+                }
+
+                auto sevenBitColorsCompressed = Service::compressLZ77ImageUint8<Uint8>(compressionBuffer);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    sevenBitColorsCompressed.size() * 3,
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                for (auto value : sevenBitColorsCompressed)
+                {
+                    int distance = value->getDistance();
+
+                    outputStream.write((char *)&distance, sizeof(int));
+
+                    int length = value->getLength();
+
+                    outputStream.write((char *)&length, sizeof(int));
+
+                    Uint8 symbol = value->getSymbol();
+
+                    outputStream.write((char *)&symbol, sizeof(Uint8));
+                }
             }
             else
             {
@@ -1467,6 +1572,47 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                std::vector<Uint8> compressionBuffer;
+
+                for (std::vector<Uint8> value : twentyFourBitColors)
+                {
+                    for (Uint8 compound : value)
+                    {
+                        compressionBuffer.push_back(compound);
+                    }
+                }
+
+                auto twentyFourBitColorsCompressed = Service::compressLZ77ImageUint8<Uint8>(compressionBuffer);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    twentyFourBitColorsCompressed.size() * 3,
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                for (auto value : twentyFourBitColorsCompressed)
+                {
+                    int distance = value->getDistance();
+
+                    outputStream.write((char *)&distance, sizeof(int));
+
+                    int length = value->getLength();
+
+                    outputStream.write((char *)&length, sizeof(int));
+
+                    Uint8 symbol = value->getSymbol();
+
+                    outputStream.write((char *)&symbol, sizeof(Uint8));
+                }
             }
             else
             {
