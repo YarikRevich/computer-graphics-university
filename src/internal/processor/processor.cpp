@@ -1480,3 +1480,21 @@ void Processor::cleanSurface(SDL_Surface *surface)
 {
     SDL_FillRect(surface, NULL, 0x000000);
 }
+
+template <typename T>
+int Processor::LZ77Result<T>::getDistance()
+{
+    return distance;
+}
+
+template <typename T>
+int Processor::LZ77Result<T>::getLength()
+{
+    return length;
+}
+
+template <typename T>
+T Processor::LZ77Result<T>::getSymbol()
+{
+    return symbol;
+}

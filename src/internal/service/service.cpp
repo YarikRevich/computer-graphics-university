@@ -554,6 +554,99 @@ std::vector<Uint16> Service::decompressByteRunImageUint16(std::vector<Sint16> im
     return result;
 }
 
+std::vector<Sint8> Service::compressByteRunImageUint8(std::vector<Uint8> image)
+{
+    std::vector<Sint8> result;
+
+    int i = 0;
+
+    while (i < image.size())
+    {
+        if ((i < image.size() - 1) && (image.at(i) == image.at(i + 1)))
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) == image.at(i + j + 1)) && j < 127)
+            {
+                j++;
+            }
+
+            result.push_back(-j);
+            result.push_back(image.at(i + j));
+
+            i += (j + 1);
+        }
+        else
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) != image.at(i + j + 1) && (j < 128)))
+            {
+                j++;
+            }
+
+            if ((i + j == image.size() - 1) && (j < 128))
+            {
+                j++;
+            }
+
+            result.push_back(j - 1);
+            for (int k = 0; k < j; k++)
+            {
+                result.push_back(image.at(i + k));
+            }
+
+            i += j;
+        }
+    }
+
+    return result;
+}
+
+std::vector<Uint8> Service::decompressByteRunImageUint8(std::vector<Sint8> image)
+{
+    std::vector<Uint8> result;
+
+    for (int i = 0; i < image.size();)
+    {
+
+        if (i + 1 >= image.size() - 1) {
+            break;
+        }
+
+        if (image.at(i) < 0)
+        {
+            int repeatCount = -image.at(i);
+
+            Uint8 value = static_cast<Uint8>(image.at(i + 1));
+
+            for (int j = 0; j <= repeatCount; j++)
+            {
+                result.push_back(value);
+            }
+
+            i += 2;
+        }
+        else
+        {
+            int copyCount = image.at(i) + 1;
+
+            for (int j = 0; j < copyCount; j++)
+            {
+                if (i + 1 + j >= image.size() - 1) {
+                    break;
+                }
+
+                result.push_back(static_cast<Uint8>(image.at(i + 1 + j)));
+            }
+
+            i += (1 + copyCount);
+        }
+    }
+
+    return result;
+}
+
 std::vector<Uint16> Service::compressRLEImageUint16(std::vector<Uint16> image)
 {
     std::vector<Uint16> result;
@@ -639,6 +732,226 @@ std::vector<Uint16> Service::decompressRLEImageUint16(std::vector<Uint16> image)
 
             i += 2;
         }
+    }
+
+    return result;
+}
+
+std::vector<Uint8> Service::compressRLEImageUint8(std::vector<Uint8> image)
+{
+    std::vector<Uint8> result;
+
+    int i = 0;
+
+    while (i < image.size())
+    {
+        if ((i < image.size() - 1) && (image.at(i) == image.at(i + 1)))
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) == image.at(i + j + 1)) && j < 254)
+            {
+                j++;
+            }
+
+            result.push_back(j + 1);
+            result.push_back(image.at(i + j));
+
+            i += (j + 1);
+        }
+        else
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) != image.at(i + j + 1) && (j < 254)))
+            {
+                j++;
+            }
+
+            if ((i + j == image.size() - 1) && (j < 254))
+            {
+                j++;
+            }
+
+            result.push_back(0);
+            result.push_back(j);
+
+            for (int k = 0; k < j; k++)
+            {
+                result.push_back(image.at(i + k));
+            }
+
+            if (j % 2 != 0) {
+                result.push_back(0);
+            }
+
+            i += j;
+        }
+    }
+
+    return result;
+}
+
+std::vector<Uint8> Service::decompressRLEImageUint8(std::vector<Uint8> image) {
+    std::vector<Uint8> result;
+
+    int i = 0;
+    while (i < image.size()) {
+        Uint8 byte1 = image[i];
+        Uint8 byte2 = image[i+1];
+
+        if (byte1 == 0) {
+            i += 2;
+            
+            int repetitions = byte2;
+            
+            for(int j = 0; j < repetitions; j++) {
+                result.push_back(image[i]);
+                i++;
+            }
+
+            if(i % 2 == 1) {
+                i++;
+            }
+        } else {
+            int repetitions = byte1;
+
+            for(int j = 0; j < repetitions; j++) {
+                result.push_back(byte2);
+            }
+
+            i += 2;
+        }
+    }
+
+    return result;
+}
+
+template<typename T>
+std::vector<Processor::LZ77Result<T>*> compressLZ77ImageUint16(std::vector<Uint16>& image) {
+    std::vector<Processor::LZ77Result<T>*> result;
+
+    int match_distance = 0;
+    int match_length = 0;
+    int start_window = 0;
+
+    for (int i = 0; i < image.size(); ) {
+        match_distance = 0;
+        match_length = 0;
+        start_window = 0;
+
+        Uint16 value = image[i];
+
+        if (i - LZ77_WINDOW_SIZE > 0) {
+            start_window = i - LZ77_WINDOW_SIZE;
+        }
+
+        for (int j = start_window; j < i; j++) {
+            int length = 0;
+
+            while (length < LZ77_BUFFER_SIZE && 
+            (i + length) < image.size() && 
+            image[j + length] == image[i + length]) {
+                length++;
+            }
+
+            if (length > match_length) {
+                match_distance = i - j;
+                match_length = length;
+            }
+        }
+
+        if (match_length > 0) {
+            value = image[i + match_length];
+        }
+
+        result.push_back(new Processor::LZ77Result(match_distance, match_length, value));
+
+        i += match_length + 1;
+    }
+
+    return result;
+}
+
+template<typename T>
+std::vector<Uint16> decompressLZ77ImageUint16(std::vector<Processor::LZ77Result<T>*>& src) {
+    std::vector<Uint16> result;
+
+    for (const auto& token : src) {
+        if (token->getDistance() > 0) {
+            int start = result.size() - token->getDistance();
+
+            for (int i = 0; i < token->getLength(); i++) {
+                result.push_back(result[start + i]);
+            }
+        }
+
+        result.push_back(token->getSymbol());
+    }
+
+    return result;
+}
+
+template<typename T>
+std::vector<Processor::LZ77Result<T>*> compressLZ77ImageUint8(std::vector<Uint8>& image) {
+    std::vector<Processor::LZ77Result<T>*> result;
+
+    int match_distance = 0;
+    int match_length = 0;
+    int start_window = 0;
+
+    for (int i = 0; i < image.size(); ) {
+        match_distance = 0;
+        match_length = 0;
+        start_window = 0;
+
+        Uint8 value = image[i];
+
+        if (i - LZ77_WINDOW_SIZE > 0) {
+            start_window = i - LZ77_WINDOW_SIZE;
+        }
+
+        for (int j = start_window; j < i; j++) {
+            int length = 0;
+
+            while (length < LZ77_BUFFER_SIZE && 
+            (i + length) < image.size() && 
+            image[j + length] == image[i + length]) {
+                length++;
+            }
+
+            if (length > match_length) {
+                match_distance = i - j;
+                match_length = length;
+            }
+        }
+
+        if (match_length > 0) {
+            value = image[i + match_length];
+        }
+
+        result.push_back(new Processor::LZ77Result(match_distance, match_length, value));
+
+        i += match_length + 1;
+    }
+
+    return result;
+}
+
+template<typename T>
+std::vector<Uint8> decompressLZ77ImageUint8(std::vector<Processor::LZ77Result<T>*>& src) {
+    std::vector<Uint8> result;
+
+    for (const auto& token : src) {
+        if (token->getDistance() > 0) {
+            int start = result.size() - token->getDistance();
+
+            for (int i = 0; i < token->getLength(); i++) {
+                result.push_back(result[start + i]);
+            }
+        }
+
+        result.push_back(token->getSymbol());
     }
 
     return result;
@@ -790,3 +1103,10 @@ void Service::saveMetadata(
 
 //     return result;
 // }
+
+
+
+
+
+
+

@@ -168,8 +168,6 @@ public:
      */
     static SDL_Color convert7BitGreyTo24BitRGB(Uint8 grey);
 
-
-
     /**
      * Converts given 24 bit YCbCr color to 7 bit grey single.
      *
@@ -185,13 +183,6 @@ public:
      * @return converted 24 bit YCbCr color.
      */
     static SDL_Color convert7BitGreyTo24BitYCbCr(Uint8 grey);
-
-
-
-
-
-
-
 
     /**
      * Converts given 24 bit YUV color to 7 bit grey single.
@@ -225,7 +216,7 @@ public:
      */
     static SDL_Color convert7BitGreyTo24BitYIQ(Uint8 grey);
 
-     /**
+    /**
      * Converts given 24 bit HSL color to 7 bit grey single.
      *
      * @param color - given 24 bit HSL color to be converted.
@@ -432,7 +423,7 @@ public:
 
     /**
      * Creates surface filled with the given colors.
-     * 
+     *
      * @param width - given surface width.
      * @param height - given surface height.
      * @param image - given colors.
@@ -454,6 +445,53 @@ public:
      * @param surface - given surface to be cleaned.
      */
     static void cleanSurface(SDL_Surface *surface);
+
+    /**
+     * Represents LZ77 compression result holder.
+     */
+    template<typename T>
+    class LZ77Result
+    {
+    public:
+        LZ77Result(int distance, int length, T symbol) : distance{distance}, length{length}, symbol{symbol} {}
+
+        /**
+         * Retrieves distance value.
+         *
+         * @return retrieved distance value.
+         */
+        int getDistance();
+
+        /**
+         * Retrieves length value.
+         *
+         * @return retrieved length value.
+         */
+        int getLength();
+
+        /**
+         * Retrieves symbol value.
+         *
+         * @return retrieved symbol value.
+         */
+        T getSymbol();
+
+    private:
+        /**
+         * Represents distance value.
+         */
+        int distance;
+
+        /**
+         * Represents length value.
+         */
+        int length;
+
+        /**
+         * Represents symbol value.
+         */
+        T symbol;
+    };
 
 private:
     /**
