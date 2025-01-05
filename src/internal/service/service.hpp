@@ -362,7 +362,7 @@ public:
      * @return compressed CGU image.
      */
     template<typename T>
-    static std::vector<Processor::LZ77Result<T>*> compressLZ77ImageUint16(std::vector<Uint16>& image);
+    static std::vector<Processor::LZ77Result<T>*> compressLZ77ImageUint16(std::vector<Uint16> image);
 
     /**
      * Decompresses provided image using Uint16 using LZ77 compression.
@@ -371,7 +371,7 @@ public:
      * @return decompressed CGU image.
      */
     template<typename T>
-    static std::vector<Uint16> decompressLZ77ImageUint16(std::vector<Processor::LZ77Result<T>*>& src);
+    static std::vector<Uint16> decompressLZ77ImageUint16(std::vector<Processor::LZ77Result<T>*> src);
 
     /**
      * Compresses provided image using Uint8 using LZ77 compression.
@@ -380,7 +380,7 @@ public:
      * @return compressed CGU image.
      */
     template<typename T>
-    static std::vector<Processor::LZ77Result<T>*> compressLZ77ImageUint8(std::vector<Uint8>& image);
+    static std::vector<Processor::LZ77Result<T>*> compressLZ77ImageUint8(std::vector<Uint8> image);
 
     /**
      * Decompresses provided image using Uint8 using LZ77 compression.
@@ -389,7 +389,7 @@ public:
      * @return decompressed CGU image.
      */
     template<typename T>
-    static std::vector<Uint8> decompressLZ77ImageUint8(std::vector<Processor::LZ77Result<T>*>& src);
+    static std::vector<Uint8> decompressLZ77ImageUint8(std::vector<Processor::LZ77Result<T>*> src);
 
     /**
      * Compresses provided image using int using LZ77 compression.
@@ -398,7 +398,7 @@ public:
      * @return compressed CGU image.
      */
     template<typename T>
-    static std::vector<Processor::LZ77Result<T>*> compressLZ77ImageInt(std::vector<int>& image);
+    static std::vector<Processor::LZ77Result<T>*> compressLZ77ImageInt(std::vector<int> image);
 
     /**
      * Decompresses provided image using int using LZ77 compression.
@@ -407,7 +407,7 @@ public:
      * @return decompressed CGU image.
      */
     template<typename T>
-    static std::vector<int> decompressLZ77ImageInt(std::vector<Processor::LZ77Result<T>*>& src);
+    static std::vector<int> decompressLZ77ImageInt(std::vector<Processor::LZ77Result<T>*> src);
 
     /**
      * Saves CGU file metadata struct with the given arguments.

@@ -143,6 +143,28 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                std::vector<Processor::LZ77Result<Uint16> *> serializedBuffer;
+
+                std::vector<Uint16> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+                {
+                    int distance;
+
+                    inputStream.read((char *)&distance, sizeof(int));
+
+                    int length;
+
+                    inputStream.read((char *)&length, sizeof(int));
+
+                    Uint16 symbol;
+
+                    inputStream.read((char *)&symbol, sizeof(Uint16));
+
+                    serializedBuffer.push_back(new Processor::LZ77Result<Uint16>(distance, length, symbol));
+                }
+
+                buff = Service::decompressLZ77ImageUint16(serializedBuffer);
             }
             else
             {
@@ -176,6 +198,28 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                std::vector<Processor::LZ77Result<Uint16> *> serializedBuffer;
+
+                std::vector<Uint16> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+                {
+                    int distance;
+
+                    inputStream.read((char *)&distance, sizeof(int));
+
+                    int length;
+
+                    inputStream.read((char *)&length, sizeof(int));
+
+                    Uint16 symbol;
+
+                    inputStream.read((char *)&symbol, sizeof(Uint16));
+
+                    serializedBuffer.push_back(new Processor::LZ77Result<Uint16>(distance, length, symbol));
+                }
+
+                buff = Service::decompressLZ77ImageUint16(serializedBuffer);
             }
             else
             {
@@ -196,7 +240,7 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressByteRunImageUint8(compressionBuffer);
 
-                for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) * 3; i += 3)
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
                 {
                     std::vector<Uint8> internal;
 
@@ -216,7 +260,7 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressRLEImageUint8(compressionBuffer);
 
-                for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) * 3; i += 3)
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
                 {
                     std::vector<Uint8> internal;
 
@@ -359,6 +403,20 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
         }
         else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
         {
+            std::vector<Processor::LZ77Result<int> *> serializedBuffer;
+
+            std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+            inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+            for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+            {
+                serializedBuffer.push_back(
+                    new Processor::LZ77Result<int>(
+                        compressionBuffer.at(i), compressionBuffer.at(i + 1), compressionBuffer.at(i + 2)));
+            }
+
+            input = Service::decompressLZ77ImageInt<int>(serializedBuffer);
         }
         else
         {
@@ -1183,6 +1241,37 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                auto compressionBuffer = Service::compressLZ77ImageUint16<Uint16>(fifteenBitColors);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    compressionBuffer.size() * 3,
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                for (auto value : compressionBuffer)
+                {
+                    int distance = value->getDistance();
+
+                    outputStream.write((char *)&distance, sizeof(int));
+
+                    int length = value->getLength();
+
+                    outputStream.write((char *)&length, sizeof(int));
+
+                    Uint16 symbol = value->getSymbol();
+
+                    outputStream.write((char *)&symbol, sizeof(Uint16));
+                }
             }
             else
             {
@@ -1255,6 +1344,37 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                auto compressionBuffer = Service::compressLZ77ImageUint16<Uint16>(sixteenBitColors);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    compressionBuffer.size() * 3,
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                for (auto value : compressionBuffer)
+                {
+                    int distance = value->getDistance();
+
+                    outputStream.write((char *)&distance, sizeof(int));
+
+                    int length = value->getLength();
+
+                    outputStream.write((char *)&length, sizeof(int));
+
+                    Uint16 symbol = value->getSymbol();
+
+                    outputStream.write((char *)&symbol, sizeof(Uint16));
+                }
             }
             else
             {
@@ -1414,6 +1534,16 @@ int Pipeline::handleEncode(
         }
         else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
         {
+            auto compressionBuffer = Service::compressLZ77ImageInt<int>(result->getIndeces());
+
+            for (auto value : compressionBuffer)
+            {
+                indeces.push_back(value->getDistance());
+
+                indeces.push_back(value->getLength());
+
+                indeces.push_back(value->getSymbol());
+            }
         }
         else
         {
@@ -1425,7 +1555,7 @@ int Pipeline::handleEncode(
             bitType,
             modelType,
             losslessCompressionType,
-            indeces.size(),
+            losslessCompressionType != IO::LOSSLESS_COMPRESSION_TYPES::NONE ? indeces.size() : 0,
             lossyCompressionType,
             samplingType,
             filterType,

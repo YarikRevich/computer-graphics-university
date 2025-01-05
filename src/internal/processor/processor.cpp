@@ -1487,14 +1487,26 @@ int Processor::LZ77Result<T>::getDistance()
     return distance;
 }
 
+template int Processor::LZ77Result<Uint16>::getDistance();
+template int Processor::LZ77Result<Uint8>::getDistance();
+template int Processor::LZ77Result<int>::getDistance();
+
 template <typename T>
 int Processor::LZ77Result<T>::getLength()
 {
     return length;
 }
 
+template int Processor::LZ77Result<Uint16>::getLength();
+template int Processor::LZ77Result<Uint8>::getLength();
+template int Processor::LZ77Result<int>::getLength();
+
 template <typename T>
 T Processor::LZ77Result<T>::getSymbol()
 {
     return symbol;
 }
+
+template Uint16 Processor::LZ77Result<Uint16>::getSymbol();
+template Uint8 Processor::LZ77Result<Uint8>::getSymbol();
+template int Processor::LZ77Result<int>::getSymbol();
