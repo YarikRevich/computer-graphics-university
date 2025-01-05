@@ -543,7 +543,11 @@ std::vector<Uint16> Service::decompressByteRunImageUint16(std::vector<Sint16> im
             int copyCount = image.at(i) + 1;
 
             for (int j = 0; j < copyCount; j++)
-            {
+            {   
+                if (i + 1 + j >= image.size() - 1) {
+                    continue;
+                }
+
                 result.push_back(static_cast<Uint16>(image.at(i + 1 + j)));
             }
 
@@ -609,7 +613,6 @@ std::vector<Uint8> Service::decompressByteRunImageUint8(std::vector<Sint8> image
 
     for (int i = 0; i < image.size();)
     {
-
         if (i + 1 >= image.size() - 1) {
             break;
         }
@@ -634,10 +637,103 @@ std::vector<Uint8> Service::decompressByteRunImageUint8(std::vector<Sint8> image
             for (int j = 0; j < copyCount; j++)
             {
                 if (i + 1 + j >= image.size() - 1) {
-                    break;
+                    continue;
                 }
 
                 result.push_back(static_cast<Uint8>(image.at(i + 1 + j)));
+            }
+
+            i += (1 + copyCount);
+        }
+    }
+
+    return result;
+}
+
+
+std::vector<int> Service::compressByteRunImageInt(std::vector<int> image)
+{
+    std::vector<int> result;
+
+    int i = 0;
+
+    while (i < image.size())
+    {
+        if ((i < image.size() - 1) && (image.at(i) == image.at(i + 1)))
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) == image.at(i + j + 1)) && j < 127)
+            {
+                j++;
+            }
+
+            result.push_back(-j);
+            result.push_back(image.at(i + j));
+
+            i += (j + 1);
+        }
+        else
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) != image.at(i + j + 1) && (j < 128)))
+            {
+                j++;
+            }
+
+            if ((i + j == image.size() - 1) && (j < 128))
+            {
+                j++;
+            }
+
+            result.push_back(j - 1);
+            for (int k = 0; k < j; k++)
+            {
+                result.push_back(image.at(i + k));
+            }
+
+            i += j;
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::decompressByteRunImageInt(std::vector<int> image)
+{
+    std::vector<int> result;
+
+    for (int i = 0; i < image.size();)
+    {
+        if (i + 1 >= image.size() - 1) {
+            break;
+        }
+
+        if (image.at(i) < 0)
+        {
+            int repeatCount = -image.at(i);
+
+            int value = static_cast<int>(image.at(i + 1));
+
+            for (int j = 0; j <= repeatCount; j++)
+            {
+                result.push_back(value);
+            }
+
+            i += 2;
+        }
+        else
+        {
+            int copyCount = image.at(i) + 1;
+
+            for (int j = 0; j < copyCount; j++)
+            {
+                if (i + 1 + j >= image.size() - 1) {
+                    continue;
+                }
+
+                result.push_back(static_cast<int>(image.at(i + 1 + j)));
             }
 
             i += (1 + copyCount);
@@ -799,6 +895,96 @@ std::vector<Uint8> Service::decompressRLEImageUint8(std::vector<Uint8> image) {
     while (i < image.size()) {
         Uint8 byte1 = image[i];
         Uint8 byte2 = image[i+1];
+
+        if (byte1 == 0) {
+            i += 2;
+            
+            int repetitions = byte2;
+            
+            for(int j = 0; j < repetitions; j++) {
+                result.push_back(image[i]);
+                i++;
+            }
+
+            if(i % 2 == 1) {
+                i++;
+            }
+        } else {
+            int repetitions = byte1;
+
+            for(int j = 0; j < repetitions; j++) {
+                result.push_back(byte2);
+            }
+
+            i += 2;
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::compressRLEImageInt(std::vector<int> image)
+{
+    std::vector<int> result;
+
+    int i = 0;
+
+    while (i < image.size())
+    {
+        if ((i < image.size() - 1) && (image.at(i) == image.at(i + 1)))
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) == image.at(i + j + 1)) && j < 254)
+            {
+                j++;
+            }
+
+            result.push_back(j + 1);
+            result.push_back(image.at(i + j));
+
+            i += (j + 1);
+        }
+        else
+        {
+            int j = 0;
+
+            while ((i + j < image.size() - 1) && (image.at(i + j) != image.at(i + j + 1) && (j < 254)))
+            {
+                j++;
+            }
+
+            if ((i + j == image.size() - 1) && (j < 254))
+            {
+                j++;
+            }
+
+            result.push_back(0);
+            result.push_back(j);
+
+            for (int k = 0; k < j; k++)
+            {
+                result.push_back(image.at(i + k));
+            }
+
+            if (j % 2 != 0) {
+                result.push_back(0);
+            }
+
+            i += j;
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::decompressRLEImageInt(std::vector<int> image) {
+    std::vector<int> result;
+
+    int i = 0;
+    while (i < image.size()) {
+        int byte1 = image[i];
+        int byte2 = image[i+1];
 
         if (byte1 == 0) {
             i += 2;

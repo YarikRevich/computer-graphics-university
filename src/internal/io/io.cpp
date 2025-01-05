@@ -304,7 +304,7 @@ IO::FileMetadata *IO::readMetadata(std::ifstream &inputStream)
 }
 
 int IO::FileMetadata::getSize() {
-    return sizeof(int) + (sizeof(uint16_t) * 2) + (sizeof(uint8_t) * 9);
+    return (sizeof(int) * 2) + (sizeof(uint16_t) * 2) + (sizeof(uint8_t) * 9);
 };
 
 IO::FileMetadata *IO::composeMetadata(

@@ -25,28 +25,31 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             {
                 std::vector<Sint8> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
 
-                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(Sint8));   
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(Sint8));
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressByteRunImageUint8(compressionBuffer);
 
-                std::vector<Uint8> internal;
-                for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i++)
-                {
-                    internal.clear();
+                std::cout << ((metadata->getWidth() * metadata->getHeight())) << std::endl;
+                std::cout << ((metadata->getWidth() * metadata->getHeight())) / ORIGINAL_BIT_NUM_PER_PIXEL << std::endl;
 
-                    for (int k = 0; k < PREFERRED_BIT_NUM_PER_PIXEL; k++) {
-                        std::cout << (uint)decompressedBuffer[i + k] << std::endl;
+                for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight())); i += PREFERRED_BIT_NUM_PER_PIXEL)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < PREFERRED_BIT_NUM_PER_PIXEL; k++)
+                    {
                         internal.push_back(decompressedBuffer[i + k]);
                     }
-
-                    
 
                     buff.push_back(internal);
                 }
 
+                std::cout << (uint)decompressedBuffer[0] << std::endl;
+                std::cout << (uint)buff.at(0).at(0) << std::endl;
+
                 // std::vector<Sint8> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
 
-                // inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(Sint8));   
+                // inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(Sint8));
 
                 // std::vector<Uint8> decompressedBuffer = Service::decompressByteRunImageUint8(compressionBuffer);
 
@@ -64,6 +67,26 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::RLE)
             {
+                std::vector<Uint8> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(Uint8));
+
+                std::vector<Uint8> decompressedBuffer = Service::decompressRLEImageUint8(compressionBuffer);
+
+                std::cout << ((metadata->getWidth() * metadata->getHeight())) << std::endl;
+                std::cout << ((metadata->getWidth() * metadata->getHeight())) / ORIGINAL_BIT_NUM_PER_PIXEL << std::endl;
+
+                for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight())); i += PREFERRED_BIT_NUM_PER_PIXEL)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < PREFERRED_BIT_NUM_PER_PIXEL; k++)
+                    {
+                        internal.push_back(decompressedBuffer[i + k]);
+                    }
+
+                    buff.push_back(internal);
+                }
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
@@ -303,7 +326,26 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
         }
 
         std::vector<int> input(metadata->getWidth() * metadata->getHeight(), 0);
-        inputStream.read((char *)(input.data()), input.size() * sizeof(int));
+
+        if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN) {
+            std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+            inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+            input = Service::decompressByteRunImageInt(compressionBuffer);
+        } else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::RLE) {
+            std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+            inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+            input = Service::decompressRLEImageInt(compressionBuffer);
+        } else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW) {
+            
+        } else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77) {
+            
+        } else {
+            inputStream.read((char *)(input.data()), input.size() * sizeof(int));
+        }
 
         for (auto &value : input)
         {
@@ -813,14 +855,13 @@ int Pipeline::handleEncode(
 
                 for (std::vector<Uint8> value : sevenBitColors)
                 {
+                    std::cout << value.size() << std::endl;
+
                     for (Uint8 compound : value)
                     {
                         compressionBuffer.push_back(compound);
                     }
                 }
-
-                std::cout << sevenBitColors.size() << std::endl;
-                std::cout << compressionBuffer.size() << std::endl;
 
                 std::vector<Sint8> sevenBitColorsCompressed = Service::compressByteRunImageUint8(compressionBuffer);
 
@@ -1097,12 +1138,28 @@ int Pipeline::handleEncode(
                 Processor::generateColorBucketsBW(input, image);
         }
 
+        std::vector<int> indeces;
+
+        if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN) {
+            indeces = Service::compressByteRunImageInt(result->getIndeces());
+
+        } else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::RLE) {
+            indeces = Service::compressRLEImageInt(result->getIndeces());
+
+        } else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW) {
+
+        } else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77) {
+            
+        } else {
+            indeces = result->getIndeces();
+        }
+
         Service::saveMetadata(
             conversionType,
             bitType,
             modelType,
             losslessCompressionType,
-            0,
+            indeces.size(),
             lossyCompressionType,
             samplingType,
             filterType,
@@ -1257,7 +1314,7 @@ int Pipeline::handleEncode(
             }
         }
 
-        outputStream.write((char *)(result->getIndeces().data()), result->getIndeces().size() * sizeof(int));
+        outputStream.write((char *)(indeces.data()), indeces.size() * sizeof(int));
 
         return EXIT_SUCCESS;
     }

@@ -292,6 +292,22 @@ public:
     static std::vector<Uint8> decompressByteRunImageUint8(std::vector<Sint8> image);
 
     /**
+     * Compresses provided image using int using ByteRun compression.
+     * 
+     * @param image - given non compressed CGU image.
+     * @return compressed CGU image.
+     */
+    static std::vector<int> compressByteRunImageInt(std::vector<int> image);
+
+    /**
+     * Decompresses provided image using int using ByteRun compression.
+     * 
+     * @param image - given compressed CGU image.
+     * @return decompressed CGU image.
+     */
+    static std::vector<int> decompressByteRunImageInt(std::vector<int> image);
+
+    /**
      * Compresses provided image using Uint16 using RLE compression.
      * 
      * @param image - given non compressed CGU image.
@@ -322,6 +338,22 @@ public:
      * @return decompressed CGU image.
      */
     static std::vector<Uint8> decompressRLEImageUint8(std::vector<Uint8> image);
+
+    /**
+     * Compresses provided image using int using RLE compression.
+     * 
+     * @param image - given non compressed CGU image.
+     * @return compressed CGU image.
+     */
+    static std::vector<int> compressRLEImageInt(std::vector<int> image);
+
+    /**
+     * Decompresses provided image using int using RLE compression.
+     * 
+     * @param image - given compressed CGU image.
+     * @return decompressed CGU image.
+     */
+    static std::vector<int> decompressRLEImageInt(std::vector<int> image);
 
     /**
      * Compresses provided image using Uint16 using LZ77 compression.
@@ -358,6 +390,24 @@ public:
      */
     template<typename T>
     static std::vector<Uint8> decompressLZ77ImageUint8(std::vector<Processor::LZ77Result<T>*>& src);
+
+    /**
+     * Compresses provided image using int using LZ77 compression.
+     * 
+     * @param image - given non compressed CGU image.
+     * @return compressed CGU image.
+     */
+    template<typename T>
+    static std::vector<Processor::LZ77Result<T>*> compressLZ77ImageInt(std::vector<int>& image);
+
+    /**
+     * Decompresses provided image using int using LZ77 compression.
+     * 
+     * @param image - given compressed CGU image.
+     * @return decompressed CGU image.
+     */
+    template<typename T>
+    static std::vector<int> decompressLZ77ImageInt(std::vector<Processor::LZ77Result<T>*>& src);
 
     /**
      * Saves CGU file metadata struct with the given arguments.
