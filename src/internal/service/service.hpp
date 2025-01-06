@@ -240,16 +240,6 @@ public:
     static int convertToCGUPaletteDetected(SDL_Surface *surface);
 
     /**
-     *
-     */
-    static void compressToDCT();
-
-    /**
-     *
-     */
-    static void decompressFromDCT();
-
-    /**
      * Compresses provided image using Uint16 using ByteRun compression.
      * 
      * @param image - given non compressed CGU image.
@@ -351,8 +341,7 @@ public:
      * @param image - given non compressed CGU image.
      * @return compressed CGU image.
      */
-    template<typename T>
-    static std::vector<Processor::LZ77Result<T>*> compressLZ77ImageUint16(std::vector<Uint16> image);
+    static std::vector<Processor::LZ77Result<Uint16>*> compressLZ77ImageUint16(std::vector<Uint16> image);
 
     /**
      * Decompresses provided image using Uint16 using LZ77 compression.
@@ -360,8 +349,7 @@ public:
      * @param image - given compressed CGU image.
      * @return decompressed CGU image.
      */
-    template<typename T>
-    static std::vector<Uint16> decompressLZ77ImageUint16(std::vector<Processor::LZ77Result<T>*> src);
+    static std::vector<Uint16> decompressLZ77ImageUint16(std::vector<Processor::LZ77Result<Uint16>*> src);
 
     /**
      * Compresses provided image using Uint8 using LZ77 compression.
@@ -369,8 +357,7 @@ public:
      * @param image - given non compressed CGU image.
      * @return compressed CGU image.
      */
-    template<typename T>
-    static std::vector<Processor::LZ77Result<T>*> compressLZ77ImageUint8(std::vector<Uint8> image);
+    static std::vector<Processor::LZ77Result<Uint8>*> compressLZ77ImageUint8(std::vector<Uint8> image);
 
     /**
      * Decompresses provided image using Uint8 using LZ77 compression.
@@ -378,8 +365,7 @@ public:
      * @param image - given compressed CGU image.
      * @return decompressed CGU image.
      */
-    template<typename T>
-    static std::vector<Uint8> decompressLZ77ImageUint8(std::vector<Processor::LZ77Result<T>*> src);
+    static std::vector<Uint8> decompressLZ77ImageUint8(std::vector<Processor::LZ77Result<Uint8>*> src);
 
     /**
      * Compresses provided image using int using LZ77 compression.
@@ -387,8 +373,7 @@ public:
      * @param image - given non compressed CGU image.
      * @return compressed CGU image.
      */
-    template<typename T>
-    static std::vector<Processor::LZ77Result<T>*> compressLZ77ImageInt(std::vector<int> image);
+    static std::vector<Processor::LZ77Result<int>*> compressLZ77ImageInt(std::vector<int> image);
 
     /**
      * Decompresses provided image using int using LZ77 compression.
@@ -396,8 +381,7 @@ public:
      * @param image - given compressed CGU image.
      * @return decompressed CGU image.
      */
-    template<typename T>
-    static std::vector<int> decompressLZ77ImageInt(std::vector<Processor::LZ77Result<T>*> src);
+    static std::vector<int> decompressLZ77ImageInt(std::vector<Processor::LZ77Result<int>*> src);
 
     /**
      * Compresses provided image using int using LZW compression.
@@ -405,8 +389,7 @@ public:
      * @param image - given non compressed CGU image.
      * @return compressed CGU image.
      */
-    template<typename T>
-    static Processor::LZWResult<T> * compressLZWImageUint16(std::vector<Uint16> image);
+    static Processor::LZWResult<Uint16> * compressLZWImageUint16(std::vector<Uint16> image);
 
     /**
      * Decompresses provided image using int using LZW compression.
@@ -414,8 +397,7 @@ public:
      * @param image - given compressed CGU image.
      * @return decompressed CGU image.
      */
-    template<typename T>
-    static std::vector<Uint16> decompressLZWImageUint16(Processor::LZWResult<T>* src);
+    static std::vector<Uint16> decompressLZWImageUint16(Processor::LZWResult<Uint16>* src);
 
     /**
      * Compresses provided image using int using LZW compression.
@@ -423,8 +405,7 @@ public:
      * @param image - given non compressed CGU image.
      * @return compressed CGU image.
      */
-    template<typename T>
-    static Processor::LZWResult<T> * compressLZWImageUint8(std::vector<Uint8> image);
+    static Processor::LZWResult<Uint8> * compressLZWImageUint8(std::vector<Uint8> image);
 
     /**
      * Decompresses provided image using int using LZW compression.
@@ -432,8 +413,7 @@ public:
      * @param image - given compressed CGU image.
      * @return decompressed CGU image.
      */
-    template<typename T>
-    static std::vector<Uint8> decompressLZWImageUint8(Processor::LZWResult<T>* src);
+    static std::vector<Uint8> decompressLZWImageUint8(Processor::LZWResult<Uint8>* src);
 
     /**
      * Compresses provided image using int using LZW compression.
@@ -441,8 +421,7 @@ public:
      * @param image - given non compressed CGU image.
      * @return compressed CGU image.
      */
-    template<typename T>
-    static Processor::LZWResult<T> * compressLZWImageInt(std::vector<int> image);
+    static Processor::LZWResult<int> * compressLZWImageInt(std::vector<int> image);
 
     /**
      * Decompresses provided image using int using LZW compression.
@@ -450,8 +429,23 @@ public:
      * @param image - given compressed CGU image.
      * @return decompressed CGU image.
      */
-    template<typename T>
-    static std::vector<int> decompressLZWImageInt(Processor::LZWResult<T>* src);
+    static std::vector<int> decompressLZWImageInt(Processor::LZWResult<int>* src);
+
+    /**
+     * Compresses provided image using int using DCT compression.
+     * 
+     * @param image - given non compressed CGU image.
+     * @return compressed CGU image.
+     */
+    static std::vector<int> compressDCTImageInt(std::vector<int> image, SDL_Surface* input);
+
+    /**
+     * Decompresses provided image using int using DCT compression.
+     * 
+     * @param image - given compressed CGU image.
+     * @return decompressed CGU image.
+     */
+    static std::vector<int> decompressDCTImageInt(std::vector<int> src, int height, int width);
 
     /**
      * Saves CGU file metadata struct with the given arguments.

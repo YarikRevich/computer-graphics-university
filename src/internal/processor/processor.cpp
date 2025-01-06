@@ -1322,7 +1322,7 @@ template int Processor::getLZWCompoundCounter(std::map<int, std::vector<Uint8>> 
 template int Processor::getLZWCompoundCounter(std::map<int, std::vector<int>> &compounds, std::vector<int> &component);
 
 template<typename T>
-void generateDCTMatrix(T input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE])
+void Processor::generateDCTMatrix(T input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE])
 {
     float result[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
 
@@ -1385,7 +1385,7 @@ template void Processor::generateDCTMatrix(Uint8 input[DCT_BLOCK_SIZE][DCT_BLOCK
 template void Processor::generateDCTMatrix(int input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
 
 template<typename T>
-void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], T output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE])
+void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], T output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE])
 {
     int result[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
 
@@ -1439,21 +1439,21 @@ void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], T ou
     {
         for (int i = 0; i < DCT_BLOCK_SIZE; i++)
         {
-            if (result[i][j] > 255)
-            {
-                result[i][j] = 255;
-            }
+            // if (result[i][j] > 255)
+            // {
+            //     result[i][j] = 255;
+            // }
 
-            if (result[i][j] < 0)
-            {
-                result[i][j] = 0;
-            }
+            // if (result[i][j] < 0)
+            // {
+            //     result[i][j] = 0;
+            // }
 
             output[i][j] = result[i][j];
         }
     }
 }
 
-template void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint16 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
-template void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint8 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
-template void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], int output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint16 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint8 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], int output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);

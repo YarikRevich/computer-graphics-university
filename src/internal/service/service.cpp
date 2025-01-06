@@ -1045,10 +1045,9 @@ std::vector<int> Service::decompressRLEImageInt(std::vector<int> image)
     return result;
 }
 
-template <typename T>
-std::vector<Processor::LZ77Result<T> *> Service::compressLZ77ImageUint16(std::vector<Uint16> image)
+std::vector<Processor::LZ77Result<Uint16> *> Service::compressLZ77ImageUint16(std::vector<Uint16> image)
 {
-    std::vector<Processor::LZ77Result<T> *> result;
+    std::vector<Processor::LZ77Result<Uint16> *> result;
 
     int match_distance = 0;
     int match_length = 0;
@@ -1098,8 +1097,7 @@ std::vector<Processor::LZ77Result<T> *> Service::compressLZ77ImageUint16(std::ve
     return result;
 }
 
-template <typename T>
-std::vector<Uint16> Service::decompressLZ77ImageUint16(std::vector<Processor::LZ77Result<T> *> src)
+std::vector<Uint16> Service::decompressLZ77ImageUint16(std::vector<Processor::LZ77Result<Uint16> *> src)
 {
     std::vector<Uint16> result;
 
@@ -1121,10 +1119,9 @@ std::vector<Uint16> Service::decompressLZ77ImageUint16(std::vector<Processor::LZ
     return result;
 }
 
-template <typename T>
-std::vector<Processor::LZ77Result<T> *> Service::compressLZ77ImageUint8(std::vector<Uint8> image)
+std::vector<Processor::LZ77Result<Uint8> *> Service::compressLZ77ImageUint8(std::vector<Uint8> image)
 {
-    std::vector<Processor::LZ77Result<T> *> result;
+    std::vector<Processor::LZ77Result<Uint8> *> result;
 
     int match_distance = 0;
     int match_length = 0;
@@ -1174,8 +1171,7 @@ std::vector<Processor::LZ77Result<T> *> Service::compressLZ77ImageUint8(std::vec
     return result;
 }
 
-template <typename T>
-std::vector<Uint8> Service::decompressLZ77ImageUint8(std::vector<Processor::LZ77Result<T> *> src)
+std::vector<Uint8> Service::decompressLZ77ImageUint8(std::vector<Processor::LZ77Result<Uint8> *> src)
 {
     std::vector<Uint8> result;
 
@@ -1197,10 +1193,9 @@ std::vector<Uint8> Service::decompressLZ77ImageUint8(std::vector<Processor::LZ77
     return result;
 }
 
-template <typename T>
-std::vector<Processor::LZ77Result<T> *> Service::compressLZ77ImageInt(std::vector<int> image)
+std::vector<Processor::LZ77Result<int> *> Service::compressLZ77ImageInt(std::vector<int> image)
 {
-    std::vector<Processor::LZ77Result<T> *> result;
+    std::vector<Processor::LZ77Result<int> *> result;
 
     int match_distance = 0;
     int match_length = 0;
@@ -1250,8 +1245,7 @@ std::vector<Processor::LZ77Result<T> *> Service::compressLZ77ImageInt(std::vecto
     return result;
 }
 
-template <typename T>
-std::vector<int> Service::decompressLZ77ImageInt(std::vector<Processor::LZ77Result<T> *> src)
+std::vector<int> Service::decompressLZ77ImageInt(std::vector<Processor::LZ77Result<int> *> src)
 {
     std::vector<int> result;
 
@@ -1273,17 +1267,7 @@ std::vector<int> Service::decompressLZ77ImageInt(std::vector<Processor::LZ77Resu
     return result;
 }
 
-template std::vector<Processor::LZ77Result<Uint16> *> Service::compressLZ77ImageUint16<Uint16>(std::vector<Uint16> image);
-template std::vector<Uint16> Service::decompressLZ77ImageUint16<Uint16>(std::vector<Processor::LZ77Result<Uint16> *> src);
-
-template std::vector<Processor::LZ77Result<Uint8> *> Service::compressLZ77ImageUint8<Uint8>(std::vector<Uint8> image);
-template std::vector<Uint8> Service::decompressLZ77ImageUint8<Uint8>(std::vector<Processor::LZ77Result<Uint8> *> src);
-
-template std::vector<Processor::LZ77Result<int> *> Service::compressLZ77ImageInt<int>(std::vector<int> image);
-template std::vector<int> Service::decompressLZ77ImageInt<int>(std::vector<Processor::LZ77Result<int> *> src);
-
-template <typename T>
-Processor::LZWResult<T> * Service::compressLZWImageUint16(std::vector<Uint16> image)
+Processor::LZWResult<Uint16> * Service::compressLZWImageUint16(std::vector<Uint16> image)
 {
     std::vector<int> result;
 
@@ -1338,8 +1322,7 @@ Processor::LZWResult<T> * Service::compressLZWImageUint16(std::vector<Uint16> im
     return new Processor::LZWResult(compounds, result);
 }
 
-template <typename T>
-std::vector<Uint16> Service::decompressLZWImageUint16(Processor::LZWResult<T> * src)
+std::vector<Uint16> Service::decompressLZWImageUint16(Processor::LZWResult<Uint16> * src)
 {
     std::vector<Uint16> result;
 
@@ -1356,8 +1339,7 @@ std::vector<Uint16> Service::decompressLZWImageUint16(Processor::LZWResult<T> * 
     return result;
 }
 
-template <typename T>
-Processor::LZWResult<T> * Service::compressLZWImageUint8(std::vector<Uint8> image)
+Processor::LZWResult<Uint8> * Service::compressLZWImageUint8(std::vector<Uint8> image)
 {
     std::vector<int> result;
 
@@ -1412,8 +1394,7 @@ Processor::LZWResult<T> * Service::compressLZWImageUint8(std::vector<Uint8> imag
     return new Processor::LZWResult(compounds, result);
 }
 
-template <typename T>
-std::vector<Uint8> Service::decompressLZWImageUint8(Processor::LZWResult<T> * src)
+std::vector<Uint8> Service::decompressLZWImageUint8(Processor::LZWResult<Uint8> * src)
 {
     std::vector<Uint8> result;
 
@@ -1430,8 +1411,7 @@ std::vector<Uint8> Service::decompressLZWImageUint8(Processor::LZWResult<T> * sr
     return result;
 }
 
-template <typename T>
-Processor::LZWResult<T> * Service::compressLZWImageInt(std::vector<int> image)
+Processor::LZWResult<int> * Service::compressLZWImageInt(std::vector<int> image)
 {
     std::vector<int> result;
 
@@ -1486,8 +1466,7 @@ Processor::LZWResult<T> * Service::compressLZWImageInt(std::vector<int> image)
     return new Processor::LZWResult(compounds, result);
 }
 
-template <typename T>
-std::vector<int> Service::decompressLZWImageInt(Processor::LZWResult<T> * src)
+std::vector<int> Service::decompressLZWImageInt(Processor::LZWResult<int> * src)
 {
     std::vector<int> result;
 
@@ -1504,14 +1483,75 @@ std::vector<int> Service::decompressLZWImageInt(Processor::LZWResult<T> * src)
     return result;
 }
 
-template Processor::LZWResult<Uint16> * Service::compressLZWImageUint16<Uint16>(std::vector<Uint16> image);
-template std::vector<Uint16> Service::decompressLZWImageUint16<Uint16>(Processor::LZWResult<Uint16> * src);
+std::vector<int> Service::compressDCTImageInt(std::vector<int> image, SDL_Surface* input)
+{
+    std::vector<int> result(image.size(), 0);
 
-template Processor::LZWResult<Uint8> * Service::compressLZWImageUint8<Uint8>(std::vector<Uint8> image);
-template std::vector<Uint8> Service::decompressLZWImageUint8<Uint8>(Processor::LZWResult<Uint8> * src);
+    int block[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
 
-template Processor::LZWResult<int> * Service::compressLZWImageInt<int>(std::vector<int> image);
-template std::vector<int> Service::decompressLZWImageInt<int>(Processor::LZWResult<int> * src);
+    float dctMatrix[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    for (int x = 0; x <= input->h; x += DCT_BLOCK_SIZE)
+    {
+        for (int y = 0; y <= input->w; y += DCT_BLOCK_SIZE)
+        {
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < input->h; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < input->w; yy++)
+                {
+                    block[xx][yy] = image[(x + xx) * input->w + (y + yy)];
+                }
+            }
+
+            Processor::generateDCTMatrix(block, dctMatrix);
+
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < input->h; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < input->w; yy++)
+                {
+                    result[(x + xx) * input->w + (y + yy)] = dctMatrix[xx][yy] * 1000.0;
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::decompressDCTImageInt(std::vector<int> src, int height, int width)
+{
+    std::vector<int> result(src.size(), 0);
+
+    int block[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    float dctMatrix[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    for (int x = 0; x <= height; x += DCT_BLOCK_SIZE)
+    {
+        for (int y = 0; y <= width; y += DCT_BLOCK_SIZE)
+        {
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < height; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < width; yy++)
+                {
+                    dctMatrix[xx][yy] = src[(x + xx) * width + (y + yy)] / 1000.0;
+                }
+            }
+
+            Processor::generateInversedDCTMatrix(dctMatrix, block);
+
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < height; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < width; yy++)
+                {
+                    result[(x + xx) * width + (y + yy)] = block[xx][yy];
+                }
+            }
+        }
+    }
+
+    return result;
+}
 
 void Service::saveMetadata(
     IO::CONVERSION_TYPES conversionType,

@@ -644,11 +644,15 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
                         compressionBuffer.at(i), compressionBuffer.at(i + 1), compressionBuffer.at(i + 2)));
             }
 
-            input = Service::decompressLZ77ImageInt<int>(serializedBuffer);
+            input = Service::decompressLZ77ImageInt(serializedBuffer);
         }
         else
         {
             inputStream.read((char *)(input.data()), input.size() * sizeof(int));
+        }
+
+        if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT) {
+            input = Service::decompressDCTImageInt(input, metadata->getHeight(), metadata->getWidth());
         }
 
         for (auto &value : input)
@@ -1363,11 +1367,15 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
                         compressionBuffer.at(i), compressionBuffer.at(i + 1), compressionBuffer.at(i + 2)));
             }
 
-            input = Service::decompressLZ77ImageInt<int>(serializedBuffer);
+            input = Service::decompressLZ77ImageInt(serializedBuffer);
         }
         else
         {
             inputStream.read((char *)(input.data()), input.size() * sizeof(int));
+        }
+
+        if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT) {
+            input = Service::decompressDCTImageInt(input, metadata->getHeight(), metadata->getWidth());
         }
 
         for (auto &value : input)
@@ -1687,7 +1695,7 @@ int Pipeline::handleEncode(
                     }
                 }
 
-                auto sevenBitColorsCompressed = Service::compressLZWImageUint8<Uint8>(serializedBuffer);
+                auto sevenBitColorsCompressed = Service::compressLZWImageUint8(serializedBuffer);
 
                 Service::saveMetadata(
                     conversionType,
@@ -1735,7 +1743,7 @@ int Pipeline::handleEncode(
                     }
                 }
 
-                auto sevenBitColorsCompressed = Service::compressLZ77ImageUint8<Uint8>(compressionBuffer);
+                auto sevenBitColorsCompressed = Service::compressLZ77ImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
                     conversionType,
@@ -1838,7 +1846,7 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
-                auto fifteenBitColorsCompressed = Service::compressLZWImageUint16<Uint16>(fifteenBitColors);
+                auto fifteenBitColorsCompressed = Service::compressLZWImageUint16(fifteenBitColors);
 
                 Service::saveMetadata(
                     conversionType,
@@ -1876,7 +1884,7 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
-                auto compressionBuffer = Service::compressLZ77ImageUint16<Uint16>(fifteenBitColors);
+                auto compressionBuffer = Service::compressLZ77ImageUint16(fifteenBitColors);
 
                 Service::saveMetadata(
                     conversionType,
@@ -1976,7 +1984,7 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
-                auto sixteenBitColorsCompressed = Service::compressLZWImageUint16<Uint16>(sixteenBitColors);
+                auto sixteenBitColorsCompressed = Service::compressLZWImageUint16(sixteenBitColors);
 
                 Service::saveMetadata(
                     conversionType,
@@ -2014,7 +2022,7 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
-                auto compressionBuffer = Service::compressLZ77ImageUint16<Uint16>(sixteenBitColors);
+                auto compressionBuffer = Service::compressLZ77ImageUint16(sixteenBitColors);
 
                 Service::saveMetadata(
                     conversionType,
@@ -2144,7 +2152,7 @@ int Pipeline::handleEncode(
                     }
                 }
 
-                auto twentyFourBitColorsCompressed = Service::compressLZWImageUint8<Uint8>(serializedBuffer);
+                auto twentyFourBitColorsCompressed = Service::compressLZWImageUint8(serializedBuffer);
 
                 Service::saveMetadata(
                     conversionType,
@@ -2192,7 +2200,7 @@ int Pipeline::handleEncode(
                     }
                 }
 
-                auto twentyFourBitColorsCompressed = Service::compressLZ77ImageUint8<Uint8>(compressionBuffer);
+                auto twentyFourBitColorsCompressed = Service::compressLZ77ImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
                     conversionType,
@@ -2277,19 +2285,23 @@ int Pipeline::handleEncode(
 
         std::optional<std::map<int, std::vector<int>>> compounds;
 
-        std::vector<int> indeces;
+        std::vector<int> indeces = result->getIndeces();
+
+        if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT) {
+            indeces = Service::compressDCTImageInt(indeces, input);
+        }
 
         if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
         {
-            indeces = Service::compressByteRunImageInt(result->getIndeces());
+            indeces = Service::compressByteRunImageInt(indeces);
         }
         else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::RLE)
         {
-            indeces = Service::compressRLEImageInt(result->getIndeces());
+            indeces = Service::compressRLEImageInt(indeces);
         }
         else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
         {
-            auto compressionBuffer = Service::compressLZWImageInt<int>(result->getIndeces());
+            auto compressionBuffer = Service::compressLZWImageInt(indeces);
 
             compounds = std::optional<std::map<int, std::vector<int>>>{compressionBuffer->getCompounds()};
 
@@ -2297,7 +2309,7 @@ int Pipeline::handleEncode(
         }
         else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
         {
-            auto compressionBuffer = Service::compressLZ77ImageInt<int>(result->getIndeces());
+            auto compressionBuffer = Service::compressLZ77ImageInt(indeces);
 
             for (auto value : compressionBuffer)
             {
@@ -2307,10 +2319,6 @@ int Pipeline::handleEncode(
 
                 indeces.push_back(value->getSymbol());
             }
-        }
-        else
-        {
-            indeces = result->getIndeces();
         }
 
         Service::saveMetadata(

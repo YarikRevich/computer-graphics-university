@@ -28,7 +28,7 @@ add_compile_definitions(LZ77_WINDOW_SIZE=8)
 add_compile_definitions(LZ77_BUFFER_SIZE=6)
 
 # Describes CGU DCT properties.
-add_compile_definitions(DCT_BLOCK_SIZE=16)
+add_compile_definitions(DCT_BLOCK_SIZE=8)
 
 # Describes pre-defined errors used for functionality validation.
 add_compile_definitions(BIT_SIZE_MIN_EXCEPTION="Given image has too small amount of unique color bits. Please use another conversion type")
