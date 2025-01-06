@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <vector>
+#include <map>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -449,7 +450,7 @@ public:
     /**
      * Represents LZ77 compression result holder.
      */
-    template<typename T>
+    template <typename T>
     class LZ77Result
     {
     public:
@@ -493,6 +494,79 @@ public:
         T symbol;
     };
 
+    /**
+     * Represents LZW compression result holder.
+     */
+    template <typename T>
+    class LZWResult
+    {
+    public:
+        LZWResult(std::map<int, std::vector<T>> compounds, std::vector<int> result) : compounds{compounds}, result{result} {}
+
+        /**
+         * Retrieves result data.
+         *
+         * @return retrieved result data.
+         */
+        std::vector<int> getResult();
+
+        /**
+         * Retrieves result compounds.
+         *
+         * @return retrieved result compounds.
+         */
+        std::map<int, std::vector<T>> getCompounds();
+
+    private:
+        /**
+         * Represents result data.
+         */
+        std::vector<int> result;
+
+        /**
+         * Represents result compounds.
+         */
+        std::map<int, std::vector<T>> compounds;
+    };
+
+    /**
+     * Checks if compounds is present.
+     *
+     * @param compounds - given compounds.
+     * @param component - given component.
+     * @return result of the check.
+     */
+    template <typename T>
+    static bool isLZWCompoundPresent(std::map<int, std::vector<T>>& compounds, std::vector<T>& component);
+
+    /**
+     * Retrieves amount of compounds for the given component.
+     *
+     * @param compounds - given compounds.
+     * @param component - given component.
+     * @return retrieved amount of compounds.
+     */
+    template <typename T>
+    static int getLZWCompoundCounter(std::map<int, std::vector<T>>& compounds, std::vector<T>& component);
+
+    /**
+     * Generates DCT matrix for the given input.
+     * 
+     * @param input - given matrix input.
+     * @param out output - given matrix destination.
+     */
+    template<typename T>
+    static void generateDCTMatrix(T input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+
+    /**
+     * Generates inversed DCT matrix for the given input.
+     * 
+     * @param input - given matrix input.
+     * @param out output - given matrix destination.
+     */
+    template<typename T>
+    static void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], T output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+
 private:
     /**
      * Checks if the given colors are equal.
@@ -501,7 +575,8 @@ private:
      * @param color2 - second color to be used in comparison
      * @return result of the check.
      */
-    static bool isColorEqual(SDL_Color color1, SDL_Color color2);
+    static bool
+    isColorEqual(SDL_Color color1, SDL_Color color2);
 
     /**
      * Checks if the given color is present in the given color map.

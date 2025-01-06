@@ -1,251 +1,5 @@
 #include "processor.hpp"
 
-// class LZWResult
-// {
-// public:
-//     LZWResult(std::map<int, std::vector<Uint8>> &compounds, std::vector<int> &result) : compounds{compounds}, result{result} {}
-
-//     std::vector<int> getResult()
-//     {
-//         return result;
-//     }
-
-//     std::map<int, std::vector<Uint8>> getCompounds()
-//     {
-//         return compounds;
-//     }
-
-// private:
-//     std::vector<int> result;
-
-//     std::map<int, std::vector<Uint8>> compounds;
-// };
-
-// bool isCompoundPresent(std::map<int, std::vector<Uint8>> &compounds, std::vector<Uint8> &component)
-// {
-//     for (auto const &[_, compound] : compounds)
-//     {
-//         if (compound == component)
-//         {
-//             return true;
-//         }
-//     }
-
-//     return false;
-// }
-
-// int getCompoundCounter(std::map<int, std::vector<Uint8>> &compounds, std::vector<Uint8> &component)
-// {
-//     for (auto const &[counter, compound] : compounds)
-//     {
-//         if (compound == component)
-//         {
-//             return counter;
-//         }
-//     }
-
-//     return 0;
-// }
-
-// LZWResult *getCompressedLZWImage(const std::vector<Uint8> &image)
-// {
-//     std::vector<int> result;
-
-//     int counter = 256;
-
-//     std::map<int, std::vector<Uint8>> compounds;
-
-//     for (int i = 0; i < 256; ++i)
-//     {
-//         compounds[i] = {static_cast<Uint8>(i)};
-//     }
-
-//     std::vector<Uint8> current;
-
-//     int i = 0;
-
-//     for (Uint8 value : image)
-//     {
-//         std::vector<Uint8> component = current;
-
-//         component.push_back(value);
-
-//         if (isCompoundPresent(compounds, component))
-//         {
-//             current = component;
-//         }
-//         else
-//         {
-//             int key = getCompoundCounter(compounds, current);
-//             if (key || !current.empty())
-//             {
-//                 result.push_back(key);
-//             }
-
-//             compounds[counter] = component;
-
-//             counter++;
-
-//             current = {value};
-//         }
-//     }
-
-//     if (!current.empty())
-//     {
-//         int key = getCompoundCounter(compounds, current);
-//         if (key)
-//         {
-//             result.push_back(key);
-//         }
-//     }
-
-//     return new LZWResult(compounds, result);
-// }
-
-// std::vector<Uint8> getDecompressedLZWImage(LZWResult *src)
-// {
-//     std::vector<Uint8> result;
-
-//     for (int key : src->getResult())
-//     {
-//         std::vector<Uint8> compound = src->getCompounds().at(key);
-
-//         for (Uint8 value : compound)
-//         {
-//             result.push_back(value);
-//         }
-//     }
-
-//     return result;
-// }
-
-// void generateDCTMatrix(Uint8 intput[BLOCK_SIZE][BLOCK_SIZE], float output[BLOCK_SIZE][BLOCK_SIZE])
-// {
-//     float result[BLOCK_SIZE][BLOCK_SIZE];
-
-//     double compound;
-
-//     double cu;
-//     double cv;
-
-//     for (int v = 0; v < BLOCK_SIZE; ++v)
-//     {
-//         for (int u = 0; u < BLOCK_SIZE; ++u)
-//         {
-//             if (u == 0)
-//             {
-//                 cu = 1.0 / sqrt(2);
-//             }
-//             else
-//             {
-//                 cu = 1.0;
-//             }
-
-//             if (v == 0)
-//             {
-//                 cv = 1.0 / sqrt(2);
-//             }
-//             else
-//             {
-//                 cv = 1.0;
-//             }
-
-//             compound = 0;
-
-//             for (int y = 0; y < BLOCK_SIZE; ++y)
-//             {
-//                 for (int x = 0; x < BLOCK_SIZE; ++x)
-//                 {
-//                     compound += (double)intput[x][y] *
-//                                 cos((double)(2 * x + 1) * M_PI * (double)u / (2 * (double)BLOCK_SIZE)) *
-//                                 cos((double)(2 * y + 1) * M_PI * (double)v / (2 * (double)BLOCK_SIZE));
-//                 }
-//             }
-
-//             compound *= (2.0 / (double)BLOCK_SIZE) * cu * cv;
-
-//             result[u][v] = compound;
-//         }
-//     }
-
-//     for (int j = 0; j < BLOCK_SIZE; j++)
-//     {
-//         for (int i = 0; i < BLOCK_SIZE; i++)
-//         {
-//             output[i][j] = result[i][j];
-//         }
-//     }
-// }
-
-// void generateInversedDCTMatrix(float input[BLOCK_SIZE][BLOCK_SIZE], Uint8 output[BLOCK_SIZE][BLOCK_SIZE])
-// {
-//     int result[BLOCK_SIZE][BLOCK_SIZE];
-
-//     double pixel;
-
-//     double cu;
-//     double cv;
-
-//     for (int x = 0; x < BLOCK_SIZE; ++x)
-//     {
-//         for (int y = 0; y < BLOCK_SIZE; ++y)
-//         {
-//             pixel = 0;
-
-//             for (int u = 0; u < BLOCK_SIZE; ++u)
-//             {
-//                 for (int v = 0; v < BLOCK_SIZE; ++v)
-//                 {
-//                     if (u == 0)
-//                     {
-//                         cu = 1.0 / sqrt(2);
-//                     }
-//                     else
-//                     {
-//                         cu = 1.0;
-//                     }
-
-//                     if (v == 0)
-//                     {
-//                         cv = 1.0 / sqrt(2);
-//                     }
-//                     else
-//                     {
-//                         cv = 1.0;
-//                     }
-
-//                     pixel += input[u][v] *
-//                              cos((double)(2 * x + 1) * M_PI * (double)u / (2 * (double)BLOCK_SIZE)) *
-//                              cu *
-//                              cos((double)(2 * y + 1) * M_PI * (double)v / (2 * (double)BLOCK_SIZE)) *
-//                              cv;
-//                 }
-//             }
-//             pixel *= (2.0 / (double)BLOCK_SIZE);
-
-//             result[x][y] = round(pixel);
-//         }
-//     }
-
-//     for (int j = 0; j < BLOCK_SIZE; j++)
-//     {
-//         for (int i = 0; i < BLOCK_SIZE; i++)
-//         {
-//             if (result[i][j] > 255)
-//             {
-//                 result[i][j] = 255;
-//             }
-
-//             if (result[i][j] < 0)
-//             {
-//                 result[i][j] = 0;
-//             }
-
-//             output[i][j] = result[i][j];
-//         }
-//     }
-// }
-
 std::vector<SDL_Color> Processor::getReducedBitColorMap(SDL_Surface *surface)
 {
     std::vector<SDL_Color> result;
@@ -1510,3 +1264,196 @@ T Processor::LZ77Result<T>::getSymbol()
 template Uint16 Processor::LZ77Result<Uint16>::getSymbol();
 template Uint8 Processor::LZ77Result<Uint8>::getSymbol();
 template int Processor::LZ77Result<int>::getSymbol();
+
+template <typename T>
+std::vector<int> Processor::LZWResult<T>::getResult()
+{
+    return result;
+}
+
+template std::vector<int> Processor::LZWResult<Uint16>::getResult();
+template std::vector<int> Processor::LZWResult<Uint8>::getResult();
+template std::vector<int> Processor::LZWResult<int>::getResult();
+
+template <typename T>
+std::map<int, std::vector<T>> Processor::LZWResult<T>::getCompounds()
+{
+    return compounds;
+}
+
+template std::map<int, std::vector<Uint16>> Processor::LZWResult<Uint16>::getCompounds();
+template std::map<int, std::vector<Uint8>> Processor::LZWResult<Uint8>::getCompounds();
+template std::map<int, std::vector<int>> Processor::LZWResult<int>::getCompounds();
+
+template <typename T>
+bool Processor::isLZWCompoundPresent(std::map<int, std::vector<T>> &compounds, std::vector<T> &component)
+{
+    for (auto const &[_, compound] : compounds)
+    {
+        if (compound == component)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+template bool Processor::isLZWCompoundPresent(std::map<int, std::vector<Uint16>> &compounds, std::vector<Uint16> &component);
+template bool Processor::isLZWCompoundPresent(std::map<int, std::vector<Uint8>> &compounds, std::vector<Uint8> &component);
+template bool Processor::isLZWCompoundPresent(std::map<int, std::vector<int>> &compounds, std::vector<int> &component);
+
+template <typename T>
+int Processor::getLZWCompoundCounter(std::map<int, std::vector<T>> &compounds, std::vector<T> &component)
+{
+    for (auto const &[counter, compound] : compounds)
+    {
+        if (compound == component)
+        {
+            return counter;
+        }
+    }
+
+    return 0;
+}
+
+template int Processor::getLZWCompoundCounter(std::map<int, std::vector<Uint16>> &compounds, std::vector<Uint16> &component);
+template int Processor::getLZWCompoundCounter(std::map<int, std::vector<Uint8>> &compounds, std::vector<Uint8> &component);
+template int Processor::getLZWCompoundCounter(std::map<int, std::vector<int>> &compounds, std::vector<int> &component);
+
+template<typename T>
+void generateDCTMatrix(T input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE])
+{
+    float result[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    double compound;
+
+    double cu;
+    double cv;
+
+    for (int v = 0; v < DCT_BLOCK_SIZE; ++v)
+    {
+        for (int u = 0; u < DCT_BLOCK_SIZE; ++u)
+        {
+            if (u == 0)
+            {
+                cu = 1.0 / sqrt(2);
+            }
+            else
+            {
+                cu = 1.0;
+            }
+
+            if (v == 0)
+            {
+                cv = 1.0 / sqrt(2);
+            }
+            else
+            {
+                cv = 1.0;
+            }
+
+            compound = 0;
+
+            for (int y = 0; y < DCT_BLOCK_SIZE; ++y)
+            {
+                for (int x = 0; x < DCT_BLOCK_SIZE; ++x)
+                {
+                    compound += (double)input[x][y] *
+                                cos((double)(2 * x + 1) * M_PI * (double)u / (2 * (double)DCT_BLOCK_SIZE)) *
+                                cos((double)(2 * y + 1) * M_PI * (double)v / (2 * (double)DCT_BLOCK_SIZE));
+                }
+            }
+
+            compound *= (2.0 / (double)DCT_BLOCK_SIZE) * cu * cv;
+
+            result[u][v] = compound;
+        }
+    }
+
+    for (int j = 0; j < DCT_BLOCK_SIZE; j++)
+    {
+        for (int i = 0; i < DCT_BLOCK_SIZE; i++)
+        {
+            output[i][j] = result[i][j];
+        }
+    }
+}
+
+template void Processor::generateDCTMatrix(Uint16 input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void Processor::generateDCTMatrix(Uint8 input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void Processor::generateDCTMatrix(int input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+
+template<typename T>
+void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], T output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE])
+{
+    int result[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    double pixel;
+
+    double cu;
+    double cv;
+
+    for (int x = 0; x < DCT_BLOCK_SIZE; ++x)
+    {
+        for (int y = 0; y < DCT_BLOCK_SIZE; ++y)
+        {
+            pixel = 0;
+
+            for (int u = 0; u < DCT_BLOCK_SIZE; ++u)
+            {
+                for (int v = 0; v < DCT_BLOCK_SIZE; ++v)
+                {
+                    if (u == 0)
+                    {
+                        cu = 1.0 / sqrt(2);
+                    }
+                    else
+                    {
+                        cu = 1.0;
+                    }
+
+                    if (v == 0)
+                    {
+                        cv = 1.0 / sqrt(2);
+                    }
+                    else
+                    {
+                        cv = 1.0;
+                    }
+
+                    pixel += input[u][v] *
+                             cos((double)(2 * x + 1) * M_PI * (double)u / (2 * (double)DCT_BLOCK_SIZE)) *
+                             cu *
+                             cos((double)(2 * y + 1) * M_PI * (double)v / (2 * (double)DCT_BLOCK_SIZE)) *
+                             cv;
+                }
+            }
+            pixel *= (2.0 / (double)DCT_BLOCK_SIZE);
+
+            result[x][y] = round(pixel);
+        }
+    }
+
+    for (int j = 0; j < DCT_BLOCK_SIZE; j++)
+    {
+        for (int i = 0; i < DCT_BLOCK_SIZE; i++)
+        {
+            if (result[i][j] > 255)
+            {
+                result[i][j] = 255;
+            }
+
+            if (result[i][j] < 0)
+            {
+                result[i][j] = 0;
+            }
+
+            output[i][j] = result[i][j];
+        }
+    }
+}
+
+template void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint16 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint8 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], int output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);

@@ -1282,6 +1282,237 @@ template std::vector<Uint8> Service::decompressLZ77ImageUint8<Uint8>(std::vector
 template std::vector<Processor::LZ77Result<int> *> Service::compressLZ77ImageInt<int>(std::vector<int> image);
 template std::vector<int> Service::decompressLZ77ImageInt<int>(std::vector<Processor::LZ77Result<int> *> src);
 
+template <typename T>
+Processor::LZWResult<T> * Service::compressLZWImageUint16(std::vector<Uint16> image)
+{
+    std::vector<int> result;
+
+    int counter = 65535;
+
+    std::map<int, std::vector<Uint16>> compounds;
+
+    for (int i = 0; i < 65535; ++i)
+    {
+        compounds[i] = {static_cast<Uint16>(i)};
+    }
+
+    std::vector<Uint16> current;
+
+    int i = 0;
+
+    for (Uint16 value : image)
+    {
+        std::vector<Uint16> component = current;
+
+        component.push_back(value);
+
+        if (Processor::isLZWCompoundPresent(compounds, component))
+        {
+            current = component;
+        }
+        else
+        {
+            int key = Processor::getLZWCompoundCounter(compounds, current);
+            if (key || !current.empty())
+            {
+                result.push_back(key);
+            }
+
+            compounds[counter] = component;
+
+            counter++;
+
+            current = {value};
+        }
+    }
+
+    if (!current.empty())
+    {
+        int key = Processor::getLZWCompoundCounter(compounds, current);
+        if (key)
+        {
+            result.push_back(key);
+        }
+    }
+
+    return new Processor::LZWResult(compounds, result);
+}
+
+template <typename T>
+std::vector<Uint16> Service::decompressLZWImageUint16(Processor::LZWResult<T> * src)
+{
+    std::vector<Uint16> result;
+
+    for (int key : src->getResult())
+    {
+        std::vector<Uint16> compound = src->getCompounds().at(key);
+
+        for (Uint16 value : compound)
+        {
+            result.push_back(value);
+        }
+    }
+
+    return result;
+}
+
+template <typename T>
+Processor::LZWResult<T> * Service::compressLZWImageUint8(std::vector<Uint8> image)
+{
+    std::vector<int> result;
+
+    int counter = 256;
+
+    std::map<int, std::vector<Uint8>> compounds;
+
+    for (int i = 0; i < 256; ++i)
+    {
+        compounds[i] = {static_cast<Uint8>(i)};
+    }
+
+    std::vector<Uint8> current;
+
+    int i = 0;
+
+    for (Uint8 value : image)
+    {
+        std::vector<Uint8> component = current;
+
+        component.push_back(value);
+
+        if (Processor::isLZWCompoundPresent(compounds, component))
+        {
+            current = component;
+        }
+        else
+        {
+            int key = Processor::getLZWCompoundCounter(compounds, current);
+            if (key || !current.empty())
+            {
+                result.push_back(key);
+            }
+
+            compounds[counter] = component;
+
+            counter++;
+
+            current = {value};
+        }
+    }
+
+    if (!current.empty())
+    {
+        int key = Processor::getLZWCompoundCounter(compounds, current);
+        if (key)
+        {
+            result.push_back(key);
+        }
+    }
+
+    return new Processor::LZWResult(compounds, result);
+}
+
+template <typename T>
+std::vector<Uint8> Service::decompressLZWImageUint8(Processor::LZWResult<T> * src)
+{
+    std::vector<Uint8> result;
+
+    for (int key : src->getResult())
+    {
+        std::vector<Uint8> compound = src->getCompounds().at(key);
+
+        for (Uint8 value : compound)
+        {
+            result.push_back(value);
+        }
+    }
+
+    return result;
+}
+
+template <typename T>
+Processor::LZWResult<T> * Service::compressLZWImageInt(std::vector<int> image)
+{
+    std::vector<int> result;
+
+    int counter = 65535;
+
+    std::map<int, std::vector<int>> compounds;
+
+    for (int i = 0; i < 65535; ++i)
+    {
+        compounds[i] = {static_cast<int>(i)};
+    }
+
+    std::vector<int> current;
+
+    int i = 0;
+
+    for (int value : image)
+    {
+        std::vector<int> component = current;
+
+        component.push_back(value);
+
+        if (Processor::isLZWCompoundPresent(compounds, component))
+        {
+            current = component;
+        }
+        else
+        {
+            int key = Processor::getLZWCompoundCounter(compounds, current);
+            if (key || !current.empty())
+            {
+                result.push_back(key);
+            }
+
+            compounds[counter] = component;
+
+            counter++;
+
+            current = {value};
+        }
+    }
+
+    if (!current.empty())
+    {
+        int key = Processor::getLZWCompoundCounter(compounds, current);
+        if (key)
+        {
+            result.push_back(key);
+        }
+    }
+
+    return new Processor::LZWResult(compounds, result);
+}
+
+template <typename T>
+std::vector<int> Service::decompressLZWImageInt(Processor::LZWResult<T> * src)
+{
+    std::vector<int> result;
+
+    for (int key : src->getResult())
+    {
+        std::vector<int> compound = src->getCompounds().at(key);
+
+        for (int value : compound)
+        {
+            result.push_back(value);
+        }
+    }
+
+    return result;
+}
+
+template Processor::LZWResult<Uint16> * Service::compressLZWImageUint16<Uint16>(std::vector<Uint16> image);
+template std::vector<Uint16> Service::decompressLZWImageUint16<Uint16>(Processor::LZWResult<Uint16> * src);
+
+template Processor::LZWResult<Uint8> * Service::compressLZWImageUint8<Uint8>(std::vector<Uint8> image);
+template std::vector<Uint8> Service::decompressLZWImageUint8<Uint8>(Processor::LZWResult<Uint8> * src);
+
+template Processor::LZWResult<int> * Service::compressLZWImageInt<int>(std::vector<int> image);
+template std::vector<int> Service::decompressLZWImageInt<int>(Processor::LZWResult<int> * src);
+
 void Service::saveMetadata(
     IO::CONVERSION_TYPES conversionType,
     IO::BIT_TYPES bitType,
@@ -1313,107 +1544,3 @@ void Service::saveMetadata(
 
     metadata->writeTo(outputStream);
 }
-
-// class LZWResult {
-// public:
-//     LZWResult( std::map<int, std::vector<Uint8>>& compounds, std::vector<int>& result) : compounds{compounds}, result{result} {}
-
-//     std::vector<int> getResult() {
-//         return result;
-//     }
-
-//     std::map<int, std::vector<Uint8>> getCompounds() {
-//         return compounds;
-//     }
-// private:
-//     std::vector<int> result;
-
-//     std::map<int, std::vector<Uint8>> compounds;
-// };
-
-// bool isCompoundPresent(std::map<int, std::vector<Uint8>> &compounds, std::vector<Uint8> &component)
-// {
-//     for (auto const &[_, compound] : compounds)
-//     {
-//         if (compound == component)
-//         {
-//             return true;
-//         }
-//     }
-
-//     return false;
-// }
-
-// int getCompoundCounter(std::map<int, std::vector<Uint8>> &compounds, std::vector<Uint8> &component)
-// {
-//     for (auto const &[counter, compound] : compounds)
-//     {
-//         if (compound == component)
-//         {
-//             return counter;
-//         }
-//     }
-
-//     return 0;
-// }
-
-// LZWResult* getCompressedLZWImage(const std::vector<Uint8>& image) {
-//     std::vector<int> result;
-
-//     int counter = 256;
-
-//     std::map<int, std::vector<Uint8>> compounds;
-
-//     for (int i = 0; i < 256; ++i) {
-//         compounds[i] = {static_cast<Uint8>(i)};
-//     }
-
-//     std::vector<Uint8> current;
-
-//     int i = 0;
-
-//     for (Uint8 value : image) {
-//         std::vector<Uint8> component = current;
-
-//         component.push_back(value);
-
-//         if (isCompoundPresent(compounds, component)) {
-//             current = component;
-//         } else {
-//             int key = getCompoundCounter(compounds, current);
-//             if (key || !current.empty()) {
-//                 result.push_back(key);
-//             }
-
-//             compounds[counter] = component;
-
-//             counter++;
-
-//             current = {value};
-//         }
-//     }
-
-//     if (!current.empty()) {
-//         int key = getCompoundCounter(compounds, current);
-//         if (key) {
-//             result.push_back(key);
-//         }
-//     }
-
-//     return new LZWResult(compounds, result);
-// }
-
-// std::vector<Uint8> getDecompressedLZWImage(LZWResult* src)
-// {
-//     std::vector<Uint8> result;
-
-//     for (int key : src->getResult()) {
-//         std::vector<Uint8> compound = src->getCompounds().at(key);
-
-//         for (Uint8 value : compound) {
-//             result.push_back(value);
-//         }
-//     }
-
-//     return result;
-// }

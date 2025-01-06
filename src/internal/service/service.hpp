@@ -242,16 +242,6 @@ public:
     /**
      *
      */
-    static void compressToLZW();
-
-    /**
-     *
-     */
-    static void decompressFromLZW();
-
-    /**
-     *
-     */
     static void compressToDCT();
 
     /**
@@ -408,6 +398,60 @@ public:
      */
     template<typename T>
     static std::vector<int> decompressLZ77ImageInt(std::vector<Processor::LZ77Result<T>*> src);
+
+    /**
+     * Compresses provided image using int using LZW compression.
+     * 
+     * @param image - given non compressed CGU image.
+     * @return compressed CGU image.
+     */
+    template<typename T>
+    static Processor::LZWResult<T> * compressLZWImageUint16(std::vector<Uint16> image);
+
+    /**
+     * Decompresses provided image using int using LZW compression.
+     * 
+     * @param image - given compressed CGU image.
+     * @return decompressed CGU image.
+     */
+    template<typename T>
+    static std::vector<Uint16> decompressLZWImageUint16(Processor::LZWResult<T>* src);
+
+    /**
+     * Compresses provided image using int using LZW compression.
+     * 
+     * @param image - given non compressed CGU image.
+     * @return compressed CGU image.
+     */
+    template<typename T>
+    static Processor::LZWResult<T> * compressLZWImageUint8(std::vector<Uint8> image);
+
+    /**
+     * Decompresses provided image using int using LZW compression.
+     * 
+     * @param image - given compressed CGU image.
+     * @return decompressed CGU image.
+     */
+    template<typename T>
+    static std::vector<Uint8> decompressLZWImageUint8(Processor::LZWResult<T>* src);
+
+    /**
+     * Compresses provided image using int using LZW compression.
+     * 
+     * @param image - given non compressed CGU image.
+     * @return compressed CGU image.
+     */
+    template<typename T>
+    static Processor::LZWResult<T> * compressLZWImageInt(std::vector<int> image);
+
+    /**
+     * Decompresses provided image using int using LZW compression.
+     * 
+     * @param image - given compressed CGU image.
+     * @return decompressed CGU image.
+     */
+    template<typename T>
+    static std::vector<int> decompressLZWImageInt(Processor::LZWResult<T>* src);
 
     /**
      * Saves CGU file metadata struct with the given arguments.

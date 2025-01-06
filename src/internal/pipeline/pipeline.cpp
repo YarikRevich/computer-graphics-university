@@ -63,6 +63,46 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                std::map<int, std::vector<Uint8>> compounds;
+
+                int valuesSize;
+
+                inputStream.read((char *)&valuesSize, sizeof(int));
+
+                for (int i = 0; i < valuesSize; i++)
+                {
+                    int valueFirst;
+
+                    inputStream.read((char *)&valueFirst, sizeof(int));
+
+                    int valueSecondSize;
+
+                    inputStream.read((char *)&valueSecondSize, sizeof(int));
+
+                    std::vector<Uint8> valueSecond(valueSecondSize, 0);
+
+                    inputStream.read((char *)(valueSecond.data()), valueSecondSize * sizeof(Uint8));
+
+                    compounds[valueFirst] = valueSecond;
+                }
+
+                std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+                auto decompressedBuffer = Service::decompressLZWImageUint8(new Processor::LZWResult<Uint8>(compounds, compressionBuffer));
+
+                for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i += PREFERRED_BIT_NUM_PER_PIXEL)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < PREFERRED_BIT_NUM_PER_PIXEL; k++)
+                    {
+                        internal.push_back(decompressedBuffer[i + k]);
+                    }
+
+                    buff.push_back(internal);
+                }
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
@@ -172,6 +212,34 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                std::map<int, std::vector<Uint16>> compounds;
+
+                int valuesSize;
+
+                inputStream.read((char *)&valuesSize, sizeof(int));
+
+                for (int i = 0; i < valuesSize; i++)
+                {
+                    int valueFirst;
+
+                    inputStream.read((char *)&valueFirst, sizeof(int));
+
+                    int valueSecondSize;
+
+                    inputStream.read((char *)&valueSecondSize, sizeof(int));
+
+                    std::vector<Uint16> valueSecond(valueSecondSize, 0);
+
+                    inputStream.read((char *)(valueSecond.data()), valueSecondSize * sizeof(Uint16));
+
+                    compounds[valueFirst] = valueSecond;
+                }
+
+                std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+                buff = Service::decompressLZWImageUint16(new Processor::LZWResult<Uint16>(compounds, compressionBuffer));
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
@@ -227,6 +295,34 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                std::map<int, std::vector<Uint16>> compounds;
+
+                int valuesSize;
+
+                inputStream.read((char *)&valuesSize, sizeof(int));
+
+                for (int i = 0; i < valuesSize; i++)
+                {
+                    int valueFirst;
+
+                    inputStream.read((char *)&valueFirst, sizeof(int));
+
+                    int valueSecondSize;
+
+                    inputStream.read((char *)&valueSecondSize, sizeof(int));
+
+                    std::vector<Uint16> valueSecond(valueSecondSize, 0);
+
+                    inputStream.read((char *)(valueSecond.data()), valueSecondSize * sizeof(Uint16));
+
+                    compounds[valueFirst] = valueSecond;
+                }
+
+                std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+                buff = Service::decompressLZWImageUint16(new Processor::LZWResult<Uint16>(compounds, compressionBuffer));
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
@@ -306,6 +402,46 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                std::map<int, std::vector<Uint8>> compounds;
+
+                int valuesSize;
+
+                inputStream.read((char *)&valuesSize, sizeof(int));
+
+                for (int i = 0; i < valuesSize; i++)
+                {
+                    int valueFirst;
+
+                    inputStream.read((char *)&valueFirst, sizeof(int));
+
+                    int valueSecondSize;
+
+                    inputStream.read((char *)&valueSecondSize, sizeof(int));
+
+                    std::vector<Uint8> valueSecond(valueSecondSize, 0);
+
+                    inputStream.read((char *)(valueSecond.data()), valueSecondSize * sizeof(Uint8));
+
+                    compounds[valueFirst] = valueSecond;
+                }
+
+                std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+                auto decompressedBuffer = Service::decompressLZWImageUint8(new Processor::LZWResult<Uint8>(compounds, compressionBuffer));
+
+                for (int i = 0; i < decompressedBuffer.size(); i += 3)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < 3; k++)
+                    {
+                        internal.push_back(decompressedBuffer[i + k]);
+                    }
+
+                    buff.push_back(internal);
+                }
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
@@ -464,6 +600,34 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
         }
         else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
         {
+            std::map<int, std::vector<int>> compounds;
+
+            int valuesSize;
+
+            inputStream.read((char *)&valuesSize, sizeof(int));
+
+            for (int i = 0; i < valuesSize; i++)
+            {
+                int valueFirst;
+
+                inputStream.read((char *)&valueFirst, sizeof(int));
+
+                int valueSecondSize;
+
+                inputStream.read((char *)&valueSecondSize, sizeof(int));
+
+                std::vector<int> valueSecond(valueSecondSize, 0);
+
+                inputStream.read((char *)(valueSecond.data()), valueSecondSize * sizeof(int));
+
+                compounds[valueFirst] = valueSecond;
+            }
+
+            std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+            inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+            input = Service::decompressLZWImageInt(new Processor::LZWResult<int>(compounds, compressionBuffer));
         }
         else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
         {
@@ -562,7 +726,7 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
     {
         Logger::SetError(FILE_NOT_COMPATIBLE_EXCEPTION);
 
-        return NULL;
+        return EXIT_FAILURE;
     }
 
     inputStream.seekg(metadata->getSize());
@@ -618,9 +782,81 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                std::map<int, std::vector<Uint8>> compounds;
+
+                int valuesSize;
+
+                inputStream.read((char *)&valuesSize, sizeof(int));
+
+                for (int i = 0; i < valuesSize; i++)
+                {
+                    int valueFirst;
+
+                    inputStream.read((char *)&valueFirst, sizeof(int));
+
+                    int valueSecondSize;
+
+                    inputStream.read((char *)&valueSecondSize, sizeof(int));
+
+                    std::vector<Uint8> valueSecond(valueSecondSize, 0);
+
+                    inputStream.read((char *)(valueSecond.data()), valueSecondSize * sizeof(Uint8));
+
+                    compounds[valueFirst] = valueSecond;
+                }
+
+                std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+                auto decompressedBuffer = Service::decompressLZWImageUint8(new Processor::LZWResult<Uint8>(compounds, compressionBuffer));
+
+                for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i += PREFERRED_BIT_NUM_PER_PIXEL)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < PREFERRED_BIT_NUM_PER_PIXEL; k++)
+                    {
+                        internal.push_back(decompressedBuffer[i + k]);
+                    }
+
+                    buff.push_back(internal);
+                }
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                std::vector<Processor::LZ77Result<Uint8> *> serializedBuffer;
+
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+                {
+                    int distance;
+
+                    inputStream.read((char *)&distance, sizeof(int));
+
+                    int length;
+
+                    inputStream.read((char *)&length, sizeof(int));
+
+                    Uint8 symbol;
+
+                    inputStream.read((char *)&symbol, sizeof(Uint8));
+
+                    serializedBuffer.push_back(new Processor::LZ77Result<Uint8>(distance, length, symbol));
+                }
+
+                auto decompressedBuffer = Service::decompressLZ77ImageUint8(serializedBuffer);
+
+                for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i += PREFERRED_BIT_NUM_PER_PIXEL)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < PREFERRED_BIT_NUM_PER_PIXEL; k++)
+                    {
+                        internal.push_back(decompressedBuffer[i + k]);
+                    }
+
+                    buff.push_back(internal);
+                }
             }
             else
             {
@@ -695,9 +931,59 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                std::map<int, std::vector<Uint16>> compounds;
+
+                int valuesSize;
+
+                inputStream.read((char *)&valuesSize, sizeof(int));
+
+                for (int i = 0; i < valuesSize; i++)
+                {
+                    int valueFirst;
+
+                    inputStream.read((char *)&valueFirst, sizeof(int));
+
+                    int valueSecondSize;
+
+                    inputStream.read((char *)&valueSecondSize, sizeof(int));
+
+                    std::vector<Uint16> valueSecond(valueSecondSize, 0);
+
+                    inputStream.read((char *)(valueSecond.data()), valueSecondSize * sizeof(Uint16));
+
+                    compounds[valueFirst] = valueSecond;
+                }
+
+                std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+                buff = Service::decompressLZWImageUint16(new Processor::LZWResult<Uint16>(compounds, compressionBuffer));
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                std::vector<Processor::LZ77Result<Uint16> *> serializedBuffer;
+
+                std::vector<Uint16> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+                {
+                    int distance;
+
+                    inputStream.read((char *)&distance, sizeof(int));
+
+                    int length;
+
+                    inputStream.read((char *)&length, sizeof(int));
+
+                    Uint16 symbol;
+
+                    inputStream.read((char *)&symbol, sizeof(Uint16));
+
+                    serializedBuffer.push_back(new Processor::LZ77Result<Uint16>(distance, length, symbol));
+                }
+
+                buff = Service::decompressLZ77ImageUint16(serializedBuffer);
             }
             else
             {
@@ -728,9 +1014,59 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                std::map<int, std::vector<Uint16>> compounds;
+
+                int valuesSize;
+
+                inputStream.read((char *)&valuesSize, sizeof(int));
+
+                for (int i = 0; i < valuesSize; i++)
+                {
+                    int valueFirst;
+
+                    inputStream.read((char *)&valueFirst, sizeof(int));
+
+                    int valueSecondSize;
+
+                    inputStream.read((char *)&valueSecondSize, sizeof(int));
+
+                    std::vector<Uint16> valueSecond(valueSecondSize, 0);
+
+                    inputStream.read((char *)(valueSecond.data()), valueSecondSize * sizeof(Uint16));
+
+                    compounds[valueFirst] = valueSecond;
+                }
+
+                std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+                buff = Service::decompressLZWImageUint16(new Processor::LZWResult<Uint16>(compounds, compressionBuffer));
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                std::vector<Processor::LZ77Result<Uint16> *> serializedBuffer;
+
+                std::vector<Uint16> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+                {
+                    int distance;
+
+                    inputStream.read((char *)&distance, sizeof(int));
+
+                    int length;
+
+                    inputStream.read((char *)&length, sizeof(int));
+
+                    Uint16 symbol;
+
+                    inputStream.read((char *)&symbol, sizeof(Uint16));
+
+                    serializedBuffer.push_back(new Processor::LZ77Result<Uint16>(distance, length, symbol));
+                }
+
+                buff = Service::decompressLZ77ImageUint16(serializedBuffer);
             }
             else
             {
@@ -751,7 +1087,7 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressByteRunImageUint8(compressionBuffer);
 
-                for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) * 3; i += 3)
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
                 {
                     std::vector<Uint8> internal;
 
@@ -771,7 +1107,7 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressRLEImageUint8(compressionBuffer);
 
-                for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) * 3; i += 3)
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
                 {
                     std::vector<Uint8> internal;
 
@@ -785,9 +1121,81 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                std::map<int, std::vector<Uint8>> compounds;
+
+                int valuesSize;
+
+                inputStream.read((char *)&valuesSize, sizeof(int));
+
+                for (int i = 0; i < valuesSize; i++)
+                {
+                    int valueFirst;
+
+                    inputStream.read((char *)&valueFirst, sizeof(int));
+
+                    int valueSecondSize;
+
+                    inputStream.read((char *)&valueSecondSize, sizeof(int));
+
+                    std::vector<Uint8> valueSecond(valueSecondSize, 0);
+
+                    inputStream.read((char *)(valueSecond.data()), valueSecondSize * sizeof(Uint8));
+
+                    compounds[valueFirst] = valueSecond;
+                }
+
+                std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+                auto decompressedBuffer = Service::decompressLZWImageUint8(new Processor::LZWResult<Uint8>(compounds, compressionBuffer));
+
+                for (int i = 0; i < decompressedBuffer.size(); i += 3)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < 3; k++)
+                    {
+                        internal.push_back(decompressedBuffer[i + k]);
+                    }
+
+                    buff.push_back(internal);
+                }
             }
             else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
+                std::vector<Processor::LZ77Result<Uint8> *> serializedBuffer;
+
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+                {
+                    int distance;
+
+                    inputStream.read((char *)&distance, sizeof(int));
+
+                    int length;
+
+                    inputStream.read((char *)&length, sizeof(int));
+
+                    Uint8 symbol;
+
+                    inputStream.read((char *)&symbol, sizeof(Uint8));
+
+                    serializedBuffer.push_back(new Processor::LZ77Result<Uint8>(distance, length, symbol));
+                }
+
+                auto decompressedBuffer = Service::decompressLZ77ImageUint8(serializedBuffer);
+
+                for (int i = 0; i < decompressedBuffer.size(); i += 3)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < 3; k++)
+                    {
+                        internal.push_back(decompressedBuffer[i + k]);
+                    }
+
+                    buff.push_back(internal);
+                }
             }
             else
             {
@@ -911,9 +1319,51 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
         }
         else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
         {
+            std::map<int, std::vector<int>> compounds;
+
+            int valuesSize;
+
+            inputStream.read((char *)&valuesSize, sizeof(int));
+
+            for (int i = 0; i < valuesSize; i++)
+            {
+                int valueFirst;
+
+                inputStream.read((char *)&valueFirst, sizeof(int));
+
+                int valueSecondSize;
+
+                inputStream.read((char *)&valueSecondSize, sizeof(int));
+
+                std::vector<int> valueSecond(valueSecondSize, 0);
+
+                inputStream.read((char *)(valueSecond.data()), valueSecondSize * sizeof(int));
+
+                compounds[valueFirst] = valueSecond;
+            }
+
+            std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+            inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+            input = Service::decompressLZWImageInt(new Processor::LZWResult<int>(compounds, compressionBuffer));
         }
         else if (metadata->getLosslessCompression() == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
         {
+            std::vector<Processor::LZ77Result<int> *> serializedBuffer;
+
+            std::vector<int> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+            inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(int));
+
+            for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+            {
+                serializedBuffer.push_back(
+                    new Processor::LZ77Result<int>(
+                        compressionBuffer.at(i), compressionBuffer.at(i + 1), compressionBuffer.at(i + 2)));
+            }
+
+            input = Service::decompressLZ77ImageInt<int>(serializedBuffer);
         }
         else
         {
@@ -1227,6 +1677,51 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                std::vector<Uint8> serializedBuffer;
+
+                for (std::vector<Uint8> value : sevenBitColors)
+                {
+                    for (Uint8 compound : value)
+                    {
+                        serializedBuffer.push_back(compound);
+                    }
+                }
+
+                auto sevenBitColorsCompressed = Service::compressLZWImageUint8<Uint8>(serializedBuffer);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    sevenBitColorsCompressed->getResult().size(),
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                int valuesSize = sevenBitColorsCompressed->getCompounds().size();
+
+                outputStream.write((char *)(&valuesSize), sizeof(int));
+
+                for (auto value : sevenBitColorsCompressed->getCompounds())
+                {
+                    int valueFirst = value.first;
+
+                    outputStream.write((char *)(&valueFirst), sizeof(int));
+
+                    int valueSecondSize = value.second.size();
+
+                    outputStream.write((char *)(&valueSecondSize), sizeof(int));
+
+                    outputStream.write((char *)(value.second.data()), value.second.size() * sizeof(Uint8));
+                }
+
+                outputStream.write((char *)(sevenBitColorsCompressed->getResult().data()), sevenBitColorsCompressed->getResult().size() * sizeof(int));
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
@@ -1343,6 +1838,41 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                auto fifteenBitColorsCompressed = Service::compressLZWImageUint16<Uint16>(fifteenBitColors);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    fifteenBitColorsCompressed->getResult().size(),
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                int valuesSize = fifteenBitColorsCompressed->getCompounds().size();
+
+                outputStream.write((char *)(&valuesSize), sizeof(int));
+
+                for (auto value : fifteenBitColorsCompressed->getCompounds())
+                {
+                    int valueFirst = value.first;
+
+                    outputStream.write((char *)(&valueFirst), sizeof(int));
+
+                    int valueSecondSize = value.second.size();
+
+                    outputStream.write((char *)(&valueSecondSize), sizeof(int));
+
+                    outputStream.write((char *)(value.second.data()), value.second.size() * sizeof(Uint16));
+                }
+
+                outputStream.write((char *)(fifteenBitColorsCompressed->getResult().data()), fifteenBitColorsCompressed->getResult().size() * sizeof(int));
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
@@ -1446,6 +1976,41 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                auto sixteenBitColorsCompressed = Service::compressLZWImageUint16<Uint16>(sixteenBitColors);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    sixteenBitColorsCompressed->getResult().size(),
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                int valuesSize = sixteenBitColorsCompressed->getCompounds().size();
+
+                outputStream.write((char *)(&valuesSize), sizeof(int));
+
+                for (auto value : sixteenBitColorsCompressed->getCompounds())
+                {
+                    int valueFirst = value.first;
+
+                    outputStream.write((char *)(&valueFirst), sizeof(int));
+
+                    int valueSecondSize = value.second.size();
+
+                    outputStream.write((char *)(&valueSecondSize), sizeof(int));
+
+                    outputStream.write((char *)(value.second.data()), value.second.size() * sizeof(Uint16));
+                }
+
+                outputStream.write((char *)(sixteenBitColorsCompressed->getResult().data()), sixteenBitColorsCompressed->getResult().size() * sizeof(int));
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
@@ -1569,6 +2134,51 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
+                std::vector<Uint8> serializedBuffer;
+
+                for (std::vector<Uint8> value : twentyFourBitColors)
+                {
+                    for (Uint8 compound : value)
+                    {
+                        serializedBuffer.push_back(compound);
+                    }
+                }
+
+                auto twentyFourBitColorsCompressed = Service::compressLZWImageUint8<Uint8>(serializedBuffer);
+
+                Service::saveMetadata(
+                    conversionType,
+                    bitType,
+                    modelType,
+                    losslessCompressionType,
+                    twentyFourBitColorsCompressed->getResult().size(),
+                    lossyCompressionType,
+                    samplingType,
+                    filterType,
+                    dithering,
+                    input->w,
+                    input->h,
+                    0,
+                    outputStream);
+
+                int valuesSize = twentyFourBitColorsCompressed->getCompounds().size();
+
+                outputStream.write((char *)(&valuesSize), sizeof(int));
+
+                for (auto value : twentyFourBitColorsCompressed->getCompounds())
+                {
+                    int valueFirst = value.first;
+
+                    outputStream.write((char *)(&valueFirst), sizeof(int));
+
+                    int valueSecondSize = value.second.size();
+
+                    outputStream.write((char *)(&valueSecondSize), sizeof(int));
+
+                    outputStream.write((char *)(value.second.data()), value.second.size() * sizeof(Uint8));
+                }
+
+                outputStream.write((char *)(twentyFourBitColorsCompressed->getResult().data()), twentyFourBitColorsCompressed->getResult().size() * sizeof(int));
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
@@ -1665,6 +2275,8 @@ int Pipeline::handleEncode(
                 Processor::generateColorBucketsBW(input, image);
         }
 
+        std::optional<std::map<int, std::vector<int>>> compounds;
+
         std::vector<int> indeces;
 
         if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
@@ -1677,6 +2289,11 @@ int Pipeline::handleEncode(
         }
         else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
         {
+            auto compressionBuffer = Service::compressLZWImageInt<int>(result->getIndeces());
+
+            compounds = std::optional<std::map<int, std::vector<int>>>{compressionBuffer->getCompounds()};
+
+            indeces = compressionBuffer->getResult();
         }
         else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
         {
@@ -1853,6 +2470,28 @@ int Pipeline::handleEncode(
             for (std::vector<Uint8> &value : twentyFourBitColors)
             {
                 outputStream.write((char *)(value.data()), value.size() * sizeof(Uint8));
+            }
+        }
+
+        if (compounds.has_value())
+        {
+            std::map<int, std::vector<int>> values = compounds.value();
+
+            int valuesSize = values.size();
+
+            outputStream.write((char *)(&valuesSize), sizeof(int));
+
+            for (auto value : values)
+            {
+                int valueFirst = value.first;
+
+                outputStream.write((char *)(&valueFirst), sizeof(int));
+
+                int valueSecondSize = value.second.size();
+
+                outputStream.write((char *)(&valueSecondSize), sizeof(int));
+
+                outputStream.write((char *)(value.second.data()), value.second.size() * sizeof(int));
             }
         }
 
