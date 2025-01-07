@@ -29,6 +29,12 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressByteRunImageUint8(compressionBuffer);
 
+                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+                {
+                    decompressedBuffer =
+                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
+                }
+
                 for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i += PREFERRED_BIT_NUM_PER_PIXEL)
                 {
                     std::vector<Uint8> internal;
@@ -92,6 +98,12 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 auto decompressedBuffer = Service::decompressLZWImageUint8(new Processor::LZWResult<Uint8>(compounds, compressionBuffer));
 
+                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+                {
+                    decompressedBuffer =
+                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
+                }
+
                 for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i += PREFERRED_BIT_NUM_PER_PIXEL)
                 {
                     std::vector<Uint8> internal;
@@ -127,6 +139,12 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 auto decompressedBuffer = Service::decompressLZ77ImageUint8(serializedBuffer);
 
+                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+                {
+                    decompressedBuffer =
+                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
+                }
+
                 for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i += PREFERRED_BIT_NUM_PER_PIXEL)
                 {
                     std::vector<Uint8> internal;
@@ -141,10 +159,24 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else
             {
-                std::vector<Uint8> internal(PREFERRED_BIT_NUM_PER_PIXEL, 0);
-                for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i++)
+                std::vector<Uint8> compressionBuffer((metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), (metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL) * sizeof(Uint8));
+
+                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
                 {
-                    inputStream.read((char *)(internal.data()), PREFERRED_BIT_NUM_PER_PIXEL * sizeof(Uint8));
+                    compressionBuffer =
+                        Service::decompressDCTImageUint8(compressionBuffer, metadata->getHeight(), metadata->getWidth());
+                }
+
+                for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i += PREFERRED_BIT_NUM_PER_PIXEL)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < PREFERRED_BIT_NUM_PER_PIXEL; k++)
+                    {
+                        internal.push_back(compressionBuffer[i + k]);
+                    }
 
                     buff.push_back(internal);
                 }
@@ -271,6 +303,12 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
                 inputStream.read((char *)(buff.data()), metadata->getWidth() * metadata->getHeight() * sizeof(Uint16));
             }
 
+            if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+            {
+                buff =
+                    Service::decompressDCTImageUint16(buff, metadata->getHeight(), metadata->getWidth());
+            }
+
             colors = Service::convertFrom15Bit(buff);
         }
         else if (metadata->getBit() == IO::BIT_TYPES::SIXTEEN)
@@ -354,6 +392,12 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
                 inputStream.read((char *)(buff.data()), metadata->getWidth() * metadata->getHeight() * sizeof(Uint16));
             }
 
+            if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+            {
+                buff =
+                    Service::decompressDCTImageUint16(buff, metadata->getHeight(), metadata->getWidth());
+            }
+
             colors = Service::convertFrom16Bit(buff);
         }
         else if (metadata->getBit() == IO::BIT_TYPES::TWENTY_FOUR)
@@ -367,6 +411,12 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
                 inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(Sint8));
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressByteRunImageUint8(compressionBuffer);
+
+                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+                {
+                    decompressedBuffer =
+                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
+                }
 
                 for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
                 {
@@ -387,6 +437,12 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
                 inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(Uint8));
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressRLEImageUint8(compressionBuffer);
+
+                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+                {
+                    decompressedBuffer =
+                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
+                }
 
                 for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
                 {
@@ -431,6 +487,12 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 auto decompressedBuffer = Service::decompressLZWImageUint8(new Processor::LZWResult<Uint8>(compounds, compressionBuffer));
 
+                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+                {
+                    decompressedBuffer =
+                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
+                }
+
                 for (int i = 0; i < decompressedBuffer.size(); i += 3)
                 {
                     std::vector<Uint8> internal;
@@ -466,6 +528,12 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 auto decompressedBuffer = Service::decompressLZ77ImageUint8(serializedBuffer);
 
+                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+                {
+                    decompressedBuffer =
+                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
+                }
+
                 for (int i = 0; i < decompressedBuffer.size(); i += 3)
                 {
                     std::vector<Uint8> internal;
@@ -480,10 +548,24 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             }
             else
             {
-                std::vector<Uint8> internal(3, 0);
-                for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight())); i++)
+                std::vector<Uint8> compressionBuffer(metadata->getWidth() * metadata->getHeight() * 3, 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getWidth() * metadata->getHeight() * 3 * sizeof(Uint8));
+
+                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
                 {
-                    inputStream.read((char *)(internal.data()), 3 * sizeof(Uint8));
+                    compressionBuffer =
+                        Service::decompressDCTImageUint8(compressionBuffer, metadata->getHeight(), metadata->getWidth());
+                }
+
+                for (int i = 0; i < metadata->getWidth() * metadata->getHeight() * 3; i += 3)
+                {
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < 3; k++)
+                    {
+                        internal.push_back(compressionBuffer[i + k]);
+                    }
 
                     buff.push_back(internal);
                 }
@@ -651,7 +733,8 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             inputStream.read((char *)(input.data()), input.size() * sizeof(int));
         }
 
-        if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT) {
+        if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+        {
             input = Service::decompressDCTImageInt(input, metadata->getHeight(), metadata->getWidth());
         }
 
@@ -864,10 +947,18 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             }
             else
             {
-                std::vector<Uint8> internal(PREFERRED_BIT_NUM_PER_PIXEL, 0);
-                for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i++)
+                std::vector<Uint8> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(Uint8));
+
+                for (int i = 0; i < (metadata->getWidth() * metadata->getHeight()) - ((metadata->getWidth() * metadata->getHeight()) / ORIGINAL_BIT_NUM_PER_PIXEL); i += PREFERRED_BIT_NUM_PER_PIXEL)
                 {
-                    inputStream.read((char *)(internal.data()), PREFERRED_BIT_NUM_PER_PIXEL * sizeof(Uint8));
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < PREFERRED_BIT_NUM_PER_PIXEL; k++)
+                    {
+                        internal.push_back(compressionBuffer[i + k]);
+                    }
 
                     buff.push_back(internal);
                 }
@@ -1203,10 +1294,18 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             }
             else
             {
-                std::vector<Uint8> internal(3, 0);
-                for (int i = 0; i < ((metadata->getWidth() * metadata->getHeight())); i++)
+                std::vector<Uint8> compressionBuffer(metadata->getLosslessCompressionSize(), 0);
+
+                inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(Uint8));
+
+                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
                 {
-                    inputStream.read((char *)(internal.data()), 3 * sizeof(Uint8));
+                    std::vector<Uint8> internal;
+
+                    for (int k = 0; k < 3; k++)
+                    {
+                        internal.push_back(compressionBuffer[i + k]);
+                    }
 
                     buff.push_back(internal);
                 }
@@ -1374,7 +1473,8 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             inputStream.read((char *)(input.data()), input.size() * sizeof(int));
         }
 
-        if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT) {
+        if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+        {
             input = Service::decompressDCTImageInt(input, metadata->getHeight(), metadata->getWidth());
         }
 
@@ -1621,18 +1721,30 @@ int Pipeline::handleEncode(
                 }
             }
 
+            std::vector<Uint8> compressionBuffer;
+
+            for (std::vector<Uint8> value : sevenBitColors)
+            {
+                for (Uint8 compound : value)
+                {
+                    compressionBuffer.push_back(compound);
+                }
+            }
+
+            if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT)
+            {
+                compressionBuffer = Service::compressDCTImageUint8(compressionBuffer, input);
+
+                if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
+                {
+                }
+                else
+                {
+                }
+            }
+
             if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
             {
-                std::vector<Uint8> compressionBuffer;
-
-                for (std::vector<Uint8> value : sevenBitColors)
-                {
-                    for (Uint8 compound : value)
-                    {
-                        compressionBuffer.push_back(compound);
-                    }
-                }
-
                 std::vector<Sint8> sevenBitColorsCompressed = Service::compressByteRunImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
@@ -1654,16 +1766,6 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::RLE)
             {
-                std::vector<Uint8> compressionBuffer;
-
-                for (std::vector<Uint8> value : sevenBitColors)
-                {
-                    for (Uint8 compound : value)
-                    {
-                        compressionBuffer.push_back(compound);
-                    }
-                }
-
                 std::vector<Uint8> sevenBitColorsCompressed = Service::compressRLEImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
@@ -1685,17 +1787,7 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
-                std::vector<Uint8> serializedBuffer;
-
-                for (std::vector<Uint8> value : sevenBitColors)
-                {
-                    for (Uint8 compound : value)
-                    {
-                        serializedBuffer.push_back(compound);
-                    }
-                }
-
-                auto sevenBitColorsCompressed = Service::compressLZWImageUint8(serializedBuffer);
+                auto sevenBitColorsCompressed = Service::compressLZWImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
                     conversionType,
@@ -1733,16 +1825,6 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
-                std::vector<Uint8> compressionBuffer;
-
-                for (std::vector<Uint8> value : sevenBitColors)
-                {
-                    for (Uint8 compound : value)
-                    {
-                        compressionBuffer.push_back(compound);
-                    }
-                }
-
                 auto sevenBitColorsCompressed = Service::compressLZ77ImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
@@ -1792,15 +1874,24 @@ int Pipeline::handleEncode(
                     0,
                     outputStream);
 
-                for (std::vector<Uint8> &value : sevenBitColors)
-                {
-                    outputStream.write((char *)(value.data()), value.size() * sizeof(Uint8));
-                }
+                outputStream.write((char *)(compressionBuffer.data()), compressionBuffer.size() * sizeof(Uint8));
             }
         }
         else if (bitType == IO::BIT_TYPES::FIFTEEN)
         {
             std::vector<Uint16> fifteenBitColors = Service::convertTo15Bit(colors);
+
+            if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT)
+            {
+                fifteenBitColors = Service::compressDCTImageUint16(fifteenBitColors, input);
+
+                if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
+                {
+                }
+                else
+                {
+                }
+            }
 
             if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
             {
@@ -1940,6 +2031,18 @@ int Pipeline::handleEncode(
         {
             std::vector<Uint16> sixteenBitColors = Service::convertTo16Bit(colors);
 
+            if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT)
+            {
+                sixteenBitColors = Service::compressDCTImageUint16(sixteenBitColors, input);
+
+                if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
+                {
+                }
+                else
+                {
+                }
+            }
+
             if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
             {
                 std::vector<Sint16> sixteenBitColorsCompressed = Service::compressByteRunImageUint16(sixteenBitColors);
@@ -2078,18 +2181,30 @@ int Pipeline::handleEncode(
         {
             std::vector<std::vector<Uint8>> twentyFourBitColors = Service::convertTo24Bit(colors);
 
+            std::vector<Uint8> compressionBuffer;
+
+            for (std::vector<Uint8> value : twentyFourBitColors)
+            {
+                for (Uint8 compound : value)
+                {
+                    compressionBuffer.push_back(compound);
+                }
+            }
+
+            if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT)
+            {
+                compressionBuffer = Service::compressDCTImageUint8(compressionBuffer, input);
+
+                if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
+                {
+                }
+                else
+                {
+                }
+            }
+
             if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
             {
-                std::vector<Uint8> compressionBuffer;
-
-                for (std::vector<Uint8> value : twentyFourBitColors)
-                {
-                    for (Uint8 compound : value)
-                    {
-                        compressionBuffer.push_back(compound);
-                    }
-                }
-
                 std::vector<Sint8> sevenBitColorsCompressed = Service::compressByteRunImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
@@ -2111,16 +2226,6 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::RLE)
             {
-                std::vector<Uint8> compressionBuffer;
-
-                for (std::vector<Uint8> value : twentyFourBitColors)
-                {
-                    for (Uint8 compound : value)
-                    {
-                        compressionBuffer.push_back(compound);
-                    }
-                }
-
                 std::vector<Uint8> sevenBitColorsCompressed = Service::compressRLEImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
@@ -2142,17 +2247,7 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
-                std::vector<Uint8> serializedBuffer;
-
-                for (std::vector<Uint8> value : twentyFourBitColors)
-                {
-                    for (Uint8 compound : value)
-                    {
-                        serializedBuffer.push_back(compound);
-                    }
-                }
-
-                auto twentyFourBitColorsCompressed = Service::compressLZWImageUint8(serializedBuffer);
+                auto twentyFourBitColorsCompressed = Service::compressLZWImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
                     conversionType,
@@ -2190,16 +2285,6 @@ int Pipeline::handleEncode(
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZ77)
             {
-                std::vector<Uint8> compressionBuffer;
-
-                for (std::vector<Uint8> value : twentyFourBitColors)
-                {
-                    for (Uint8 compound : value)
-                    {
-                        compressionBuffer.push_back(compound);
-                    }
-                }
-
                 auto twentyFourBitColorsCompressed = Service::compressLZ77ImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
@@ -2249,10 +2334,7 @@ int Pipeline::handleEncode(
                     0,
                     outputStream);
 
-                for (std::vector<Uint8> &value : twentyFourBitColors)
-                {
-                    outputStream.write((char *)(value.data()), value.size() * sizeof(Uint8));
-                }
+                outputStream.write((char *)(compressionBuffer.data()), compressionBuffer.size() * sizeof(Uint8));
             }
         }
 
@@ -2287,7 +2369,8 @@ int Pipeline::handleEncode(
 
         std::vector<int> indeces = result->getIndeces();
 
-        if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT) {
+        if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT)
+        {
             indeces = Service::compressDCTImageInt(indeces, input);
         }
 

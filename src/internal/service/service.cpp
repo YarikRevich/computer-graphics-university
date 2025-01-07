@@ -1483,6 +1483,150 @@ std::vector<int> Service::decompressLZWImageInt(Processor::LZWResult<int> * src)
     return result;
 }
 
+std::vector<Uint16> Service::compressDCTImageUint16(std::vector<Uint16> image, SDL_Surface* input)
+{
+    std::vector<Uint16> result(image.size(), 0);
+
+    Uint16 block[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    float dctMatrix[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    for (int x = 0; x <= input->h; x += DCT_BLOCK_SIZE)
+    {
+        for (int y = 0; y <= input->w; y += DCT_BLOCK_SIZE)
+        {
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < input->h; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < input->w; yy++)
+                {
+                    block[xx][yy] = image[(x + xx) * input->w + (y + yy)];
+                }
+            }
+
+            Processor::generateDCTMatrix(block, dctMatrix);
+
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < input->h; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < input->w; yy++)
+                {
+                    // Normalize and scale the DCT coefficients before casting to Uint16
+                    // float normalized = (dctMatrix[xx][yy] + 128.0f); // Shift to positive range
+                    // normalized = std::max(0.0f, std::min(255.0f, normalized)); // Clamp to valid range
+                    // result[(x + xx) * input->w + (y + yy)] = static_cast<Uint16>(normalized);
+                    result[(x + xx) * input->w + (y + yy)] = dctMatrix[xx][yy];
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+std::vector<Uint16> Service::decompressDCTImageUint16(std::vector<Uint16> src, int height, int width)
+{
+    std::vector<Uint16> result(src.size(), 0);
+
+    Uint16 block[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    float dctMatrix[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    for (int x = 0; x <= height; x += DCT_BLOCK_SIZE)
+    {
+        for (int y = 0; y <= width; y += DCT_BLOCK_SIZE)
+        {
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < height; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < width; yy++)
+                {
+                    dctMatrix[xx][yy] = src[(x + xx) * width + (y + yy)];
+                }
+            }
+
+            Processor::generateInversedDCTMatrix(dctMatrix, block);
+
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < height; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < width; yy++)
+                {
+                    result[(x + xx) * width + (y + yy)] = block[xx][yy];
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+std::vector<Uint8> Service::compressDCTImageUint8(std::vector<Uint8> image, SDL_Surface* input)
+{
+    std::vector<Uint8> result(image.size(), 0);
+
+    Uint8 block[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    float dctMatrix[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    for (int x = 0; x <= input->h; x += DCT_BLOCK_SIZE)
+    {
+        for (int y = 0; y <= input->w; y += DCT_BLOCK_SIZE)
+        {
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < input->h; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < input->w; yy++)
+                {
+                    block[xx][yy] = image[(x + xx) * input->w + (y + yy)];
+                }
+            }
+
+            Processor::generateDCTMatrix(block, dctMatrix);
+
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < input->h; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < input->w; yy++)
+                {
+                    result[(x + xx) * input->w + (y + yy)] = Processor::normalizeValue(dctMatrix[xx][yy], 0, 255);
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
+std::vector<Uint8> Service::decompressDCTImageUint8(std::vector<Uint8> src, int height, int width)
+{
+    std::vector<Uint8> result(src.size(), 0);
+
+    Uint8 block[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    float dctMatrix[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    for (int x = 0; x <= height; x += DCT_BLOCK_SIZE)
+    {
+        for (int y = 0; y <= width; y += DCT_BLOCK_SIZE)
+        {
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < height; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < width; yy++)
+                {
+                    dctMatrix[xx][yy] = src[(x + xx) * width + (y + yy)];
+                }
+            }
+
+            Processor::generateInversedDCTMatrix(dctMatrix, block);
+
+            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < height; xx++)
+            {
+                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < width; yy++)
+                {
+                    result[(x + xx) * width + (y + yy)] = block[xx][yy];
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
 std::vector<int> Service::compressDCTImageInt(std::vector<int> image, SDL_Surface* input)
 {
     std::vector<int> result(image.size(), 0);
