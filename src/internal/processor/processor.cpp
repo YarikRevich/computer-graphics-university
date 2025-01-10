@@ -1,28 +1,35 @@
 #include "processor.hpp"
 
-std::vector<SDL_Color> Processor::getReducedBitColorMap(SDL_Surface* surface){
+std::vector<SDL_Color> Processor::getReducedBitColorMap(SDL_Surface *surface)
+{
     std::vector<SDL_Color> result;
 
     SDL_Color color;
 
-    for (int x = 0; x < surface->w; x++){
-        for (int y = 0; y < surface->h; y++){
+    for (int x = 0; x < surface->w; x++)
+    {
+        for (int y = 0; y < surface->h; y++)
+        {
             color = getPixel(surface, x, y);
 
-            if (!isColorPresent(result, color)){
+            if (!isColorPresent(result, color))
+            {
                 result.push_back(color);
             }
-        }   
+        }
     }
 
     return result;
 }
 
-std::vector<SDL_Color> Processor::getCompleteBitColorMap(SDL_Surface* surface) {
+std::vector<SDL_Color> Processor::getCompleteBitColorMap(SDL_Surface *surface)
+{
     std::vector<SDL_Color> result;
 
-    for (int x = 0; x < surface->w; x++){
-        for (int y = 0; y < surface->h; y++){
+    for (int x = 0; x < surface->w; x++)
+    {
+        for (int y = 0; y < surface->h; y++)
+        {
             result.push_back(getPixel(surface, x, y));
         }
     }
@@ -30,31 +37,41 @@ std::vector<SDL_Color> Processor::getCompleteBitColorMap(SDL_Surface* surface) {
     return result;
 };
 
-bool Processor::isColorEqual(SDL_Color color1, SDL_Color color2) {
+bool Processor::isColorEqual(SDL_Color color1, SDL_Color color2)
+{
     return color1.r == color2.r && color1.g == color2.g && color1.b == color2.b;
 };
 
-bool Processor::isColorPresent(std::vector<SDL_Color> colors, const SDL_Color& color){
-    if(auto iter = std::find_if(
-        colors.begin(), 
-        colors.end(), 
-        [&](const SDL_Color& element) { return Processor::isColorEqual(element, color);}); iter != std::end(colors)) {
+bool Processor::isColorPresent(std::vector<SDL_Color> colors, const SDL_Color &color)
+{
+    if (auto iter = std::find_if(
+            colors.begin(),
+            colors.end(),
+            [&](const SDL_Color &element)
+            { return Processor::isColorEqual(element, color); });
+        iter != std::end(colors))
+    {
         return true;
-    } else {    
+    }
+    else
+    {
         return false;
     }
 };
 
-SDL_Color Processor::getNearestColorBW(std::vector<SDL_Color> colors, Uint8 compound) {
+SDL_Color Processor::getNearestColorBW(std::vector<SDL_Color> colors, Uint8 compound)
+{
     SDL_Color result;
 
     int min = -1;
     int distance;
 
-    for (SDL_Color color : colors) {
+    for (SDL_Color color : colors)
+    {
         distance = abs(compound - color.r);
 
-        if (distance < min || min == -1) {
+        if (distance < min || min == -1)
+        {
             min = distance;
             result = color;
         }
@@ -63,16 +80,19 @@ SDL_Color Processor::getNearestColorBW(std::vector<SDL_Color> colors, Uint8 comp
     return result;
 };
 
-SDL_Color Processor::getNearestColorRGB(std::vector<SDL_Color> colors, SDL_Color src) {
+SDL_Color Processor::getNearestColorRGB(std::vector<SDL_Color> colors, SDL_Color src)
+{
     SDL_Color result;
 
     int min = -1;
     int distance;
 
-    for (SDL_Color color : colors) {
+    for (SDL_Color color : colors)
+    {
         distance = abs(src.r - color.r) + abs(src.g - color.g) + abs(src.b - color.b);
 
-        if (distance < min || min == -1) {
+        if (distance < min || min == -1)
+        {
             min = distance;
             result = color;
         }
@@ -81,9 +101,12 @@ SDL_Color Processor::getNearestColorRGB(std::vector<SDL_Color> colors, SDL_Color
     return result;
 };
 
-int Processor::getColorIndex(std::vector<SDL_Color> colors, SDL_Color src) {
-    for (int i = 0; i < colors.size(); i++) {
-        if (isColorEqual(colors[i], src)) {
+int Processor::getColorIndex(std::vector<SDL_Color> colors, SDL_Color src)
+{
+    for (int i = 0; i < colors.size(); i++)
+    {
+        if (isColorEqual(colors[i], src))
+        {
             return i;
         }
     }
@@ -91,81 +114,98 @@ int Processor::getColorIndex(std::vector<SDL_Color> colors, SDL_Color src) {
     return -1;
 };
 
-void Processor::sortColorMapBW(std::vector<SDL_Color>& colors, int begin, int end) {
+void Processor::sortColorMapBW(std::vector<SDL_Color> &colors, int begin, int end)
+{
     std::vector<SDL_Color> src;
 
-    for (int i = begin; i < end; i++) {
+    for (int i = begin; i < end; i++)
+    {
         src.push_back(colors[i]);
     }
 
     qsort(
         &src[0],
-        src.size(), 
-        sizeof(SDL_Color), 
-        [](const void* element1, const void* element2) -> int { 
-            if (((SDL_Color*)element1)->r < ((SDL_Color*)element2)->r) {
+        src.size(),
+        sizeof(SDL_Color),
+        [](const void *element1, const void *element2) -> int
+        {
+            if (((SDL_Color *)element1)->r < ((SDL_Color *)element2)->r)
+            {
                 return -1;
             }
             return 1;
         });
 
-    for (int i = 0; i < src.size(); i++) {
+    for (int i = 0; i < src.size(); i++)
+    {
         colors.at(begin + i) = src[i];
     }
 };
 
-void Processor::sortColorMapRGB(std::vector<SDL_Color>& colors, int begin, int end, COLOR_COMPOUNDS compound) {
+void Processor::sortColorMapRGB(std::vector<SDL_Color> &colors, int begin, int end, COLOR_COMPOUNDS compound)
+{
     std::vector<SDL_Color> src;
 
-    for (int i = begin; i < end; i++) {
+    for (int i = begin; i < end; i++)
+    {
         src.push_back(colors[i]);
     }
 
-    switch (compound) {
-        case Processor::COLOR_COMPOUNDS::RED:
-            qsort(
-                &src[0],
-                src.size(), 
-                sizeof(SDL_Color), 
-                [](const void* element1, const void* element2) -> int { 
-                    if (((SDL_Color*)element1)->r < ((SDL_Color*)element2)->r) {
-                        return -1;
-                    }
-                    return 1;
+    switch (compound)
+    {
+    case Processor::COLOR_COMPOUNDS::RED:
+        qsort(
+            &src[0],
+            src.size(),
+            sizeof(SDL_Color),
+            [](const void *element1, const void *element2) -> int
+            {
+                if (((SDL_Color *)element1)->r < ((SDL_Color *)element2)->r)
+                {
+                    return -1;
+                }
+                return 1;
             });
-            break;
-        case Processor::COLOR_COMPOUNDS::GREEN:
-            qsort(
-                &src[0],
-                src.size(), 
-                sizeof(SDL_Color), 
-                [](const void* element1, const void* element2) -> int { 
-                    if (((SDL_Color*)element1)->g < ((SDL_Color*)element2)->g) {
-                        return -1;
-                    }
-                    return 1;
+        break;
+    case Processor::COLOR_COMPOUNDS::GREEN:
+        qsort(
+            &src[0],
+            src.size(),
+            sizeof(SDL_Color),
+            [](const void *element1, const void *element2) -> int
+            {
+                if (((SDL_Color *)element1)->g < ((SDL_Color *)element2)->g)
+                {
+                    return -1;
+                }
+                return 1;
             });
-            break;
-        case Processor::COLOR_COMPOUNDS::BLUE:
-            qsort(
-                &src[0],
-                src.size(), 
-                sizeof(SDL_Color), 
-                [](const void* element1, const void* element2) -> int { 
-                    if (((SDL_Color*)element1)->b < ((SDL_Color*)element2)->b) {
-                        return -1;
-                    }
-                    return 1;
+        break;
+    case Processor::COLOR_COMPOUNDS::BLUE:
+        qsort(
+            &src[0],
+            src.size(),
+            sizeof(SDL_Color),
+            [](const void *element1, const void *element2) -> int
+            {
+                if (((SDL_Color *)element1)->b < ((SDL_Color *)element2)->b)
+                {
+                    return -1;
+                }
+                return 1;
             });
     }
 
-    for (int i = 0; i < src.size(); i++) {
+    for (int i = 0; i < src.size(); i++)
+    {
         colors.at(begin + i) = src[i];
     }
 };
 
-void Processor::generateMedianCutRGBSelectionRaw(std::vector<SDL_Color>& image, std::vector<SDL_Color>& colors, int begin, int end, int* bucket, int iteration){
-    if (iteration > 0){
+void Processor::generateMedianCutRGBSelectionRaw(std::vector<SDL_Color> &image, std::vector<SDL_Color> &colors, int begin, int end, int *bucket, int iteration)
+{
+    if (iteration > 0)
+    {
         Processor::COLOR_COMPOUNDS compound = getCompoundDifference(image, begin, end);
         sortColorMapRGB(image, begin, end, compound);
 
@@ -173,38 +213,42 @@ void Processor::generateMedianCutRGBSelectionRaw(std::vector<SDL_Color>& image, 
 
         generateMedianCutRGBSelectionRaw(image, colors, begin, mid - 1, bucket, iteration - 1);
         generateMedianCutRGBSelectionRaw(image, colors, mid + 1, end, bucket, iteration - 1);
-    } else {
+    }
+    else
+    {
         int sumColorR = 0, sumColorG = 0, sumColorB = 0;
- 
-        std::for_each(image.begin() + begin, image.end() - (image.size() - end), [&] (SDL_Color color) {
+
+        std::for_each(image.begin() + begin, image.end() - (image.size() - end), [&](SDL_Color color)
+                      {
             sumColorR += color.r;
             sumColorG += color.g;
-            sumColorB += color.b;
-        });
+            sumColorB += color.b; });
 
         colors[*bucket] = {
-            (Uint8)(sumColorR / (end + 1 - begin)), 
+            (Uint8)(sumColorR / (end + 1 - begin)),
             (Uint8)(sumColorG / (end + 1 - begin)),
-            (Uint8)(sumColorB / (end + 1 - begin))
-        };
+            (Uint8)(sumColorB / (end + 1 - begin))};
 
         (*bucket)++;
     }
 }
 
-std::vector<SDL_Color> Processor::generateMedianCutRGBSelection(std::vector<SDL_Color>& image, int pixels) {
+std::vector<SDL_Color> Processor::generateMedianCutRGBSelection(std::vector<SDL_Color> &image, int pixels)
+{
     std::vector<SDL_Color> result(BIT_NUM_MAX);
-    
+
     generateMedianCutRGBSelectionRaw(image, result, 0, pixels, new int(0), MEDIAN_CUT_BATCH);
 
     return result;
 }
 
-Processor::COLOR_COMPOUNDS Processor::getCompoundDifference(std::vector<SDL_Color>& image, int begin, int end) {
+Processor::COLOR_COMPOUNDS Processor::getCompoundDifference(std::vector<SDL_Color> &image, int begin, int end)
+{
     Uint8 minColorR = 0, minColorG = 0, minColorB = 0;
     Uint8 maxColorR = 0, maxColorG = 0, maxColorB = 0;
 
-    std::for_each(image.begin() + begin, image.end() - (image.size() - end), [&] (SDL_Color color) {
+    std::for_each(image.begin() + begin, image.end() - (image.size() - end), [&](SDL_Color color)
+                  {
         if(color.b < minColorB)
             minColorB = color.b;
         if(color.g < minColorG)
@@ -216,33 +260,36 @@ Processor::COLOR_COMPOUNDS Processor::getCompoundDifference(std::vector<SDL_Colo
         if(color.g > maxColorG)
             maxColorG = color.g;
         if(color.r > maxColorR)
-            maxColorR = color.r;
-    });
+            maxColorR = color.r; });
 
-    switch (std::max(std::max(maxColorR - minColorR, maxColorG - minColorG), maxColorB - minColorB)) {
-        case 1:
-            return Processor::COLOR_COMPOUNDS::RED;
-        case 2:
-            return Processor::COLOR_COMPOUNDS::GREEN;
-        default:
-            return Processor::COLOR_COMPOUNDS::BLUE;
+    switch (std::max(std::max(maxColorR - minColorR, maxColorG - minColorG), maxColorB - minColorB))
+    {
+    case 1:
+        return Processor::COLOR_COMPOUNDS::RED;
+    case 2:
+        return Processor::COLOR_COMPOUNDS::GREEN;
+    default:
+        return Processor::COLOR_COMPOUNDS::BLUE;
     };
 }
 
-void Processor::generateMedianCutBWSelectionRaw(std::vector<SDL_Color>& image, std::vector<SDL_Color>& colors, int begin, int end, int* bucket, int iteration){
-    if (iteration > 0){
+void Processor::generateMedianCutBWSelectionRaw(std::vector<SDL_Color> &image, std::vector<SDL_Color> &colors, int begin, int end, int *bucket, int iteration)
+{
+    if (iteration > 0)
+    {
         sortColorMapBW(image, begin, end);
 
         int mid = (begin + end + 1) / 2;
 
         generateMedianCutBWSelectionRaw(image, colors, begin, mid - 1, bucket, iteration - 1);
         generateMedianCutBWSelectionRaw(image, colors, mid, end, bucket, iteration - 1);
-    } else {
+    }
+    else
+    {
         int sum = 0;
- 
-        std::for_each(image.begin() + begin, image.end() - (image.size() - end), [&] (SDL_Color color) {
-            sum += 0.299*color.r+0.587*color.g+0.114*color.b;
-        });
+
+        std::for_each(image.begin() + begin, image.end() - (image.size() - end), [&](SDL_Color color)
+                      { sum += 0.299 * color.r + 0.587 * color.g + 0.114 * color.b; });
 
         Uint8 compound = sum / (begin + 1 - end);
         colors[*bucket] = {compound, compound, compound};
@@ -251,33 +298,39 @@ void Processor::generateMedianCutBWSelectionRaw(std::vector<SDL_Color>& image, s
     }
 };
 
-std::vector<SDL_Color> Processor::generateMedianCutBWSelection(std::vector<SDL_Color>& image, int pixels) {
+std::vector<SDL_Color> Processor::generateMedianCutBWSelection(std::vector<SDL_Color> &image, int pixels)
+{
     std::vector<SDL_Color> result(BIT_NUM_MAX);
-    
+
     generateMedianCutBWSelectionRaw(image, result, 0, pixels, new int(0), MEDIAN_CUT_BATCH);
 
     return result;
 };
 
-std::vector<SDL_Color> Processor::BucketResult::getColors() {
+std::vector<SDL_Color> Processor::BucketResult::getColors()
+{
     return colors;
 }
 
-std::vector<int> Processor::BucketResult::getIndeces() {
+std::vector<int> Processor::BucketResult::getIndeces()
+{
     return indeces;
 }
 
-Processor::BucketResult* Processor::generateColorBucketsBW(SDL_Surface* surface, std::vector<SDL_Color>& image) {
+Processor::BucketResult *Processor::generateColorBucketsBW(SDL_Surface *surface, std::vector<SDL_Color> &image)
+{
     std::vector<int> result;
 
     std::vector<SDL_Color> colors = generateMedianCutBWSelection(image, getPixelAmount(surface));
 
     SDL_Color color, nearestColor;
-    for (int x = 0; x < surface->w; x++) {
-        for (int y = 0; y < surface->h; y++) {
+    for (int x = 0; x < surface->w; x++)
+    {
+        for (int y = 0; y < surface->h; y++)
+        {
             color = getPixel(surface, x, y);
 
-            nearestColor = getNearestColorBW(colors, 0.299*color.r+0.587*color.g+0.114*color.b);
+            nearestColor = getNearestColorBW(colors, 0.299 * color.r + 0.587 * color.g + 0.114 * color.b);
 
             result.push_back(getColorIndex(colors, nearestColor));
         }
@@ -286,14 +339,17 @@ Processor::BucketResult* Processor::generateColorBucketsBW(SDL_Surface* surface,
     return new BucketResult(colors, result);
 };
 
-Processor::BucketResult* Processor::generateColorBucketsRGB(SDL_Surface* surface, std::vector<SDL_Color>& image) {
+Processor::BucketResult *Processor::generateColorBucketsRGB(SDL_Surface *surface, std::vector<SDL_Color> &image)
+{
     std::vector<int> result;
 
     std::vector<SDL_Color> colors = generateMedianCutRGBSelection(image, getPixelAmount(surface));
 
     SDL_Color color, nearestColor;
-    for (int x = 0; x < surface->w; x++) {
-        for (int y = 0; y < surface->h; y++) {
+    for (int x = 0; x < surface->w; x++)
+    {
+        for (int y = 0; y < surface->h; y++)
+        {
             color = getPixel(surface, x, y);
 
             nearestColor = getNearestColorRGB(colors, color);
@@ -305,7 +361,8 @@ Processor::BucketResult* Processor::generateColorBucketsRGB(SDL_Surface* surface
     return new BucketResult(colors, result);
 };
 
-std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surface* surface, std::vector<SDL_Color>& image) {
+std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surface *surface, std::vector<SDL_Color> &image)
+{
     std::vector<Processor::PixelPoint> result;
 
     int y = 0;
@@ -314,22 +371,29 @@ std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surfa
     int ySize = sqrt(surface->h);
     int xSize = sqrt(surface->w);
 
-    for (int k = 0; k < image.size(); k++) {
-        if ((x + xSize) > surface->w) {
+    for (int k = 0; k < image.size(); k++)
+    {
+        if ((x + xSize) > surface->w)
+        {
             x = 0;
             y += ySize;
-        }   
+        }
 
-        for (int xx = 0; xx < xSize; xx++)  {
-            for (int yy = 0; yy < ySize; yy++) {
+        for (int xx = 0; xx < xSize; xx++)
+        {
+            for (int yy = 0; yy < ySize; yy++)
+            {
                 result.push_back(PixelPoint(x + xx, y + yy, image[k]));
             }
         }
 
-        if (x >= surface->w) { 
+        if (x >= surface->w)
+        {
             x = 0;
             y += ySize;
-        } else {
+        }
+        else
+        {
             x += xSize;
         }
     }
@@ -337,7 +401,8 @@ std::vector<Processor::PixelPoint> Processor::generateDedicatedPalette(SDL_Surfa
     return result;
 }
 
-std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringRGB(SDL_Surface* surface) {
+std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringRGB(SDL_Surface *surface)
+{
     std::vector<Processor::PixelPoint> result;
 
     SDL_Color color, newColor, tempColor;
@@ -350,18 +415,20 @@ std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringRGB
     int colorShiftG = 0;
     int colorShiftB = 0;
 
-    for (int y = 0; y < surface->h; y++){
-        for(int x = 0; x < surface->w; x++){
+    for (int y = 0; y < surface->h; y++)
+    {
+        for (int x = 0; x < surface->w; x++)
+        {
             color = Processor::getPixel(surface, x, y);
 
             tempColor.r = Processor::normalizeValue(
-                color.r + colorShiftsR[x+NATIVE_SHIFT][y], 0, 255);
+                color.r + colorShiftsR[x + NATIVE_SHIFT][y], 0, 255);
 
             tempColor.g = Processor::normalizeValue(
-                color.g + colorShiftsG[x+NATIVE_SHIFT][y], 0, 255);
+                color.g + colorShiftsG[x + NATIVE_SHIFT][y], 0, 255);
 
             tempColor.b = Processor::normalizeValue(
-                color.b + colorShiftsB[x+NATIVE_SHIFT][y], 0, 255);
+                color.b + colorShiftsB[x + NATIVE_SHIFT][y], 0, 255);
 
             newColor = Processor::convert7BitRGBTo24BitRGB(Processor::convert24BitRGBTo7BitRGB(tempColor));
 
@@ -391,7 +458,8 @@ std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringRGB
     return result;
 };
 
-std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringBW(SDL_Surface* surface) {
+std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringBW(SDL_Surface *surface)
+{
     std::vector<Processor::PixelPoint> result;
 
     std::vector<SDL_Color> colors = Processor::getReducedBitColorMap(surface);
@@ -399,18 +467,20 @@ std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringBW(
     SDL_Color color, newColor, tempColor;
     Uint8 grey, newGrey, tempGrey;
 
-    std::vector<std::vector<float>> colorShifts((surface->w)+2, std::vector<float>((surface->h)+2));
+    std::vector<std::vector<float>> colorShifts((surface->w) + 2, std::vector<float>((surface->h) + 2));
 
     int colorShift = 0;
 
-    for (int y = 0; y < surface->h; y++){
-        for(int x = 0; x < surface->w; x++){
+    for (int y = 0; y < surface->h; y++)
+    {
+        for (int x = 0; x < surface->w; x++)
+        {
             color = Processor::getPixel(surface, x, y);
 
-            grey = Processor::convertRGBToGreyUint8(color);
+            grey = Processor::convertColorToGreyUint8(color);
 
             tempGrey = Processor::normalizeValue(
-                grey + colorShifts[x+NATIVE_SHIFT][y], 0, 255);
+                grey + colorShifts[x + NATIVE_SHIFT][y], 0, 255);
 
             tempColor.r = tempGrey;
             tempColor.g = tempGrey;
@@ -424,49 +494,139 @@ std::vector<Processor::PixelPoint> Processor::generateFloydSteinbergDitheringBW(
 
             result.push_back(PixelPoint(x, y, newColor));
 
-            colorShifts[x+1+NATIVE_SHIFT][y] += (colorShift * 7.0 / 16.0);
-            colorShifts[x-1+NATIVE_SHIFT][y+1] += (colorShift * 3.0 / 16.0);
-            colorShifts[x+NATIVE_SHIFT][y+1] += (colorShift * 5.0 / 16.0);
-            colorShifts[x+1+NATIVE_SHIFT][y+1] += (colorShift * 1.0 / 16.0);
+            colorShifts[x + 1 + NATIVE_SHIFT][y] += (colorShift * 7.0 / 16.0);
+            colorShifts[x - 1 + NATIVE_SHIFT][y + 1] += (colorShift * 3.0 / 16.0);
+            colorShifts[x + NATIVE_SHIFT][y + 1] += (colorShift * 5.0 / 16.0);
+            colorShifts[x + 1 + NATIVE_SHIFT][y + 1] += (colorShift * 1.0 / 16.0);
         }
     }
 
     return result;
 };
 
-Uint8 Processor::convert24BitRGBTo7BitRGB(SDL_Color color) {
-    int newColorR = round(color.r*3.0/255.0);
-    int newColorG = round(color.g*7.0/255.0);
-    int newColorB = round(color.b*3.0/255.0);
+Uint8 Processor::convert24BitRGBTo7BitRGB(SDL_Color color)
+{
+    int newColorR = round(color.r * 3.0 / 255.0);
+    int newColorG = round(color.g * 7.0 / 255.0);
+    int newColorB = round(color.b * 3.0 / 255.0);
 
     return (newColorR << 5) | (newColorG << 2) | newColorB;
 }
 
-SDL_Color Processor::convert7BitRGBTo24BitRGB(Uint8 color) {
+SDL_Color Processor::convert7BitRGBTo24BitRGB(Uint8 color)
+{
     int newColorR = (color & (0b01100000)) >> 5;
     int newColorG = (color & (0b00011100)) >> 2;
     int newColorB = (color & (0b00000011));
 
     return {
-        .r = static_cast<Uint8>(newColorR * 255.0 / 3.0), 
+        .r = static_cast<Uint8>(newColorR * 255.0 / 3.0),
         .g = static_cast<Uint8>(newColorG * 255.0 / 7.0),
-        .b = static_cast<Uint8>(newColorB * 255.0 / 3.0)
-    };
+        .b = static_cast<Uint8>(newColorB * 255.0 / 3.0)};
 }
 
-Uint8 Processor::convert24BitRGBTo7BitGrey(SDL_Color color) {
-    return round((0.299 * color.r + 0.587 * color.g + 0.114 * color.b) * 127.0 / 255.0);
+Uint8 Processor::convert24BitRGBTo7BitGrey(SDL_Color color)
+{
+    return round(color.r * 127.0 / 255.0);
 }
 
-SDL_Color Processor::convert7BitGreyTo24BitRGB(Uint8 grey) {
+SDL_Color Processor::convert7BitGreyTo24BitRGB(Uint8 grey)
+{
     return {
         .r = static_cast<Uint8>(grey * 255.0 / 127.0),
         .g = static_cast<Uint8>(grey * 255.0 / 127.0),
-        .b = static_cast<Uint8>(grey * 255.0 / 127.0)
+        .b = static_cast<Uint8>(grey * 255.0 / 127.0)};
+}
+
+Uint8 Processor::convert24BitYCbCrTo7BitGrey(SDL_Color color)
+{
+    return round(color.r * 127.0 / 255.0);
+}
+
+SDL_Color Processor::convert7BitGreyTo24BitYCbCr(Uint8 grey)
+{
+    return {
+        .r = static_cast<Uint8>(grey * 255.0 / 127.0),
+        .g = 128,
+        .b = 128,
     };
 }
 
-std::vector<Uint8> Processor::convert8BitTo7Bit(std::vector<Uint8> input) {
+Uint8 Processor::convert24BitYUVTo7BitGrey(SDL_Color color)
+{
+    return round(color.r * 127.0 / 255.0);
+}
+
+SDL_Color Processor::convert7BitGreyTo24BitYUV(Uint8 grey)
+{
+    return {
+        .r = static_cast<Uint8>(grey * 255.0 / 127.0),
+        .g = 0,
+        .b = 0};
+}
+
+Uint8 Processor::convert24BitYIQTo7BitGrey(SDL_Color color)
+{
+    return round(color.r * 127.0 / 255.0);
+}
+
+SDL_Color Processor::convert7BitGreyTo24BitYIQ(Uint8 grey)
+{
+    return {
+        .r = static_cast<Uint8>(grey * 255.0 / 127.0),
+        .g = 0,
+        .b = 0};
+}
+
+Uint8 Processor::convert24BitHSLTo7BitGrey(SDL_Color color)
+{
+    return round(color.b * 127.0 / 255.0);
+}
+
+SDL_Color Processor::convert7BitGreyTo24BitHSL(Uint8 grey)
+{
+    return {
+        .r = 0,
+        .g = 0,
+        .b = static_cast<Uint8>(grey * 255.0 / 127.0)};
+}
+
+Uint16 Processor::convert24BitColorTo16BitColor(SDL_Color color)
+{
+    Uint8 r = color.r >> 3;
+    Uint8 g = color.g >> 2;
+    Uint8 b = color.b >> 3;
+
+    return (Uint16)((r << 11) | (g << 5) | b);
+}
+
+SDL_Color Processor::convert16BitColorTo24BitColor(Uint16 color)
+{
+    return {
+        .r = static_cast<Uint8>((color >> 11) << 3),
+        .g = static_cast<Uint8>(((color << 5) >> 10) << 2),
+        .b = static_cast<Uint8>(color << 3)};
+}
+
+Uint16 Processor::convert24BitColorTo15BitColor(SDL_Color color)
+{
+    Uint8 r = color.r >> 3;
+    Uint8 g = color.g >> 3;
+    Uint8 b = color.b >> 3;
+
+    return (Uint16)((r << 10) | (g << 5) | b);
+}
+
+SDL_Color Processor::convert15BitColorTo24BitColor(Uint16 color)
+{
+    return {
+        .r = static_cast<Uint8>(((color << 1) >> 11) << 3),
+        .g = static_cast<Uint8>(((color << 6) >> 11) << 3),
+        .b = static_cast<Uint8>(color << 3)};
+}
+
+std::vector<Uint8> Processor::convert8BitTo7Bit(std::vector<Uint8> input)
+{
     std::vector<Uint8> output(PREFERRED_BIT_NUM_PER_PIXEL, 0);
 
     Uint8 tmp;
@@ -515,7 +675,8 @@ std::vector<Uint8> Processor::convert8BitTo7Bit(std::vector<Uint8> input) {
     return output;
 };
 
-std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
+std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input)
+{
     std::vector<Uint8> output(ORIGINAL_BIT_NUM_PER_PIXEL, 0);
 
     Uint8 tmp;
@@ -579,53 +740,398 @@ std::vector<Uint8> Processor::convert7BitTo8Bit(std::vector<Uint8> input) {
     return output;
 };
 
-Uint32 Processor::convertColorToUint32(SDL_Color color) {
+Uint32 Processor::convertColorToUint32(SDL_Color color)
+{
     return (Uint32)((color.r << 16) + (color.g << 8) + (color.b << 0));
 };
 
-SDL_Color Processor::convertUint32ToColor(Uint32 color) {
+SDL_Color Processor::convertUint32ToColor(Uint32 color)
+{
     SDL_Color result;
 
-	result.a = 255;
-	result.r = (color >> 16) & 0xFF;
-	result.g = (color >> 8) & 0xFF;
-	result.b = color & 0xFF;
+    result.a = 255;
+    result.r = (color >> 16) & 0xFF;
+    result.g = (color >> 8) & 0xFF;
+    result.b = color & 0xFF;
 
     return result;
 };
 
-Uint8 Processor::convertRGBToGreyUint8(SDL_Color color) {
+Uint8 Processor::convertColorToGreyUint8(SDL_Color color)
+{
     return 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;
 }
 
-SDL_Color Processor::convertRGBToGrey(SDL_Color color) {
-    Uint8 grey = convertRGBToGreyUint8(color);
+SDL_Color Processor::convertYUVToRGB(int y, int u, int v)
+{
+    double yRaw = y;
+    double uRaw = u;
+    double vRaw = v;
+
+    double r = yRaw + vRaw * 1.13983;
+    double g = yRaw - uRaw * 0.39465 - vRaw * 0.58060;
+    double b = yRaw + uRaw * 2.03211;
+
+    r = normalizeValue(r, 0, 255);
+    g = normalizeValue(g, 0, 255);
+    b = normalizeValue(b, 0, 255);
+
+    SDL_Color color;
+
+    color.r = r;
+    color.g = g;
+    color.b = b;
+
+    return color;
+}
+
+SDL_Color Processor::convertRGBToYUV(SDL_Color color)
+{
+    double y = color.r * 0.299 + color.g * 0.587 + color.b * 0.114;
+    double u = -color.r * 0.14713 - color.g * 0.28886 + color.b * 0.436;
+    double v = color.r * 0.615 - color.g * 0.51499 - color.b * 0.10001;
+
+    SDL_Color result;
+
+    result.r = y;
+    result.g = u;
+    result.b = v;
+
+    return result;
+}
+
+SDL_Color Processor::convertYIQToRGB(int y, int i, int q)
+{
+    double yRaw = y;
+    double iRaw = i;
+    double qRaw = q;
+
+    int r = yRaw + iRaw * 0.956 + qRaw * 0.619;
+    int g = yRaw - iRaw * 0.272 - qRaw * 0.647;
+    int b = yRaw - iRaw * 1.106 + qRaw * 1.703;
+
+    r = normalizeValue(r, 0, 255);
+    g = normalizeValue(g, 0, 255);
+    b = normalizeValue(b, 0, 255);
+
+    SDL_Color color;
+
+    color.r = r;
+    color.g = g;
+    color.b = b;
+
+    return color;
+}
+
+SDL_Color Processor::convertRGBToYIQ(SDL_Color color)
+{
+    double y = color.r * 0.299 + color.g * 0.587 + color.b * 0.114;
+    double i = color.r * 0.5959 - color.g * 0.2746 - color.b * 0.3213;
+    double q = color.r * 0.2115 - color.g * 0.5227 + color.b * 0.3112;
+
+    SDL_Color result;
+
+    result.r = y;
+    result.g = i;
+    result.b = q;
+
+    return result;
+}
+
+SDL_Color Processor::convertYCbCrToRGB(int y, int cb, int cr)
+{
+    double yRaw = y;
+    double cbRaw = cb;
+    double crRaw = cr;
+
+    int r = yRaw + 1.402 * (crRaw - 128);
+    int g = yRaw - 0.344136 * (cbRaw - 128) - 0.714136 * (crRaw - 128);
+    int b = yRaw + 1.772 * (cbRaw - 128);
+
+    r = normalizeValue(r, 0, 255);
+    g = normalizeValue(g, 0, 255);
+    b = normalizeValue(b, 0, 255);
+
+    SDL_Color color;
+
+    color.r = r;
+    color.g = g;
+    color.b = b;
+
+    return color;
+}
+
+SDL_Color Processor::convertRGBToYCbCr(SDL_Color color)
+{
+    double y = (0.299 * color.r) + (0.587 * color.g) + (0.114 * color.b);
+    double cb = 128 - (0.168736 * color.r) - (0.331264 * color.g) + (0.5 * color.b);
+    double cr = 128 + (0.5 * color.r) - (0.418688 * color.g) - (0.081312 * color.b);
+
+    SDL_Color result;
+
+    result.r = y;
+    result.g = cb;
+    result.b = cr;
+
+    return result;
+}
+
+SDL_Color Processor::convertHSLToRGB(int h, int s, int l)
+{
+    double hRaw = h;
+    double sRaw = s / 255.0;
+    double lRaw = l / 255.0;
+
+    float r;
+    float g;
+    float b;
+
+    if (sRaw == 0)
+    {
+        r = lRaw * 255.0;
+        g = lRaw * 255.0;
+        b = lRaw * 255.0;
+    }
+    else
+    {
+        float tmp1;
+
+        if (lRaw < 0.5)
+        {
+            tmp1 = lRaw * (1.0 + sRaw);
+        }
+        else
+        {
+            tmp1 = lRaw + sRaw - lRaw * sRaw;
+        }
+
+        float tmp2 = 2.0 * lRaw - tmp1;
+
+        float color = hRaw / 360.0;
+
+        float tmpR = color + 0.333;
+        float tmpG = color;
+        float tmpB = color - 0.333;
+
+        if (tmpR < 0)
+        {
+            tmpR += 1.0;
+        }
+
+        if (tmpR > 1)
+        {
+            tmpR -= 1.0;
+        }
+
+        if (tmpG < 0)
+        {
+            tmpG += 1.0;
+        }
+
+        if (tmpG > 1)
+        {
+            tmpG -= 1.0;
+        }
+
+        if (tmpB < 0)
+        {
+            tmpB += 1.0;
+        }
+
+        if (tmpB > 1)
+        {
+            tmpB -= 1.0;
+        }
+
+        if (6.0 * tmpR < 1)
+        {
+            r = tmp2 + (tmp1 - tmp2) * 6.0 * tmpR;
+        }
+        else if (2.0 * tmpR < 1)
+        {
+            r = tmp1;
+        }
+        else if (3.0 * tmpR < 2)
+        {
+            r = tmp2 + (tmp1 - tmp2) * (0.666 - tmpR) * 6.0;
+        }
+        else
+        {
+            r = tmp2;
+        }
+
+        if (6.0 * tmpG < 1)
+        {
+            g = tmp2 + (tmp1 - tmp2) * 6.0 * tmpG;
+        }
+        else if (2.0 * tmpG < 1)
+        {
+            g = tmp1;
+        }
+        else if (3.0 * tmpG < 2)
+        {
+            g = tmp2 + (tmp1 - tmp2) * (0.666 - tmpG) * 6.0;
+        }
+        else
+        {
+            g = tmp2;
+        }
+
+        if (6.0 * tmpB < 1)
+        {
+            b = tmp2 + (tmp1 - tmp2) * 6.0 * tmpB;
+        }
+        else if (2.0 * tmpB < 1)
+        {
+            b = tmp1;
+        }
+        else if (3.0 * tmpB < 2)
+        {
+            b = tmp2 + (tmp1 - tmp2) * (0.666 - tmpB) * 6.0;
+        }
+        else
+        {
+            b = tmp2;
+        }
+
+        r *= 255.0;
+        g *= 255.0;
+        b *= 255.0;
+    }
+
+    r = normalizeValue(r, 0, 255);
+    g = normalizeValue(g, 0, 255);
+    b = normalizeValue(b, 0, 255);
+
+    SDL_Color color;
+
+    color.r = r;
+    color.g = g;
+    color.b = b;
+
+    return color;
+}
+
+SDL_Color Processor::convertRGBToHSL(SDL_Color color)
+{
+    float r = (float)color.r / 255.0;
+    float g = (float)color.g / 255.0;
+    float b = (float)color.b / 255.0;
+
+    float m = std::min(std::min(r, g), b);
+    float mx = std::max(std::max(r, g), b);
+
+    float l = (m + mx) / 2.0;
+
+    SDL_Color result;
+
+    if (m == mx)
+    {
+        result.b = l * 255.0;
+
+        return result;
+    }
+
+    float s = 0;
+
+    if (l <= 0.5)
+    {
+        s = (mx - m) / (mx + m);
+    }
+    else
+    {
+        s = (mx - m) / (2.0 - mx - m);
+    }
+
+    float h;
+
+    if (r == mx)
+    {
+        h = (g - b) / (mx - m);
+    }
+
+    if (g == mx)
+    {
+        h = 2.0 + (b - r) / (mx - m);
+    }
+
+    if (b == mx)
+    {
+        h = 4.0 + (r - g) / (mx - m);
+    }
+
+    h *= 60.0;
+
+    if (h < 0)
+    {
+        h += 360.0;
+    }
+
+    if (h > 360)
+    {
+        h = 0.0;
+    }
+
+    if (l > 1)
+    {
+        l = 1;
+    }
+
+    if (l < 0)
+    {
+        l = 0;
+    }
+
+    if (s > 1)
+    {
+        s = 1;
+    }
+
+    if (s < 0)
+    {
+        s = 0;
+    }
+
+    result.r = h;
+    result.g = s * 255.0;
+    result.b = l * 255.0;
+
+    return result;
+}
+
+SDL_Color Processor::convertRGBToGrey(SDL_Color color)
+{
+    Uint8 grey = convertColorToGreyUint8(color);
 
     return {
         .r = grey,
         .g = grey,
-        .b = grey
-    };
+        .b = grey};
 }
 
-int Processor::normalizeValue(int value, int min, int max) {
-    if (value < min) {
+int Processor::normalizeValue(int value, int min, int max)
+{
+    if (value < min)
+    {
         return min;
-    } 
+    }
 
-    if (value > max) {
+    if (value > max)
+    {
         return max;
     }
 
     return value;
 }
 
-SDL_Color Processor::getPixel(SDL_Surface* surface, int x, int y) {
+SDL_Color Processor::getPixel(SDL_Surface *surface, int x, int y)
+{
     SDL_Color result;
     Uint32 col = 0;
-    
-    if ((x >= 0) && (x < surface->w) && (y >= 0) && (y < surface->h)) {
-        char* pPosition = (char*)surface->pixels;
+
+    if ((x >= 0) && (x < surface->w) && (y >= 0) && (y < surface->h))
+    {
+        char *pPosition = (char *)surface->pixels;
 
         pPosition += (surface->pitch * y);
         pPosition += (surface->format->BytesPerPixel * x);
@@ -637,53 +1143,397 @@ SDL_Color Processor::getPixel(SDL_Surface* surface, int x, int y) {
     return result;
 }
 
-int Processor::getPixelAmount(SDL_Surface* surface) {
+int Processor::getPixelAmount(SDL_Surface *surface)
+{
     return surface->w * surface->h;
 }
 
-void Processor::setPixel(SDL_Surface* surface, int x, int y, SDL_Color color) {
-    if ((x >= 0) && (x < surface->w) && (y >= 0) && (y < surface->h)){
+void Processor::setPixel(SDL_Surface *surface, int x, int y, SDL_Color color)
+{
+    if ((x >= 0) && (x < surface->w) && (y >= 0) && (y < surface->h))
+    {
         Uint32 pixel = SDL_MapRGB(surface->format, color.r, color.g, color.b);
 
         int bpp = surface->format->BytesPerPixel;
 
         Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
-        switch(bpp)
+        switch (bpp)
         {
-            case 1:
-                *p = pixel;
-                break;
+        case 1:
+            *p = pixel;
+            break;
 
-            case 2:
-                *(Uint16 *)p = pixel;
-                break;
+        case 2:
+            *(Uint16 *)p = pixel;
+            break;
 
-            case 3:
-                if(SDL_BYTEORDER == SDL_BIG_ENDIAN) {
-                    p[0] = (pixel >> 16) & 0xff;
-                    p[1] = (pixel >> 8) & 0xff;
-                    p[2] = pixel & 0xff;
-                } else {
-                    p[0] = pixel & 0xff;
-                    p[1] = (pixel >> 8) & 0xff;
-                    p[2] = (pixel >> 16) & 0xff;
-                }
-                break;
+        case 3:
+            if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+            {
+                p[0] = (pixel >> 16) & 0xff;
+                p[1] = (pixel >> 8) & 0xff;
+                p[2] = pixel & 0xff;
+            }
+            else
+            {
+                p[0] = pixel & 0xff;
+                p[1] = (pixel >> 8) & 0xff;
+                p[2] = (pixel >> 16) & 0xff;
+            }
+            break;
 
-            case 4:
-                *(Uint32 *)p = pixel;
-                break;
+        case 4:
+            *(Uint32 *)p = pixel;
+            break;
         }
     }
 }
 
-void Processor::setPixels(SDL_Surface* surface, std::vector<Processor::PixelPoint> pixels) {
-    for (Processor::PixelPoint pixel : pixels) {
+SDL_Surface *Processor::createFilledSurface(int width, int height, std::vector<SDL_Color> &image)
+{
+    SDL_Surface *surface =
+        SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0);
+
+    int x = 0;
+    int y = 0;
+
+    for (int k = 0; k < image.size(); k++)
+    {
+        if (y == surface->h)
+        {
+            x += 1;
+            y = 0;
+        }
+
+        Processor::setPixel(surface, x, y, image[k]);
+
+        if (x == surface->w)
+        {
+            y += 1;
+            x = 0;
+        }
+        else
+        {
+            y += 1;
+        }
+    }
+
+    return surface;
+}
+
+void Processor::setPixels(SDL_Surface *surface, std::vector<Processor::PixelPoint> pixels)
+{
+    for (Processor::PixelPoint pixel : pixels)
+    {
         setPixel(surface, pixel.x, pixel.y, pixel.color);
     }
 }
 
-void Processor::cleanSurface(SDL_Surface* surface) {
+void Processor::cleanSurface(SDL_Surface *surface)
+{
     SDL_FillRect(surface, NULL, 0x000000);
+}
+
+template <typename T>
+int Processor::LZ77Result<T>::getDistance()
+{
+    return distance;
+}
+
+template int Processor::LZ77Result<Uint16>::getDistance();
+template int Processor::LZ77Result<Uint8>::getDistance();
+template int Processor::LZ77Result<int>::getDistance();
+
+template <typename T>
+int Processor::LZ77Result<T>::getLength()
+{
+    return length;
+}
+
+template int Processor::LZ77Result<Uint16>::getLength();
+template int Processor::LZ77Result<Uint8>::getLength();
+template int Processor::LZ77Result<int>::getLength();
+
+template <typename T>
+T Processor::LZ77Result<T>::getSymbol()
+{
+    return symbol;
+}
+
+template Uint16 Processor::LZ77Result<Uint16>::getSymbol();
+template Uint8 Processor::LZ77Result<Uint8>::getSymbol();
+template int Processor::LZ77Result<int>::getSymbol();
+
+template <typename T>
+std::vector<int> Processor::LZWResult<T>::getResult()
+{
+    return result;
+}
+
+template std::vector<int> Processor::LZWResult<Uint16>::getResult();
+template std::vector<int> Processor::LZWResult<Uint8>::getResult();
+template std::vector<int> Processor::LZWResult<int>::getResult();
+
+template <typename T>
+std::map<int, std::vector<T>> Processor::LZWResult<T>::getCompounds()
+{
+    return compounds;
+}
+
+template std::map<int, std::vector<Uint16>> Processor::LZWResult<Uint16>::getCompounds();
+template std::map<int, std::vector<Uint8>> Processor::LZWResult<Uint8>::getCompounds();
+template std::map<int, std::vector<int>> Processor::LZWResult<int>::getCompounds();
+
+template <typename T>
+bool Processor::isLZWCompoundPresent(std::map<int, std::vector<T>> &compounds, std::vector<T> &component)
+{
+    for (auto const &[_, compound] : compounds)
+    {
+        if (compound == component)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+template bool Processor::isLZWCompoundPresent(std::map<int, std::vector<Uint16>> &compounds, std::vector<Uint16> &component);
+template bool Processor::isLZWCompoundPresent(std::map<int, std::vector<Uint8>> &compounds, std::vector<Uint8> &component);
+template bool Processor::isLZWCompoundPresent(std::map<int, std::vector<int>> &compounds, std::vector<int> &component);
+
+template <typename T>
+int Processor::getLZWCompoundCounter(std::map<int, std::vector<T>> &compounds, std::vector<T> &component)
+{
+    for (auto const &[counter, compound] : compounds)
+    {
+        if (compound == component)
+        {
+            return counter;
+        }
+    }
+
+    return 0;
+}
+
+template int Processor::getLZWCompoundCounter(std::map<int, std::vector<Uint16>> &compounds, std::vector<Uint16> &component);
+template int Processor::getLZWCompoundCounter(std::map<int, std::vector<Uint8>> &compounds, std::vector<Uint8> &component);
+template int Processor::getLZWCompoundCounter(std::map<int, std::vector<int>> &compounds, std::vector<int> &component);
+
+template<typename T>
+void Processor::generateDCTMatrix(T input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE])
+{
+    float result[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    double compound;
+
+    double cu;
+    double cv;
+
+    for (int v = 0; v < DCT_BLOCK_SIZE; ++v)
+    {
+        for (int u = 0; u < DCT_BLOCK_SIZE; ++u)
+        {
+            if (u == 0)
+            {
+                cu = 1.0 / sqrt(2);
+            }
+            else
+            {
+                cu = 1.0;
+            }
+
+            if (v == 0)
+            {
+                cv = 1.0 / sqrt(2);
+            }
+            else
+            {
+                cv = 1.0;
+            }
+
+            compound = 0;
+
+            for (int y = 0; y < DCT_BLOCK_SIZE; ++y)
+            {
+                for (int x = 0; x < DCT_BLOCK_SIZE; ++x)
+                {
+                    compound += (double)input[x][y] *
+                                cos((double)(2 * x + 1) * M_PI * (double)u / (2 * (double)DCT_BLOCK_SIZE)) *
+                                cos((double)(2 * y + 1) * M_PI * (double)v / (2 * (double)DCT_BLOCK_SIZE));
+                }
+            }
+
+            compound *= (2.0 / (double)DCT_BLOCK_SIZE) * cu * cv;
+
+            result[u][v] = compound;
+        }
+    }
+
+    for (int j = 0; j < DCT_BLOCK_SIZE; j++)
+    {
+        for (int i = 0; i < DCT_BLOCK_SIZE; i++)
+        {
+            output[i][j] = result[i][j];
+        }
+    }
+}
+
+template void Processor::generateDCTMatrix(Uint16 input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void Processor::generateDCTMatrix(Uint8 input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void Processor::generateDCTMatrix(int input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], float output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+
+template<typename T>
+void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], T output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE])
+{
+    int result[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
+
+    double pixel;
+
+    double cu;
+    double cv;
+
+    for (int x = 0; x < DCT_BLOCK_SIZE; ++x)
+    {
+        for (int y = 0; y < DCT_BLOCK_SIZE; ++y)
+        {
+            pixel = 0;
+
+            for (int u = 0; u < DCT_BLOCK_SIZE; ++u)
+            {
+                for (int v = 0; v < DCT_BLOCK_SIZE; ++v)
+                {
+                    if (u == 0)
+                    {
+                        cu = 1.0 / sqrt(2);
+                    }
+                    else
+                    {
+                        cu = 1.0;
+                    }
+
+                    if (v == 0)
+                    {
+                        cv = 1.0 / sqrt(2);
+                    }
+                    else
+                    {
+                        cv = 1.0;
+                    }
+
+                    pixel += input[u][v] *
+                             cos((double)(2 * x + 1) * M_PI * (double)u / (2 * (double)DCT_BLOCK_SIZE)) *
+                             cu *
+                             cos((double)(2 * y + 1) * M_PI * (double)v / (2 * (double)DCT_BLOCK_SIZE)) *
+                             cv;
+                }
+            }
+            pixel *= (2.0 / (double)DCT_BLOCK_SIZE);
+
+            result[x][y] = round(pixel);
+        }
+    }
+
+    for (int j = 0; j < DCT_BLOCK_SIZE; j++)
+    {
+        for (int i = 0; i < DCT_BLOCK_SIZE; i++)
+        {
+
+            if (result[i][j] > 65535)
+            {
+                result[i][j] = 65535;
+            }
+
+            if (result[i][j] < 0)
+            {
+                result[i][j] = 0;
+            }
+
+            output[i][j] = result[i][j];
+        }
+    }
+}
+
+template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint16 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint8 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], int output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+
+// int sx = BLOCK_SIZE / 2; 
+//             int sy = BLOCK_SIZE - 1; 
+
+//             bool goingUpRight = true; 
+
+//             while (true)
+//             {
+//                 dctMatrix[sx][sy] = 0;
+
+//                 if (goingUpRight)
+//                 {
+//                     if (sx + 1 < BLOCK_SIZE && sy - 1 >= 0)
+//                     {
+//                         sx++;
+//                         sy--;
+//                     }
+//                     else
+//                     {
+//                         goingUpRight = false;
+
+//                         if (sy + 1 < BLOCK_SIZE)
+//                         {
+//                             sy++; 
+//                         }
+//                         else
+//                         {
+//                             break;
+//                         }
+//                     }
+//                 }
+//                 else
+//                 {
+//                     if (sx - 1 >= 0 && sy + 1 < BLOCK_SIZE)
+//                     {
+//                         sx--;
+//                         sy++;
+//                     }
+//                     else
+//                     {
+//                         goingUpRight = true;
+
+//                         if (sx + 1 < BLOCK_SIZE)
+//                         {
+//                             sx++;
+//                         }
+//                         else
+//                         {
+//                             break;
+//                         }
+//                     }
+//                 }
+
+//                 if (sx == BLOCK_SIZE - 1 && sy == 0)
+//                 {
+//                     break;
+//                 }
+//             }
+
+
+int Processor::getPaethPredictor(int a, int b, int c) {
+    int p = a + b - c;      
+
+    int pa = abs(p - a);       
+
+    int pb = abs(p - b);   
+
+    int pc = abs(p - c);       
+
+    if (pa <= pb && pa <= pc) {
+        return a;
+
+    } else if (pb <= pc) {
+        return b;
+
+    } 
+    
+    return c;
 }

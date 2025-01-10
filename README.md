@@ -173,25 +173,25 @@ In order to encode input image, it should be of the supported extension type:
 * **bmp**
 
 Codec obliges to select **conversion** mode during encoding operation:
-* **native_rgb**
+* **native_colorful**
 * **native_bw**
-* **palette_rgb**
+* **palette_colorful**
 * **palette_bw**
 
 Also, there is an option to enable **dithering** mode during the encoding operation. This mode will enable the usage of **Floyd-Steinberg** dithering algorithm. To enable it, it's required to add **--dithering** flag.
 
 > ### Examples
 
-The encoding for **BMP** to **CGU** with **palette_rgb** command looks like this:
+The encoding for **BMP** to **CGU** with **palette_colorful** command looks like this:
 
 ```shell
-./bin/cgu encode --from="./examples/1.bmp" --type=bmp --conversion=palette_rgb --to="1.cgu"
+./bin/cgu encode --from="./examples/1.bmp" --type=bmp --conversion=palette_colorful --to="1.cgu"
 ```
 
-The encoding for **BMP** to **CGU** with **native_rgb** command looks like this:
+The encoding for **BMP** to **CGU** with **native_colorful** command looks like this:
 
 ```shell
-./bin/cgu encode --from="./examples/2.bmp" --type=bmp --conversion=native_rgb --dithering --to="2.cgu"
+./bin/cgu encode --from="./examples/2.bmp" --type=bmp --conversion=native_colorful --dithering --to="2.cgu"
 ```
 
 ### Decoding
@@ -205,27 +205,27 @@ Output image can be one of the following extensions:
 * **bmp**
 
 Codec obliges to select **conversion** mode during decoding operation:
-* **native_rgb**
+* **native_colorful**
 * **native_bw**
-* **palette_rgb**
+* **palette_colorful**
 * **palette_bw**
 
 Also, there is an option to enable **debug** mode during the encoding operation. This mode will enable **dedicated palette** overlay. 
 To enable it, it's required to add **--dithering** flag.
 
-The decoding for **BMP** to **CGU** with **palette_rgb** command looks like this:
+The decoding for **BMP** to **CGU** with **palette_colorful** command looks like this:
 
 ```shell
 ./bin/cgu decode --from="./1.cgu" --type=bmp --to="1.bmp"
 ```
 
-The decoding for **BMP** to **CGU** with **native_rgb** command looks like this:
+The decoding for **BMP** to **CGU** with **native_colorful** command looks like this:
 
 ```shell
 ./bin/cgu decode --from="./2.bmp" --type=bmp --to="2.bmp"
 ```
 
-The decoding for **BMP** to **CGU** with **native_rgb** command and **--debug** flag looks like this:
+The decoding for **BMP** to **CGU** with **native_colorful** command and **--debug** flag looks like this:
 
 ```shell
 ./bin/cgu decode --from="./2.bmp" --type=bmp --to="2.bmp" --debug

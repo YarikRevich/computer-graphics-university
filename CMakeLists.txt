@@ -1,9 +1,12 @@
 cmake_minimum_required(VERSION 3.16)
+set(CMAKE_C_COMPILER /usr/bin/gcc)
+set(CMAKE_CXX_COMPILER /usr/bin/g++)
+
 project(editor VERSION 0.0.1 LANGUAGES C CXX)
 
-set(CMAKE_CXX_COMPILER /usr/bin/g++)
 set(CMAKE_CXX_FLAGS "-std=c++17 -D_XOPEN_SOURCE_EXTENDED")
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+set(CMAKE_BUILD_RPATH /Library/Frameworks)
 message("Make build output path is /bin")
 
 # Describes general viewport properties.
@@ -20,9 +23,17 @@ add_compile_definitions(PREFERRED_BIT_NUM_PER_PIXEL=7)
 # Describes CGU metadata properties.
 add_compile_definitions(METADATA_FIELDS_NUM=4)
 
+# Describes CGU LZ77 properties.
+add_compile_definitions(LZ77_WINDOW_SIZE=8)
+add_compile_definitions(LZ77_BUFFER_SIZE=6)
+
+# Describes CGU DCT properties.
+add_compile_definitions(DCT_BLOCK_SIZE=8)
+
 # Describes pre-defined errors used for functionality validation.
 add_compile_definitions(BIT_SIZE_MIN_EXCEPTION="Given image has too small amount of unique color bits. Please use another conversion type")
 add_compile_definitions(FILE_NOT_COMPATIBLE_EXCEPTION="Given file is not compatible with CGU codec.")
+add_compile_definitions(NO_CONVERSION_TYPE_EXCEPTION="No conversion type is given.")
 add_compile_definitions(METADATA_RETRIEVAL_EXCEPTION="Error happened during metadata retrieval. Please try to switch 'optimal' flag")
 
 include_directories(
@@ -48,7 +59,8 @@ add_executable(
 
 	src/internal/tools/tools.cpp
 	src/internal/logger/logger.cpp
-	src/internal/converter/converter.cpp
+	src/internal/pipeline/pipeline.cpp
+	src/internal/service/service.cpp
 	src/internal/processor/processor.cpp
 	src/internal/io/io.cpp
 	src/internal/window/window.cpp
