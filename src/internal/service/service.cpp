@@ -1267,7 +1267,7 @@ std::vector<int> Service::decompressLZ77ImageInt(std::vector<Processor::LZ77Resu
     return result;
 }
 
-Processor::LZWResult<Uint16> * Service::compressLZWImageUint16(std::vector<Uint16> image)
+Processor::LZWResult<Uint16> *Service::compressLZWImageUint16(std::vector<Uint16> image)
 {
     std::vector<int> result;
 
@@ -1322,7 +1322,7 @@ Processor::LZWResult<Uint16> * Service::compressLZWImageUint16(std::vector<Uint1
     return new Processor::LZWResult(compounds, result);
 }
 
-std::vector<Uint16> Service::decompressLZWImageUint16(Processor::LZWResult<Uint16> * src)
+std::vector<Uint16> Service::decompressLZWImageUint16(Processor::LZWResult<Uint16> *src)
 {
     std::vector<Uint16> result;
 
@@ -1339,7 +1339,7 @@ std::vector<Uint16> Service::decompressLZWImageUint16(Processor::LZWResult<Uint1
     return result;
 }
 
-Processor::LZWResult<Uint8> * Service::compressLZWImageUint8(std::vector<Uint8> image)
+Processor::LZWResult<Uint8> *Service::compressLZWImageUint8(std::vector<Uint8> image)
 {
     std::vector<int> result;
 
@@ -1394,7 +1394,7 @@ Processor::LZWResult<Uint8> * Service::compressLZWImageUint8(std::vector<Uint8> 
     return new Processor::LZWResult(compounds, result);
 }
 
-std::vector<Uint8> Service::decompressLZWImageUint8(Processor::LZWResult<Uint8> * src)
+std::vector<Uint8> Service::decompressLZWImageUint8(Processor::LZWResult<Uint8> *src)
 {
     std::vector<Uint8> result;
 
@@ -1411,7 +1411,7 @@ std::vector<Uint8> Service::decompressLZWImageUint8(Processor::LZWResult<Uint8> 
     return result;
 }
 
-Processor::LZWResult<int> * Service::compressLZWImageInt(std::vector<int> image)
+Processor::LZWResult<int> *Service::compressLZWImageInt(std::vector<int> image)
 {
     std::vector<int> result;
 
@@ -1466,7 +1466,7 @@ Processor::LZWResult<int> * Service::compressLZWImageInt(std::vector<int> image)
     return new Processor::LZWResult(compounds, result);
 }
 
-std::vector<int> Service::decompressLZWImageInt(Processor::LZWResult<int> * src)
+std::vector<int> Service::decompressLZWImageInt(Processor::LZWResult<int> *src)
 {
     std::vector<int> result;
 
@@ -1483,81 +1483,7 @@ std::vector<int> Service::decompressLZWImageInt(Processor::LZWResult<int> * src)
     return result;
 }
 
-std::vector<Uint16> Service::compressDCTImageUint16(std::vector<Uint16> image, SDL_Surface* input)
-{
-    std::vector<Uint16> result(image.size(), 0);
-
-    Uint16 block[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
-
-    float dctMatrix[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
-
-    for (int x = 0; x <= input->h; x += DCT_BLOCK_SIZE)
-    {
-        for (int y = 0; y <= input->w; y += DCT_BLOCK_SIZE)
-        {
-            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < input->h; xx++)
-            {
-                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < input->w; yy++)
-                {
-                    block[xx][yy] = image[(x + xx) * input->w + (y + yy)];
-                }
-            }
-
-            Processor::generateDCTMatrix(block, dctMatrix);
-
-            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < input->h; xx++)
-            {
-                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < input->w; yy++)
-                {
-                    // Normalize and scale the DCT coefficients before casting to Uint16
-                    // float normalized = (dctMatrix[xx][yy] + 128.0f); // Shift to positive range
-                    // normalized = std::max(0.0f, std::min(255.0f, normalized)); // Clamp to valid range
-                    // result[(x + xx) * input->w + (y + yy)] = static_cast<Uint16>(normalized);
-                    result[(x + xx) * input->w + (y + yy)] = dctMatrix[xx][yy];
-                }
-            }
-        }
-    }
-
-    return result;
-}
-
-std::vector<Uint16> Service::decompressDCTImageUint16(std::vector<Uint16> src, int height, int width)
-{
-    std::vector<Uint16> result(src.size(), 0);
-
-    Uint16 block[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
-
-    float dctMatrix[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE];
-
-    for (int x = 0; x <= height; x += DCT_BLOCK_SIZE)
-    {
-        for (int y = 0; y <= width; y += DCT_BLOCK_SIZE)
-        {
-            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < height; xx++)
-            {
-                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < width; yy++)
-                {
-                    dctMatrix[xx][yy] = src[(x + xx) * width + (y + yy)];
-                }
-            }
-
-            Processor::generateInversedDCTMatrix(dctMatrix, block);
-
-            for (int xx = 0; xx < DCT_BLOCK_SIZE && x + xx < height; xx++)
-            {
-                for (int yy = 0; yy < DCT_BLOCK_SIZE && y + yy < width; yy++)
-                {
-                    result[(x + xx) * width + (y + yy)] = block[xx][yy];
-                }
-            }
-        }
-    }
-
-    return result;
-}
-
-std::vector<Uint8> Service::compressDCTImageUint8(std::vector<Uint8> image, SDL_Surface* input)
+std::vector<Uint8> Service::compressDCTImageUint8(std::vector<Uint8> image, SDL_Surface *input)
 {
     std::vector<Uint8> result(image.size(), 0);
 
@@ -1627,7 +1553,7 @@ std::vector<Uint8> Service::decompressDCTImageUint8(std::vector<Uint8> src, int 
     return result;
 }
 
-std::vector<int> Service::compressDCTImageInt(std::vector<int> image, SDL_Surface* input)
+std::vector<int> Service::compressDCTImageInt(std::vector<int> image, SDL_Surface *input)
 {
     std::vector<int> result(image.size(), 0);
 
@@ -1691,6 +1617,258 @@ std::vector<int> Service::decompressDCTImageInt(std::vector<int> src, int height
                     result[(x + xx) * width + (y + yy)] = block[xx][yy];
                 }
             }
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::applyDifferentialFilterInt(std::vector<int> image, SDL_Surface *input)
+{
+    std::vector<int> result(image.size());
+
+    for (int y = 0; y < input->h; ++y)
+    {
+        for (int x = 0; x < input->w; ++x)
+        {
+            if (x == 0)
+            {
+                result[y * input->w + x] = image[y * input->w + x];
+            }
+            else
+            {
+                result[y * input->w + x] = image[y * input->w + x] - image[y * input->w + (x - 1)];
+            }
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::revertDifferentialFilterInt(std::vector<int> image, int height, int width)
+{
+    std::vector<int> result(image.size());
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            if (x == 0)
+            {
+                result[y * width + x] = image[y * width + x];
+            }
+            else
+            {
+                result[y * width + x] = image[y * width + x] + result[y * width + (x - 1)];
+            }
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::applyLineDifferenceFilterInt(std::vector<int> image, SDL_Surface *input)
+{
+    std::vector<int> result(image.size());
+
+    for (int y = 0; y < input->w; ++y)
+    {
+        for (int x = 0; x < input->h; ++x)
+        {
+            if (x == 0)
+            {
+                result[y * input->h + x] = image[y * input->h + x];
+            }
+            else
+            {
+                result[y * input->h + x] = image[y * input->h + x] - image[y * input->h + (x - 1)];
+            }
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::revertLineDifferenceFilterInt(std::vector<int> image, int height, int width)
+{
+    std::vector<int> result(image.size());
+
+    for (int y = 0; y < width; ++y)
+    {
+        for (int x = 0; x < height; ++x)
+        {
+            if (x == 0)
+            {
+                result[y * height + x] = image[y * height + x];
+            }
+            else
+            {
+                result[y * height + x] = image[y * height + x] + result[y * height + (x - 1)];
+            }
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::applyAverageFilterInt(std::vector<int> image, SDL_Surface *input)
+{
+    std::vector<int> result(image.size());
+
+    int left = 0;
+    int up = 0;
+
+    for (int y = 0; y < input->h; ++y)
+    {
+        for (int x = 0; x < input->w; ++x)
+        {
+            if (x > 0)
+            {
+                left = image[y * input->w + (x - 1)];
+            }
+            else
+            {
+                left = 0;
+            }
+
+            if (y > 0)
+            {
+                up = image[(y - 1) * input->w + x];
+            }
+            else
+            {
+                up = 0;
+            }
+
+            result[y * input->w + x] = image[y * input->w + x] - ((left + up) / 2);
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::revertAverageFilterInt(std::vector<int> image, int height, int width)
+{
+    std::vector<int> result(image.size());
+
+    int left = 0;
+    int up = 0;
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            if (x > 0)
+            {
+                left = result[y * width + (x - 1)];
+            }
+            else
+            {
+                left = 0;
+            }
+
+            if (y > 0)
+            {
+                up = result[(y - 1) * width + x];
+            }
+            else
+            {
+                up = 0;
+            }
+
+            result[y * width + x] = image[y * width + x] + ((left + up) / 2);
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::applyPaethFilterInt(std::vector<int> image, SDL_Surface *input)
+{
+    std::vector<int> result(image.size());
+
+    int a = 0;
+    int b = 0;
+    int c = 0;
+
+    for (int y = 0; y < input->h; ++y)
+    {
+        for (int x = 0; x < input->w; ++x)
+        {
+            if (x > 0)
+            {
+                a = image[y * input->w + (x - 1)];
+            }
+            else
+            {
+                a = 0;
+            }
+
+            if (y > 0)
+            {
+                b = image[(y - 1) * input->w + x];
+            }
+            else
+            {
+                b = 0;
+            }
+
+            if (x > 0 && y > 0)
+            {
+                c = image[(y - 1) * input->w + (x - 1)];
+            }
+            else
+            {
+                c = 0;
+            }
+
+            result[y * input->w + x] = (image[y * input->w + x] - Processor::getPaethPredictor(a, b, c));
+        }
+    }
+
+    return result;
+}
+
+std::vector<int> Service::revertPaethFilterInt(std::vector<int> image, int height, int width)
+{
+    std::vector<int> result(image.size());
+
+    int a = 0;
+    int b = 0;
+    int c = 0;
+
+    for (int y = 0; y < height; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            if (x > 0)
+            {
+                a = result[y * width + (x - 1)];
+            }
+            else
+            {
+                a = 0;
+            }
+
+            if (y > 0)
+            {
+                b = result[(y - 1) * width + x];
+            }
+            else
+            {
+                b = 0;
+            }
+
+            if (x > 0 && y > 0)
+            {
+                c = result[(y - 1) * width + (x - 1)];
+            }
+            else
+            {
+                c = 0;
+            }
+
+            result[y * width + x] = (image[y * width + x] + Processor::getPaethPredictor(a, b, c));
         }
     }
 

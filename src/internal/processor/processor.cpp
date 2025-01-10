@@ -1439,15 +1439,16 @@ void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_
     {
         for (int i = 0; i < DCT_BLOCK_SIZE; i++)
         {
-            // if (result[i][j] > 255)
-            // {
-            //     result[i][j] = 255;
-            // }
 
-            // if (result[i][j] < 0)
-            // {
-            //     result[i][j] = 0;
-            // }
+            if (result[i][j] > 65535)
+            {
+                result[i][j] = 65535;
+            }
+
+            if (result[i][j] < 0)
+            {
+                result[i][j] = 0;
+            }
 
             output[i][j] = result[i][j];
         }
@@ -1457,3 +1458,82 @@ void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_
 template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint16 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
 template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint8 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
 template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], int output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
+
+// int sx = BLOCK_SIZE / 2; 
+//             int sy = BLOCK_SIZE - 1; 
+
+//             bool goingUpRight = true; 
+
+//             while (true)
+//             {
+//                 dctMatrix[sx][sy] = 0;
+
+//                 if (goingUpRight)
+//                 {
+//                     if (sx + 1 < BLOCK_SIZE && sy - 1 >= 0)
+//                     {
+//                         sx++;
+//                         sy--;
+//                     }
+//                     else
+//                     {
+//                         goingUpRight = false;
+
+//                         if (sy + 1 < BLOCK_SIZE)
+//                         {
+//                             sy++; 
+//                         }
+//                         else
+//                         {
+//                             break;
+//                         }
+//                     }
+//                 }
+//                 else
+//                 {
+//                     if (sx - 1 >= 0 && sy + 1 < BLOCK_SIZE)
+//                     {
+//                         sx--;
+//                         sy++;
+//                     }
+//                     else
+//                     {
+//                         goingUpRight = true;
+
+//                         if (sx + 1 < BLOCK_SIZE)
+//                         {
+//                             sx++;
+//                         }
+//                         else
+//                         {
+//                             break;
+//                         }
+//                     }
+//                 }
+
+//                 if (sx == BLOCK_SIZE - 1 && sy == 0)
+//                 {
+//                     break;
+//                 }
+//             }
+
+
+int Processor::getPaethPredictor(int a, int b, int c) {
+    int p = a + b - c;      
+
+    int pa = abs(p - a);       
+
+    int pb = abs(p - b);   
+
+    int pc = abs(p - c);       
+
+    if (pa <= pb && pa <= pc) {
+        return a;
+
+    } else if (pb <= pc) {
+        return b;
+
+    } 
+    
+    return c;
+}

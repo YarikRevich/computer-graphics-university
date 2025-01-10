@@ -64,14 +64,23 @@ int Encode::handle()
     IO::CONVERSION_TYPES conversionType = IO::getConversionType(conversion->Get());
 
     IO::BIT_TYPES bitType = IO::getBitType(bit->Get());
-    if (bitType == IO::BIT_TYPES::NONE) {
+    if (bitType == IO::BIT_TYPES::NONE)
+    {
         Validator::throwValueFlagInvalidException("bit");
         return EXIT_FAILURE;
     }
 
     IO::MODEL_TYPES modelType = IO::getModelType(model->Get());
-    if (modelType == IO::MODEL_TYPES::NONE) {
+    if (modelType == IO::MODEL_TYPES::NONE)
+    {
         Validator::throwValueFlagInvalidException("model");
+        return EXIT_FAILURE;
+    }
+
+    if ((IO::getLossyCompressionType(lossyCompression->Get()) == IO::LOSSY_COMPRESSION_TYPES::DCT) &&
+        (conversionType == IO::CONVERSION_TYPES::NATIVE_BW || conversionType == IO::CONVERSION_TYPES::NATIVE_COLORFUL))
+    {
+        Validator::throwValueFlagInvalidException("lossy compression is not available with palette conversion");
         return EXIT_FAILURE;
     }
 
@@ -107,10 +116,10 @@ int Encode::handle()
     }
 
     int result = Pipeline::handleEncode(
-        input, 
-        conversionType, 
-        bitType, 
-        modelType, 
+        input,
+        conversionType,
+        bitType,
+        modelType,
         IO::getLosslessCompressionType(losslessCompression->Get()),
         IO::getLossyCompressionType(lossyCompression->Get()),
         IO::getSamplingType(sampling->Get()),
@@ -120,7 +129,8 @@ int Encode::handle()
 
     outputStream.close();
 
-    if (result != EXIT_SUCCESS) {
+    if (result != EXIT_SUCCESS)
+    {
         return EXIT_FAILURE;
     }
 

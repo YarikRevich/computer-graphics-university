@@ -432,25 +432,10 @@ public:
     static std::vector<int> decompressLZWImageInt(Processor::LZWResult<int>* src);
 
     /**
-     * Compresses provided image using Uint16 using DCT compression.
-     * 
-     * @param image - given non compressed CGU image.
-     * @return compressed CGU image.
-     */
-    static std::vector<Uint16> compressDCTImageUint16(std::vector<Uint16> image, SDL_Surface* input);
-
-    /**
-     * Decompresses provided image using Uint16 using DCT compression.
-     * 
-     * @param image - given compressed CGU image.
-     * @return decompressed CGU image.
-     */
-    static std::vector<Uint16> decompressDCTImageUint16(std::vector<Uint16> src, int height, int width);
-
-    /**
      * Compresses provided image using Uint8 using DCT compression.
      * 
      * @param image - given non compressed CGU image.
+     * @param input - given input.
      * @return compressed CGU image.
      */
     static std::vector<Uint8> compressDCTImageUint8(std::vector<Uint8> image, SDL_Surface* input);
@@ -467,6 +452,7 @@ public:
      * Compresses provided image using int using DCT compression.
      * 
      * @param image - given non compressed CGU image.
+     * @param input - given input.
      * @return compressed CGU image.
      */
     static std::vector<int> compressDCTImageInt(std::vector<int> image, SDL_Surface* input);
@@ -478,6 +464,82 @@ public:
      * @return decompressed CGU image.
      */
     static std::vector<int> decompressDCTImageInt(std::vector<int> src, int height, int width);
+
+    /**
+     * Applies filter to the provided image using Differential method.
+     * 
+     * @param image - given CGU image.
+     * @param input - given input.
+     * @return filtered CGU image.
+     */
+    static std::vector<int> applyDifferentialFilterInt(std::vector<int> image, SDL_Surface* input);
+
+    /**
+     * Reverts filter from the provided image using Differential method.
+     * 
+     * @param image - given CGU image.
+     * @param height - given CGU image height.
+     * @param width - given CGU image width.
+     * @return reverted CGU image.
+     */
+    static std::vector<int> revertDifferentialFilterInt(std::vector<int> image, int height, int width);
+
+    /**
+     * Applies filter to the provided image using Line Difference method.
+     * 
+     * @param image - given CGU image.
+     * @param input - given input.
+     * @return filtered CGU image.
+     */
+    static std::vector<int> applyLineDifferenceFilterInt(std::vector<int> image, SDL_Surface* input);
+
+    /**
+     * Reverts filter from the provided image using Line Difference method.
+     * 
+     * @param image - given CGU image.
+     * @param height - given CGU image height.
+     * @param width - given CGU image width.
+     * @return reverted CGU image.
+     */
+    static std::vector<int> revertLineDifferenceFilterInt(std::vector<int> image, int height, int width);
+
+    /**
+     * Applies filter to the provided image using Average method.
+     * 
+     * @param image - given CGU image.
+     * @param input - given input.
+     * @return filtered CGU image.
+     */
+    static std::vector<int> applyAverageFilterInt(std::vector<int> image, SDL_Surface* input);
+
+    /**
+     * Reverts filter from the provided image using Average method.
+     * 
+     * @param image - given CGU image.
+     * @param height - given CGU image height.
+     * @param width - given CGU image width.
+     * @return reverted CGU image.
+     */
+    static std::vector<int> revertAverageFilterInt(std::vector<int> image, int height, int width);
+
+    /**
+     * Applies filter to the provided image using Paeth method.
+     * 
+     * @param image - given CGU image.
+     * @param input - given input.
+     * @return filtered CGU image.
+     */
+    static std::vector<int> applyPaethFilterInt(std::vector<int> image, SDL_Surface* input);
+
+    /**
+     * Reverts filter from the provided image using Paeth method.
+     * 
+     * @param image - given CGU image.
+     * @param height - given CGU image height.
+     * @param width - given CGU image width.
+     * @return reverted CGU image.
+     */
+    static std::vector<int> revertPaethFilterInt(std::vector<int> image, int height, int width);
 
     /**
      * Saves CGU file metadata struct with the given arguments.

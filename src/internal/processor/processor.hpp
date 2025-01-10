@@ -567,6 +567,11 @@ public:
     template<typename T>
     static void generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], T output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
 
+    /**
+     * 
+     */
+    static int getPaethPredictor(int a, int b, int c);
+
 private:
     /**
      * Checks if the given colors are equal.
