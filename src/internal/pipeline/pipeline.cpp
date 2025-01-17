@@ -376,13 +376,7 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressByteRunImageUint8(compressionBuffer);
 
-                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-                {
-                    decompressedBuffer =
-                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
-                }
-
-                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+                for (int i = 0; i < decompressedBuffer.size(); i += 3)
                 {
                     std::vector<Uint8> internal;
 
@@ -402,13 +396,7 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressRLEImageUint8(compressionBuffer);
 
-                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-                {
-                    decompressedBuffer =
-                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
-                }
-
-                for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
+                for (int i = 0; i < decompressedBuffer.size(); i += 3)
                 {
                     std::vector<Uint8> internal;
 
@@ -451,12 +439,6 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 auto decompressedBuffer = Service::decompressLZWImageUint8(new Processor::LZWResult<Uint8>(compounds, compressionBuffer));
 
-                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-                {
-                    decompressedBuffer =
-                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
-                }
-
                 for (int i = 0; i < decompressedBuffer.size(); i += 3)
                 {
                     std::vector<Uint8> internal;
@@ -492,12 +474,6 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
 
                 auto decompressedBuffer = Service::decompressLZ77ImageUint8(serializedBuffer);
 
-                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-                {
-                    decompressedBuffer =
-                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
-                }
-
                 for (int i = 0; i < decompressedBuffer.size(); i += 3)
                 {
                     std::vector<Uint8> internal;
@@ -515,12 +491,6 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
                 std::vector<Uint8> compressionBuffer(metadata->getWidth() * metadata->getHeight() * 3, 0);
 
                 inputStream.read((char *)(compressionBuffer.data()), metadata->getWidth() * metadata->getHeight() * 3 * sizeof(Uint8));
-
-                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-                {
-                    compressionBuffer =
-                        Service::decompressDCTImageUint8(compressionBuffer, metadata->getHeight(), metadata->getWidth());
-                }
 
                 for (int i = 0; i < metadata->getWidth() * metadata->getHeight() * 3; i += 3)
                 {
@@ -697,11 +667,6 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
             inputStream.read((char *)(input.data()), input.size() * sizeof(int));
         }
 
-        if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-        {
-            input = Service::decompressDCTImageInt(input, metadata->getHeight(), metadata->getWidth());
-        }
-
         if (metadata->getFilter() == IO::FILTER_TYPES::DIFFERENTIAL) {
             input = Service::revertDifferentialFilterInt(input, metadata->getHeight(), metadata->getWidth());
 
@@ -714,6 +679,11 @@ SDL_Surface *Pipeline::handleView(std::ifstream &inputStream, bool debug)
         } else if (metadata->getFilter() == IO::FILTER_TYPES::PAETH)
         {
             input = Service::revertPaethFilterInt(input, metadata->getHeight(), metadata->getWidth());
+        }
+
+        if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+        {
+            input = Service::decompressDCTImageInt(input, metadata->getHeight(), metadata->getWidth());
         }
 
         for (auto &value : input)
@@ -1160,12 +1130,6 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressByteRunImageUint8(compressionBuffer);
 
-                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-                {
-                    decompressedBuffer =
-                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
-                }
-
                 for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
                 {
                     std::vector<Uint8> internal;
@@ -1185,12 +1149,6 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
                 inputStream.read((char *)(compressionBuffer.data()), metadata->getLosslessCompressionSize() * sizeof(Uint8));
 
                 std::vector<Uint8> decompressedBuffer = Service::decompressRLEImageUint8(compressionBuffer);
-
-                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-                {
-                    decompressedBuffer =
-                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
-                }
 
                 for (int i = 0; i < metadata->getLosslessCompressionSize(); i += 3)
                 {
@@ -1235,12 +1193,6 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
 
                 auto decompressedBuffer = Service::decompressLZWImageUint8(new Processor::LZWResult<Uint8>(compounds, compressionBuffer));
 
-                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-                {
-                    decompressedBuffer =
-                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
-                }
-
                 for (int i = 0; i < decompressedBuffer.size(); i += 3)
                 {
                     std::vector<Uint8> internal;
@@ -1276,12 +1228,6 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
 
                 auto decompressedBuffer = Service::decompressLZ77ImageUint8(serializedBuffer);
 
-                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-                {
-                    decompressedBuffer =
-                        Service::decompressDCTImageUint8(decompressedBuffer, metadata->getHeight(), metadata->getWidth());
-                }
-
                 for (int i = 0; i < decompressedBuffer.size(); i += 3)
                 {
                     std::vector<Uint8> internal;
@@ -1299,12 +1245,6 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
                 std::vector<Uint8> compressionBuffer(metadata->getWidth() * metadata->getHeight() * 3, 0);
 
                 inputStream.read((char *)(compressionBuffer.data()), metadata->getWidth() * metadata->getHeight() * 3 * sizeof(Uint8));
-
-                if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-                {
-                    compressionBuffer =
-                        Service::decompressDCTImageUint8(compressionBuffer, metadata->getHeight(), metadata->getWidth());
-                }
 
                 for (int i = 0; i < metadata->getWidth() * metadata->getHeight() * 3; i += 3)
                 {
@@ -1481,11 +1421,6 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
             inputStream.read((char *)(input.data()), input.size() * sizeof(int));
         }
 
-        if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
-        {
-            input = Service::decompressDCTImageInt(input, metadata->getHeight(), metadata->getWidth());
-        }
-
         if (metadata->getFilter() == IO::FILTER_TYPES::DIFFERENTIAL) {
             input = Service::revertDifferentialFilterInt(input, metadata->getHeight(), metadata->getWidth());
 
@@ -1498,6 +1433,11 @@ int Pipeline::handleDecode(std::ifstream &inputStream, bool debug, IO::FILE_TYPE
         } else if (metadata->getFilter() == IO::FILTER_TYPES::PAETH)
         {
             input = Service::revertPaethFilterInt(input, metadata->getHeight(), metadata->getWidth());
+        }
+
+        if (metadata->getLossyCompression() == IO::LOSSY_COMPRESSION_TYPES::DCT)
+        {
+            input = Service::decompressDCTImageInt(input, metadata->getHeight(), metadata->getWidth());
         }
 
         for (auto &value : input)
@@ -1750,23 +1690,6 @@ int Pipeline::handleEncode(
                 for (Uint8 compound : value)
                 {
                     compressionBuffer.push_back(compound);
-                }
-            }
-
-            if (filterType == IO::FILTER_TYPES::PAETH)
-            {
-                // compressionBuffer = Service::applyPaethFilterInt(compressionBuffer, input);
-            }
-
-            if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT)
-            {
-                compressionBuffer = Service::compressDCTImageUint8(compressionBuffer, input);
-
-                if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
-                {
-                }
-                else
-                {
                 }
             }
 
@@ -2194,28 +2117,16 @@ int Pipeline::handleEncode(
                 }
             }
 
-            if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT)
-            {
-                compressionBuffer = Service::compressDCTImageUint8(compressionBuffer, input);
-
-                if (conversionType == IO::CONVERSION_TYPES::NATIVE_BW)
-                {
-                }
-                else
-                {
-                }
-            }
-
             if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
             {
-                std::vector<Sint8> sevenBitColorsCompressed = Service::compressByteRunImageUint8(compressionBuffer);
+                std::vector<Sint8> twentyFourBitColorsCompressed = Service::compressByteRunImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
                     conversionType,
                     bitType,
                     modelType,
                     losslessCompressionType,
-                    sevenBitColorsCompressed.size(),
+                    twentyFourBitColorsCompressed.size(),
                     lossyCompressionType,
                     samplingType,
                     filterType,
@@ -2225,18 +2136,18 @@ int Pipeline::handleEncode(
                     0,
                     outputStream);
 
-                outputStream.write((char *)(sevenBitColorsCompressed.data()), sevenBitColorsCompressed.size() * sizeof(Sint8));
+                outputStream.write((char *)(twentyFourBitColorsCompressed.data()), twentyFourBitColorsCompressed.size() * sizeof(Sint8));
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::RLE)
             {
-                std::vector<Uint8> sevenBitColorsCompressed = Service::compressRLEImageUint8(compressionBuffer);
+                std::vector<Uint8> twentyFourBitColorsCompressed = Service::compressRLEImageUint8(compressionBuffer);
 
                 Service::saveMetadata(
                     conversionType,
                     bitType,
                     modelType,
                     losslessCompressionType,
-                    sevenBitColorsCompressed.size(),
+                    twentyFourBitColorsCompressed.size(),
                     lossyCompressionType,
                     samplingType,
                     filterType,
@@ -2246,7 +2157,7 @@ int Pipeline::handleEncode(
                     0,
                     outputStream);
 
-                outputStream.write((char *)(sevenBitColorsCompressed.data()), sevenBitColorsCompressed.size() * sizeof(Uint8));
+                outputStream.write((char *)(twentyFourBitColorsCompressed.data()), twentyFourBitColorsCompressed.size() * sizeof(Uint8));
             }
             else if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::LZW)
             {
@@ -2257,7 +2168,7 @@ int Pipeline::handleEncode(
                     bitType,
                     modelType,
                     losslessCompressionType,
-                    twentyFourBitColorsCompressed->getResult().size(),
+                    twentyFourBitColorsCompressed->getResult().size() * 3,
                     lossyCompressionType,
                     samplingType,
                     filterType,
@@ -2295,7 +2206,7 @@ int Pipeline::handleEncode(
                     bitType,
                     modelType,
                     losslessCompressionType,
-                    twentyFourBitColorsCompressed.size() * 3,
+                    conversionType == IO::CONVERSION_TYPES::NATIVE_COLORFUL ? twentyFourBitColorsCompressed.size() * 3 : twentyFourBitColorsCompressed.size() * 6,
                     lossyCompressionType,
                     samplingType,
                     filterType,
@@ -2356,21 +2267,85 @@ int Pipeline::handleEncode(
 
         std::vector<SDL_Color> image = Processor::getCompleteBitColorMap(input);
 
-        Processor::BucketResult *result;
+        switch (modelType)
+        {
+        case IO::MODEL_TYPES::YCBCR:
+            Service::convertToYCbCr(image);
 
-        if (conversionType == IO::CONVERSION_TYPES::PALETTE_COLORFUL)
-        {
-            result = Processor::generateColorBucketsRGB(input, image);
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+            {
+                Service::convertToYCbCrBW(image);
+            }
+
+            break;
+        case IO::MODEL_TYPES::YIQ:
+            Service::convertToYIQ(image);
+
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+            {
+                Service::convertToYIQBW(image);
+            }
+
+            break;
+        case IO::MODEL_TYPES::YUV:
+            Service::convertToYUV(image);
+
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+            {
+                Service::convertToYUVBW(image);
+            }
+
+            break;
+        case IO::MODEL_TYPES::HSL:
+            Service::convertToHSL(image);
+
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+            {
+                Service::convertToHSLBW(image);
+            }
+
+            break;
+        case IO::MODEL_TYPES::RGB:
+            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+            {
+                Service::convertToRGBBW(image);
+            }
         }
-        else if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
+
+        if (samplingType == IO::SAMPLING_TYPES::FOUR_TWO_ONE)
         {
-            result =
-                Processor::generateColorBucketsBW(input, image);
+            if (modelType == IO::MODEL_TYPES::RGB)
+            {
+                image = Service::sampleFourToOneRGB(image, input);
+            }
+            else if (modelType == IO::MODEL_TYPES::YUV)
+            {
+                image = Service::sampleFourToOneYUV(image, input);
+            }
+            else if (modelType == IO::MODEL_TYPES::YIQ)
+            {
+                image = Service::sampleFourToOneYIQ(image, input);
+            }
+            else if (modelType == IO::MODEL_TYPES::YCBCR)
+            {
+                image = Service::sampleFourToOneYCbCr(image, input);
+            }
+            else if (modelType == IO::MODEL_TYPES::HSL)
+            {
+                image = Service::sampleFourToOneHSL(image, input);
+            }
         }
+
+        Processor::BucketResult *result = Processor::generateColorBucketsRGB(input, image);
 
         std::optional<std::map<int, std::vector<int>>> compounds;
 
         std::vector<int> indeces = result->getIndeces();
+
+        if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT)
+        {
+            indeces = Service::compressDCTImageInt(indeces, input);
+        }
 
         if (filterType == IO::FILTER_TYPES::DIFFERENTIAL) {
             indeces = Service::applyDifferentialFilterInt(indeces, input);
@@ -2384,11 +2359,6 @@ int Pipeline::handleEncode(
         } else if (filterType == IO::FILTER_TYPES::PAETH)
         {
             indeces = Service::applyPaethFilterInt(indeces, input);
-        }
-
-        if (lossyCompressionType == IO::LOSSY_COMPRESSION_TYPES::DCT)
-        {
-            indeces = Service::compressDCTImageInt(indeces, input);
         }
 
         if (losslessCompressionType == IO::LOSSLESS_COMPRESSION_TYPES::BYTE_RUN)
@@ -2437,75 +2407,6 @@ int Pipeline::handleEncode(
             outputStream);
 
         std::vector<SDL_Color> internal = result->getColors();
-
-        switch (modelType)
-        {
-        case IO::MODEL_TYPES::YCBCR:
-            Service::convertToYCbCr(internal);
-
-            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
-            {
-                Service::convertToYCbCrBW(internal);
-            }
-
-            break;
-        case IO::MODEL_TYPES::YIQ:
-            Service::convertToYIQ(internal);
-
-            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
-            {
-                Service::convertToYIQBW(internal);
-            }
-
-            break;
-        case IO::MODEL_TYPES::YUV:
-            Service::convertToYUV(internal);
-
-            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
-            {
-                Service::convertToYUVBW(internal);
-            }
-
-            break;
-        case IO::MODEL_TYPES::HSL:
-            Service::convertToHSL(internal);
-
-            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
-            {
-                Service::convertToHSLBW(internal);
-            }
-
-            break;
-        case IO::MODEL_TYPES::RGB:
-            if (conversionType == IO::CONVERSION_TYPES::PALETTE_BW)
-            {
-                Service::convertToRGBBW(internal);
-            }
-        }
-
-        if (samplingType == IO::SAMPLING_TYPES::FOUR_TWO_ONE)
-        {
-            if (modelType == IO::MODEL_TYPES::RGB)
-            {
-                internal = Service::sampleFourToOneRGB(internal, input);
-            }
-            else if (modelType == IO::MODEL_TYPES::YUV)
-            {
-                internal = Service::sampleFourToOneYUV(internal, input);
-            }
-            else if (modelType == IO::MODEL_TYPES::YIQ)
-            {
-                internal = Service::sampleFourToOneYIQ(internal, input);
-            }
-            else if (modelType == IO::MODEL_TYPES::YCBCR)
-            {
-                internal = Service::sampleFourToOneYCbCr(internal, input);
-            }
-            else if (modelType == IO::MODEL_TYPES::HSL)
-            {
-                internal = Service::sampleFourToOneHSL(internal, input);
-            }
-        }
 
         if (bitType == IO::BIT_TYPES::SEVEN)
         {

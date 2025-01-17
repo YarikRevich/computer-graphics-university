@@ -139,7 +139,7 @@ public:
         int indecesSize = 0;
 
     public:
-        static const uint8_t COMPATIBLE_FLAG = 13;
+        static const uint8_t COMPATIBLE_FLAG = 15;
 
         static const uint8_t DITHERING_FLAG = 14;
 

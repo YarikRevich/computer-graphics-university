@@ -432,23 +432,6 @@ public:
     static std::vector<int> decompressLZWImageInt(Processor::LZWResult<int>* src);
 
     /**
-     * Compresses provided image using Uint8 using DCT compression.
-     * 
-     * @param image - given non compressed CGU image.
-     * @param input - given input.
-     * @return compressed CGU image.
-     */
-    static std::vector<Uint8> compressDCTImageUint8(std::vector<Uint8> image, SDL_Surface* input);
-
-    /**
-     * Decompresses provided image using Uint8 using DCT compression.
-     * 
-     * @param image - given compressed CGU image.
-     * @return decompressed CGU image.
-     */
-    static std::vector<Uint8> decompressDCTImageUint8(std::vector<Uint8> src, int height, int width);
-
-    /**
      * Compresses provided image using int using DCT compression.
      * 
      * @param image - given non compressed CGU image.

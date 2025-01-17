@@ -96,14 +96,6 @@ public:
     };
 
     /**
-     * Generates color buckets from the given color bit map using MedianCut algorithm in BW mode.
-     *
-     * @param image - given image colors bit map.
-     * @return result bucket.
-     */
-    static BucketResult *generateColorBucketsBW(SDL_Surface *surface, std::vector<SDL_Color> &image);
-
-    /**
      * Generates color buckets from the given color bit map using MedianCut algorithm in RGB mode.
      *
      * @param surface - surface intended to be scanned.

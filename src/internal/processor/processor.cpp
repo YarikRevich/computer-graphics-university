@@ -317,28 +317,6 @@ std::vector<int> Processor::BucketResult::getIndeces()
     return indeces;
 }
 
-Processor::BucketResult *Processor::generateColorBucketsBW(SDL_Surface *surface, std::vector<SDL_Color> &image)
-{
-    std::vector<int> result;
-
-    std::vector<SDL_Color> colors = generateMedianCutBWSelection(image, getPixelAmount(surface));
-
-    SDL_Color color, nearestColor;
-    for (int x = 0; x < surface->w; x++)
-    {
-        for (int y = 0; y < surface->h; y++)
-        {
-            color = getPixel(surface, x, y);
-
-            nearestColor = getNearestColorBW(colors, 0.299 * color.r + 0.587 * color.g + 0.114 * color.b);
-
-            result.push_back(getColorIndex(colors, nearestColor));
-        }
-    }
-
-    return new BucketResult(colors, result);
-};
-
 Processor::BucketResult *Processor::generateColorBucketsRGB(SDL_Surface *surface, std::vector<SDL_Color> &image)
 {
     std::vector<int> result;
@@ -1458,65 +1436,6 @@ void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_
 template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint16 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
 template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], Uint8 output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
 template void Processor::generateInversedDCTMatrix(float input[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE], int output[DCT_BLOCK_SIZE][DCT_BLOCK_SIZE]);
-
-// int sx = BLOCK_SIZE / 2; 
-//             int sy = BLOCK_SIZE - 1; 
-
-//             bool goingUpRight = true; 
-
-//             while (true)
-//             {
-//                 dctMatrix[sx][sy] = 0;
-
-//                 if (goingUpRight)
-//                 {
-//                     if (sx + 1 < BLOCK_SIZE && sy - 1 >= 0)
-//                     {
-//                         sx++;
-//                         sy--;
-//                     }
-//                     else
-//                     {
-//                         goingUpRight = false;
-
-//                         if (sy + 1 < BLOCK_SIZE)
-//                         {
-//                             sy++; 
-//                         }
-//                         else
-//                         {
-//                             break;
-//                         }
-//                     }
-//                 }
-//                 else
-//                 {
-//                     if (sx - 1 >= 0 && sy + 1 < BLOCK_SIZE)
-//                     {
-//                         sx--;
-//                         sy++;
-//                     }
-//                     else
-//                     {
-//                         goingUpRight = true;
-
-//                         if (sx + 1 < BLOCK_SIZE)
-//                         {
-//                             sx++;
-//                         }
-//                         else
-//                         {
-//                             break;
-//                         }
-//                     }
-//                 }
-
-//                 if (sx == BLOCK_SIZE - 1 && sy == 0)
-//                 {
-//                     break;
-//                 }
-//             }
-
 
 int Processor::getPaethPredictor(int a, int b, int c) {
     int p = a + b - c;      
