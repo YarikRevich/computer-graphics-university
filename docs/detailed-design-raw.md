@@ -32,9 +32,9 @@ end
 opt "decode"
 handler -> io: read given image file
 io -> handler: backed image surface
-handler -> io: decerialize file metadata to retrieve conversion type
+handler -> io: decerialize file metadata
 io -> handler: decerialized file metadata structure
-handler -> converter: convert from the CGU to the requested image type with the specified conversion type
+handler -> converter: convert from the CGU to the requested image type
 converter -> processor: perform sub operations to complete conversion operation
 converter -> handler: updated image surface 
 handler -> io: write down update image surface as an image of the requested type
@@ -43,7 +43,7 @@ end
 opt "view"
 handler -> io: read given image file
 io -> handler: backed image surface
-handler -> io: decerialize file metadata to retrieve conversion type
+handler -> io: decerialize file metadata
 io -> handler: decerialized file metadata structure
 handler -> window: open window with the given image surface
 end
@@ -51,7 +51,7 @@ end
 
 opt "commands"
 opt "encode"
-client -> handler: perform encode operation of the given input image\nwith the mentioned conversion type
+client -> handler: perform encode operation of the given input image\nwith the mentioned conversion settings
 end
 opt "decode"
 client -> handler: perform decode operation for the given image in CGU format
